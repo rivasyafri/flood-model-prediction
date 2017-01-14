@@ -1,6 +1,7 @@
 package com.mofp.framework.model;
 
 import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 
@@ -14,34 +15,34 @@ public class LandCoverRef {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator="land_cover_ref_id_seq")
     @SequenceGenerator(name="land_cover_ref_id_seq", sequenceName="land_cover_ref_id_seq", allocationSize=1)
-    @Getter
+    @Getter @Setter
     private Long id;
 
     @Column(nullable = false)
-    @Getter
+    @Getter @Setter
     private Double initialInfiltrationCapacity;
 
     @Column(nullable = false)
-    @Getter
+    @Getter @Setter
     private Double constantInfiltrationCapacity;
 
     @Column(nullable = false)
-    @Getter
+    @Getter @Setter
     private Double valueK;
 
     @Column
-    @Getter
+    @Getter @Setter
     private Double LAI;
 
     @Column
-    @Getter
+    @Getter @Setter
     private Double initialwaterBalance;
 
     @Column
-    @Getter
+    @Getter @Setter
     private Double numerator;
 
     @Column
-    @Getter
+    @Getter @Setter
     private Double denominator;
 }
