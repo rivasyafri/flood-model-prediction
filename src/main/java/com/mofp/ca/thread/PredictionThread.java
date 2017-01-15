@@ -1,6 +1,7 @@
 package com.mofp.ca.thread;
 
 import com.mofp.ca.dao.ProjectRepository;
+import com.mofp.ca.model.GlobalFloodPrediction;
 import com.mofp.ca.model.Project;
 import com.mofp.ca.service.ProjectService;
 import lombok.Getter;
@@ -27,10 +28,13 @@ public class PredictionThread implements Runnable {
     private ProjectRepository projectRepository;
 
     @Setter
-    String name;
-
+    private String name;
     @Setter
     private Project project;
+    @Getter
+    private boolean finished = false;
+
+    public GlobalFloodPrediction GLOBAL = new GlobalFloodPrediction();
 
     public PredictionThread(String name) {
         this.name = name;
@@ -41,10 +45,12 @@ public class PredictionThread implements Runnable {
         // Add process prediction here
         logger.debug(name + " is running");
         // For all Cell in Grid, calculate runoff
-
+        GLOBAL.initialize();
+        GLOBAL.run();
         logger.debug(name + " is finished");
         // When done
         project.setDone(true);
         projectRepository.save(project);
+        this.finished = true;
     }
 }

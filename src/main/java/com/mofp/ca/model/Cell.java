@@ -67,6 +67,12 @@ public class Cell extends AbstractProjectAttribute {
     @Getter @Setter
     private double initialInfiltrationCapacity;
 
+    @Getter @Setter
+    private double kValue;
+
+    @Getter @Setter
+    private int timeStartFlooded;
+
     public Cell(int xArray, int yArray, State state) {
         this.xArray = xArray;
         this.yArray = yArray;

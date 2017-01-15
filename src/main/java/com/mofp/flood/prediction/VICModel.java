@@ -21,8 +21,7 @@ public class VICModel extends AbstractFloodModel {
         }
     }
 
-    @Override
-    public String toString() {
-        return "VIC Model";
+    public static String getModelName() {
+        return "VIC";
     }
 }

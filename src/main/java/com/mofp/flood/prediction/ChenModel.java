@@ -18,8 +18,7 @@ public class ChenModel extends AbstractFloodModel {
         return infiltration * omega;
     }
 
-    @Override
-    public String toString() {
-        return "Chen Model";
+    public static String getModelName() {
+        return "Chen";
     }
 }

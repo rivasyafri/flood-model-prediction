@@ -6,7 +6,7 @@ package com.mofp.flood.prediction.support;
 public abstract class AbstractFloodModel {
 
     /**
-     * Global calculation (without evapotranspiration) to calculate run off
+     * GlobalFloodPrediction calculation (without evapotranspiration) to calculate run off
      * @param precipitation
      * @param saving
      * @return runoff = precipitation - saving
@@ -16,7 +16,7 @@ public abstract class AbstractFloodModel {
     }
 
     /**
-     * Global calculation to calculate run off
+     * GlobalFloodPrediction calculation to calculate run off
      * @param precipitation
      * @param saving
      * @param evapotranspiration

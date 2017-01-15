@@ -7,8 +7,7 @@ import com.mofp.flood.prediction.support.AbstractFloodModel;
  */
 public class PrasetyaModel extends AbstractFloodModel {
 
-    @Override
-    public String toString() {
-        return "Prasetya Model";
+    public static String getModelName() {
+        return "Prasetya";
     }
 }
