@@ -7,10 +7,12 @@ import lombok.Setter;
 
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.MappedSuperclass;
 
 /**
- * Created by rivas on 1/14/2017.
+ * @author rivasyafri
  */
+@MappedSuperclass
 public abstract class AbstractFloodAttribute<T> extends MovingObject<T> {
 
     @ManyToOne

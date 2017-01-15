@@ -7,10 +7,12 @@ import lombok.Setter;
 
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.MappedSuperclass;
 
 /**
  * @author rivasyafri
  */
+@MappedSuperclass
 public abstract class AbstractCellAttribute<T> extends MovingObject<T> {
 
     @ManyToOne
