@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.PriorityQueue;
 import java.util.Random;
 
 /**
@@ -30,8 +31,8 @@ public class GlobalFloodPrediction {
 
     //// ************************** Public Variables *************************************** ////
     public Cell[][] MATRIX;
-    public ArrayList<Cell> ACTIVE_CELLS;
-    public ArrayList<Cell> NEW_ACTIVE_CELLS;
+    public PriorityQueue<Cell> ACTIVE_CELLS;
+    public PriorityQueue<Cell> NEW_ACTIVE_CELLS;
     public Random RANDOM_GENERATOR;
 
     //// ************************** Constant State *************************************** ////
@@ -47,9 +48,8 @@ public class GlobalFloodPrediction {
         NEIGHBORHOOD = new Neighborhood();
         NEIGHBOR = NEIGHBORHOOD.use("moore");
 
-        // Calculation how many cells in here
-        ACTIVE_CELLS = new ArrayList<>();
-        NEW_ACTIVE_CELLS = new ArrayList<>();
+        ACTIVE_CELLS = new PriorityQueue<>();
+        NEW_ACTIVE_CELLS = new PriorityQueue<>();
         RANDOM_GENERATOR = new Random();
     }
 
@@ -62,23 +62,24 @@ public class GlobalFloodPrediction {
                 MATRIX[y][x] = new Cell(x, y, DRY_STATE);
             }
         }
+        // Add initialize data from database
     }
 
     public void run() {
         for (int timeStep = 0; timeStep < INTERVAL; timeStep = timeStep + TIME_STEP) {
             calculateRunOffForAllCells("", timeStep);
-            for (Cell activeCell: ACTIVE_CELLS) {
+            while (ACTIVE_CELLS.size() != 0) {
+                Cell activeCell = ACTIVE_CELLS.poll();
                 runInundationModel(activeCell);
-                ACTIVE_CELLS.remove(activeCell);
             }
             ACTIVE_CELLS = NEW_ACTIVE_CELLS;
-            NEW_ACTIVE_CELLS = new ArrayList<>();
-            for (Cell activeCell: ACTIVE_CELLS) {
+            NEW_ACTIVE_CELLS = new PriorityQueue<>();
+            while (ACTIVE_CELLS.size() != 0) {
+                Cell activeCell = ACTIVE_CELLS.poll();
                 runInundationModel(activeCell);
-                ACTIVE_CELLS.remove(activeCell);
             }
             ACTIVE_CELLS = NEW_ACTIVE_CELLS;
-            NEW_ACTIVE_CELLS = new ArrayList<>();
+            NEW_ACTIVE_CELLS = new PriorityQueue<>();
         }
     }
 
@@ -131,17 +132,44 @@ public class GlobalFloodPrediction {
 
     public void runInundationModel(Cell cell) {
         int _x, _y;
+        ArrayList<Cell> neighborCells = new ArrayList<>();
         for (int[][] i : NEIGHBOR) {
             for (int[] j : i) {
                 _x = j[0] + cell.getXArray();
                 _y = j[1] + cell.getYArray();
-                inundationModel(_x, _y);
+                if (_x > 0 && _y > 0) {
+                    neighborCells.add(MATRIX[_y][_x]);
+                }
             }
         }
-        inundationModel(cell.getXArray(), cell.getYArray());
-    }
+        double totalHeight = cell.getTotalHeight();
+        for (Cell neighborCell : neighborCells) {
+            totalHeight += neighborCell.getTotalHeight();
+        }
+        double averageOfTotalHeight = totalHeight / (neighborCells.size() + 1);
 
-    private void inundationModel(int dx, int dy) {
+        ArrayList<Cell> processedNeighborCells = new ArrayList<>();
+        for (Cell neighborCell: neighborCells) {
+            if (neighborCell.getTotalHeight() < averageOfTotalHeight &&
+                    neighborCell.getTotalHeight() < cell.getTotalHeight()) {
+                processedNeighborCells.add(neighborCell);
+            }
+        }
 
+        double inundation = cell.getWaterHeight() / (processedNeighborCells.size() + 1);
+        double deltaCenter = 0;
+        for (Cell processedNeighborCell: processedNeighborCells) {
+            if (processedNeighborCell.getTotalHeight() + inundation > cell.getTotalHeight()) {
+                double delta = cell.getTotalHeight() - processedNeighborCell.getTotalHeight();
+                processedNeighborCell.setWaterHeight(processedNeighborCell.getWaterHeight() + delta);
+                deltaCenter += inundation - delta;
+            } else {
+                processedNeighborCell.setWaterHeight(processedNeighborCell.getWaterHeight() + inundation);
+            }
+            if (!ACTIVE_CELLS.contains(processedNeighborCell)) {
+                ACTIVE_CELLS.add(processedNeighborCell);
+            }
+        }
+        cell.setWaterHeight(inundation + deltaCenter);
     }
 }

@@ -17,7 +17,7 @@ import java.util.Set;
  */
 @Entity
 @Table(name = "cell")
-public class Cell extends AbstractProjectAttribute {
+public class Cell extends AbstractProjectAttribute implements Comparable<Cell> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator="cell_id_seq")
@@ -59,6 +59,9 @@ public class Cell extends AbstractProjectAttribute {
     private double waterHeight;
 
     @Getter @Setter
+    private double totalHeight;
+
+    @Getter @Setter
     private double waterBalance;
 
     @Getter @Setter
@@ -80,6 +83,17 @@ public class Cell extends AbstractProjectAttribute {
             this.currentState = new State(state.getName());
         } else {
             this.currentState = null;
+        }
+    }
+
+    @Override
+    public int compareTo(Cell o) {
+        if (this.totalHeight == o.getTotalHeight()) {
+            return 0;
+        } else if (this.totalHeight < o.getTotalHeight()) {
+            return -1;
+        } else {
+            return 1;
         }
     }
 }
