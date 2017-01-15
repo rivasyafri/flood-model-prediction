@@ -1,6 +1,6 @@
-package com.mofp.flood.service;
+package com.mofp.flood.prediction;
 
-import com.mofp.flood.service.support.AbstractFloodModel;
+import com.mofp.flood.prediction.support.AbstractFloodModel;
 
 /**
  * @author rivasyafri

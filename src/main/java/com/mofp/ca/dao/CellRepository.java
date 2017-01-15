@@ -1,6 +1,6 @@
-package com.mofp.flood.dao;
+package com.mofp.ca.dao;
 
-import com.mofp.flood.model.Cell;
+import com.mofp.ca.model.Cell;
 import com.mofp.framework.dao.support.JpaSpecificationRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 

@@ -1,4 +1,4 @@
-package com.mofp.flood.service.support;
+package com.mofp.flood.prediction.support;
 
 /**
  * @author rivasyafri
@@ -6,7 +6,7 @@ package com.mofp.flood.service.support;
 public abstract class AbstractFloodModel {
 
     /**
-     * General calculation (without evapotranspiration) to calculate run off
+     * Global calculation (without evapotranspiration) to calculate run off
      * @param precipitation
      * @param saving
      * @return runoff = precipitation - saving
@@ -16,14 +16,18 @@ public abstract class AbstractFloodModel {
     }
 
     /**
-     * General calculation to calculate run off
+     * Global calculation to calculate run off
      * @param precipitation
      * @param saving
      * @param evapotranspiration
      * @return runoff = precipitation - saving - evapotranspiration
      */
     public double calculateRunOff(double precipitation, double saving, double evapotranspiration) {
-        return precipitation - saving - evapotranspiration;
+        double runOff = precipitation - saving - evapotranspiration;
+        if (runOff > 0) {
+            return runOff;
+        }
+        return 0;
     }
 
     /**

@@ -1,4 +1,4 @@
-package com.mofp.flood.service;
+package com.mofp.flood.prediction;
 
 /**
  * @author rivasyafri

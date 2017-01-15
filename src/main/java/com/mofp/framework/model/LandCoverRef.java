@@ -18,6 +18,10 @@ public class LandCoverRef {
     @Getter @Setter
     private Long id;
 
+    @Column(nullable = false, length = 100)
+    @Getter @Setter
+    private String name;
+
     @Column(nullable = false)
     @Getter @Setter
     private Double initialInfiltrationCapacity;
@@ -36,7 +40,7 @@ public class LandCoverRef {
 
     @Column
     @Getter @Setter
-    private Double initialwaterBalance;
+    private Double initialWaterBalance;
 
     @Column
     @Getter @Setter

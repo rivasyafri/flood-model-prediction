@@ -1,4 +1,4 @@
-package com.mofp.flood.service;
+package com.mofp.flood.prediction;
 
 import com.mofp.framework.util.UnitTemperature;
 
@@ -80,7 +80,7 @@ public class Evapotranspiration {
      * Calculate mean temperature
      * @param tMax maximum temperature per time interval
      * @param tMin minimum temperature per time interval
-     * @param unit unit of temperature (Celcius, Farenheit, Kelvin, Reaumur)
+     * @param unit type of temperature (Celcius, Farenheit, Kelvin, Reaumur)
      * @return mean temperature in Celcius
      */
     public static double getMeanTemperature(double tMax, double tMin, UnitTemperature unit) {
@@ -102,7 +102,7 @@ public class Evapotranspiration {
      * Calculate slope of saturated water vapor curve
      * @param tMax maximum temperature per time interval
      * @param tMin minimum temperature per time interval
-     * @param unit unit of temperature (Celcius, Farenheit, Kelvin, Reaumur)
+     * @param unit type of temperature (Celcius, Farenheit, Kelvin, Reaumur)
      * @return slope of saturated water vapor curve
      */
     public static double getSlopeOfSaturatedWaterVaporCurve(double tMax, double tMin, UnitTemperature unit) {
@@ -141,7 +141,7 @@ public class Evapotranspiration {
     /**
      * Calculate vapor pressure in certain temperature
      * @param t temperature
-     * @param unit unit temperature
+     * @param unit type temperature
      * @return et = 0.6108 * Math.exp((17.27 * t) / (t + 237.3))
      */
     public static double getVaporPressureInTemperature(double temperature, UnitTemperature unit) {
@@ -153,7 +153,7 @@ public class Evapotranspiration {
      * Calculate mean saturation vapor pressure
      * @param tMin minimum temperature in certain time
      * @param tMax maximum temperature in certain time
-     * @param unit unit temperature
+     * @param unit type temperature
      * @return mean saturation vapor pressure
      */
     public static double getMeanSaturationVaporPressure(double tMin, double tMax, UnitTemperature unit) {
@@ -166,7 +166,7 @@ public class Evapotranspiration {
     /**
      * Calculate mean saturation vapor pressure
      * @param tMean minimum temperature in certain time
-     * @param unit unit temperature
+     * @param unit type temperature
      * @return mean saturation vapor pressure
      */
     public static double getMeanSaturationVaporPressure(double tMean, UnitTemperature unit) {
@@ -178,7 +178,7 @@ public class Evapotranspiration {
      * Calculate actual vapor pressure with all data
      * @param tMin minimum temperature in certain time
      * @param tMax maximum temperature in certain time
-     * @param unit unit temperature
+     * @param unit type temperature
      * @param rhMax maximum relative humidity in certain time
      * @param rhMin maximum relative humidity in certain time
      * @return ea = (vaporPressureMin * rhMax / 100 + vaporPressureMax * rhMin / 100) / 2
@@ -195,7 +195,7 @@ public class Evapotranspiration {
     /**
      * Calculate actual vapor pressure with error in rhMin
      * @param t minimum temperature in certain time
-     * @param unit unit temperature
+     * @param unit type temperature
      * @param rh maximum relative humidity in certain time
      * @return ea = (vaporPressureMin * rhMax / 100 + vaporPressureMax * rhMin / 100) / 2
      */
@@ -209,7 +209,7 @@ public class Evapotranspiration {
      * Calculate actual vapor pressure with no data of rhMin and rhMax
      * @param tMin minimum temperature in certain time
      * @param tMax maximum temperature in certain time
-     * @param unit unit temperature
+     * @param unit type temperature
      * @param rhMean relative humidity in certain time
      * @return ea = (vaporPressureMin * rhMax / 100 + vaporPressureMax * rhMin / 100) / 2
      */
@@ -225,7 +225,7 @@ public class Evapotranspiration {
     /**
      * Convert temperature to Celcius
      * @param temperature
-     * @param fromUnit from unit (Kelvin, Farenheit, Reaumur)
+     * @param fromUnit from type (Kelvin, Farenheit, Reaumur)
      * @return
      */
     public static double convertTemperatureToCelcius(double temperature, UnitTemperature fromUnit) {

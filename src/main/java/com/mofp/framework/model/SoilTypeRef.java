@@ -18,6 +18,10 @@ public class SoilTypeRef {
     @Getter @Setter
     private Long id;
 
+    @Column(nullable = false, length = 100)
+    @Getter @Setter
+    private String name;
+
     @Column(nullable = false)
     @Getter @Setter
     private Double initialInfiltrationCapacity;

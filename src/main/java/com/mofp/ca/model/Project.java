@@ -1,9 +1,12 @@
 package com.mofp.ca.model;
 
+import com.mofp.flood.model.Flood;
 import lombok.Getter;
 import lombok.Setter;
+import org.postgresql.geometric.PGpolygon;
 
 import javax.persistence.*;
+import java.util.List;
 
 /**
  * Saving the project configuration
@@ -25,19 +28,31 @@ public class Project {
     @Getter @Setter
     private String name;
 
+    @Column
+    @Getter @Setter
+    private PGpolygon areaSimulation;
+
     @Column(nullable = false)
     @Getter @Setter
     private String description;
 
-    @Column(length = 255)
-    @Getter @Setter
-    private String cellspacePath;
-
-    @Column(length = 255)
-    @Getter @Setter
-    private String rulePath;
-
     @Column(nullable = false)
     @Getter @Setter
     private int cellSize;
+
+    @Column(nullable = false)
+    @Getter @Setter
+    private int timeStep;
+
+    @Column(nullable = false)
+    @Getter @Setter
+    private boolean isDone;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "project", cascade = CascadeType.ALL)
+    @Getter @Setter
+    private List<Cell> cellList;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "project", cascade = CascadeType.ALL)
+    @Getter @Setter
+    private List<Flood> floodList;
 }

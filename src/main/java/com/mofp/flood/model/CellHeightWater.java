@@ -1,6 +1,6 @@
 package com.mofp.flood.model;
 
-import com.mofp.flood.model.support.AbstractCellAtribute;
+import com.mofp.flood.model.support.AbstractCellAttribute;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,7 +11,7 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "cell_height_water")
-public class CellHeightWater extends AbstractCellAtribute<Double> {
+public class CellHeightWater extends AbstractCellAttribute<Double> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator="cell_height_water_id_seq")
