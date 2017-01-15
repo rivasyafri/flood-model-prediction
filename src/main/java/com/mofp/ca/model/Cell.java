@@ -10,6 +10,7 @@ import lombok.Setter;
 import org.postgresql.geometric.PGpolygon;
 
 import javax.persistence.*;
+import java.util.Random;
 import java.util.Set;
 
 /**
@@ -86,6 +87,10 @@ public class Cell extends AbstractProjectAttribute implements Comparable<Cell> {
         }
     }
 
+    public void updateTotalHeight() {
+        this.totalHeight = this.height + this.waterHeight;
+    }
+
     @Override
     public int compareTo(Cell o) {
         if (this.totalHeight == o.getTotalHeight()) {
@@ -95,5 +100,14 @@ public class Cell extends AbstractProjectAttribute implements Comparable<Cell> {
         } else {
             return 1;
         }
+    }
+
+    public void randomizeData() {
+        Random randomGenerator = new Random();
+        this.height = randomGenerator.nextDouble() * 10 + 10;
+        this.constantInfiltrationCapacity = randomGenerator.nextDouble();
+        this.initialInfiltrationCapacity = randomGenerator.nextDouble() * 15;
+        this.kValue = randomGenerator.nextDouble();
+        updateTotalHeight();
     }
 }

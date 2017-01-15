@@ -6,7 +6,6 @@ import com.mofp.flood.prediction.PrasetyaModel;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Random;
 
@@ -60,6 +59,7 @@ public class GlobalFloodPrediction {
         for (int y = 0; y < GridY; y++) {
             for (int x = 0; x < GridX; x++) {
                 MATRIX[y][x] = new Cell(x, y, DRY_STATE);
+                MATRIX[y][x].randomizeData(); // for experiment
             }
         }
         // Add initialize data from database
@@ -116,6 +116,7 @@ public class GlobalFloodPrediction {
                 // Set state, can add process to save the state
                 if (runOff > 0) {
                     cell.setWaterHeight(runOff);
+                    cell.updateTotalHeight();
                     if (cell.getTimeStartFlooded() > 0) {
                         cell.setCurrentState(WET_STATE);
                         cell.setTimeStartFlooded(timeStep);
@@ -123,6 +124,7 @@ public class GlobalFloodPrediction {
                     NEW_ACTIVE_CELLS.add(cell);
                 } else if (cell.getWaterHeight() > 0) {
                     cell.setWaterHeight(runOff);
+                    cell.updateTotalHeight();
                     cell.setCurrentState(DRY_STATE);
                     cell.setTimeStartFlooded(0);
                 }
@@ -169,7 +171,9 @@ public class GlobalFloodPrediction {
             if (!ACTIVE_CELLS.contains(processedNeighborCell)) {
                 ACTIVE_CELLS.add(processedNeighborCell);
             }
+            processedNeighborCell.updateTotalHeight();
         }
         cell.setWaterHeight(inundation + deltaCenter);
+        cell.updateTotalHeight();
     }
 }
