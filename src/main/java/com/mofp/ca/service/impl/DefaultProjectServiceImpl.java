@@ -22,9 +22,6 @@ public class DefaultProjectServiceImpl implements ProjectService {
     @Autowired
     private ProjectRepository projectRepository;
 
-    @Autowired
-    private PredictionThread predictionThread;
-
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Override
@@ -37,7 +34,7 @@ public class DefaultProjectServiceImpl implements ProjectService {
                 ApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
                 ThreadPoolTaskExecutor taskExecutor = (ThreadPoolTaskExecutor) context.getBean("taskExecutor");
                 if (taskExecutor.getActiveCount() == 0) {
-                    predictionThread = (PredictionThread) context.getBean("CellularAutomata");
+                    PredictionThread predictionThread = (PredictionThread) context.getBean("CellularAutomata");
                     predictionThread.setName("project id = " + id);
                     predictionThread.setProject(project);
                     taskExecutor.execute(predictionThread);

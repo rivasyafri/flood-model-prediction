@@ -46,7 +46,7 @@ public class Project {
 
     @Column(nullable = false)
     @Getter @Setter
-    private boolean isDone;
+    private boolean done;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "project", cascade = CascadeType.ALL)
     @Getter @Setter

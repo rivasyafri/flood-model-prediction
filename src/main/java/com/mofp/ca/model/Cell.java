@@ -51,31 +51,40 @@ public class Cell extends AbstractProjectAttribute implements Comparable<Cell> {
     private int yArray;
 
     @Getter @Setter
-    private State currentState;
+    @Transient
+    private transient State currentState;
 
     @Getter @Setter
-    private double height;
+    @Transient
+    private transient double height;
 
     @Getter @Setter
-    private double waterHeight;
+    @Transient
+    private transient double waterHeight;
 
     @Getter @Setter
-    private double totalHeight;
+    @Transient
+    private transient double totalHeight;
 
     @Getter @Setter
-    private double waterBalance;
+    @Transient
+    private transient double waterBalance;
 
     @Getter @Setter
-    private double constantInfiltrationCapacity;
+    @Transient
+    private transient double constantInfiltrationCapacity;
 
     @Getter @Setter
-    private double initialInfiltrationCapacity;
+    @Transient
+    private transient double initialInfiltrationCapacity;
 
     @Getter @Setter
-    private double kValue;
+    @Transient
+    private transient double kValue;
 
     @Getter @Setter
-    private int timeStartFlooded;
+    @Transient
+    private transient int timeStartFlooded;
 
     public Cell(int xArray, int yArray, State state) {
         this.xArray = xArray;
