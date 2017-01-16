@@ -1,6 +1,5 @@
 package com.mofp.ca.model;
 
-import com.mofp.ca.model.State;
 import com.mofp.flood.model.CellBalance;
 import com.mofp.flood.model.CellHeightWater;
 import com.mofp.flood.model.CellState;
