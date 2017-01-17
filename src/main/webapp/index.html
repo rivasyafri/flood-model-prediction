@@ -1,0 +1,98 @@
+<html>
+<head>
+    <title>Flood Simulator</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link href="css/index-new.css" rel="stylesheet">
+    <link href="css/terminal.css" rel="stylesheet">
+    <link href="css/custom.css" rel="stylesheet">
+    <script src="js/jquery-3.1.1.min.js" type="text/javascript"></script>
+    <!--<script src="js/jquery.form.min.js" type="text/javascript"></script>-->
+    <script src="js/tether.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/maps.js" type="text/javascript"></script>
+    <script src="js/database_connector.js" type="text/javascript"></script>
+    <script src="js/response_handler.js" type="text/javascript"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com"></script>
+    <script async defer
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB9zQClq-5pHvwZMZ_Qi6ENSRIkAfv2Q9g&callback=initMap"
+            type="text/javascript"></script>
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Metrophobic|Anonymous+Pro">
+    <script type='text/javascript'
+            src="http://cdnjs.cloudflare.com/ajax/libs/jquery-ajaxtransport-xdomainrequest/1.0.1/jquery.xdomainrequest.min.js"></script>
+    <script type="text/javascript" src="js/flow.js"></script>
+</head>
+<body>
+<div class="container-fluid">
+    <!--Load Projects-->
+    <div class="modal fade show" id="load-modal" tabindex="-1" role="dialog" aria-labelledby="LoadProjectLabel" style="display: block;">
+        <div class="modal-dialog">
+            <div class="loginmodal-container">
+                <h1>Flood Simulator</h1><br>
+                <form id="load-project">
+                    <div class="form-group">
+                        <label for="select-projects">Select Project:</label>
+                        <select class="form-control" id="select-projects">
+                        </select>
+                    </div>
+                    <input type="submit" name="load" id="btn-load-project" class="login loginmodal-submit" value="Load">
+                </form>
+
+                <div class="login-help">
+                    <a href="#" data-toggle="modal" data-target="#create-modal">Create a new Project</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--Create Project-->
+    <div class="modal fade" id="create-modal" tabindex="-1" role="dialog" aria-labelledby="CreateProjectLabel" style="display: none;">
+        <div class="modal-dialog">
+            <div class="loginmodal-container">
+                <h1>Create Project</h1><br>
+                <form id="create-project">
+                    <input type="text" name="project" id="txt-create-name" placeholder="Project Name">
+                    <input type="submit" name="create" id="btn-create-project" class="login loginmodal-submit" value="Create">
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!--Show the map-->
+    <div class="maps text-left" id="output-group">
+        <div id="data-output-maps">
+            <div id="map-visual"></div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        refreshSelect();
+
+        $("#select-projects").click(function () {
+            refreshSelect();
+        });
+
+        $("#btn-load-project").click(function (event) {
+            event.preventDefault();
+            var url = $('#select-projects').val();
+            var request = loadProject(url);
+            request.done(function (response, textStatus, jqXHR) {
+                alert("finally load success");
+                console.log(selectedProject);
+            });
+        });
+
+        $("#btn-create-project").click(function (event) {
+            event.preventDefault();
+            var projectName = $('#txt-create-name').val();
+            var request = createProject(projectName);
+            request.done(function (response, textStatus, jqXHR) {
+                alert("finally create success");
+            });
+        });
+    });
+</script>
+</body>
+</html>
