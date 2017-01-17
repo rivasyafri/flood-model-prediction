@@ -79,8 +79,8 @@
             var url = $('#select-projects').val();
             var request = loadProject(url);
             request.done(function (response, textStatus, jqXHR) {
-                alert("finally load success");
                 console.log(selectedProject);
+                removeShowInModal();
             });
         });
 
@@ -90,6 +90,7 @@
             var request = createProject(projectName);
             request.done(function (response, textStatus, jqXHR) {
                 alert("finally create success");
+                removeShowInModal();
             });
         });
     });

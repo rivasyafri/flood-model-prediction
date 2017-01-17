@@ -45,7 +45,6 @@ var loadProject = function(url) {
             withCredentials: false
         },
         success: function (data) {
-            console.log(data);
             selectedProject = data;
         }
     });
@@ -71,4 +70,11 @@ var createProject = function(name) {
         }
     });
     return request;
+};
+
+var removeShowInModal = function () {
+    $('.modal').removeClass('show');
+    setTimeout(function () {
+        $('.modal').css({ display: 'none'});
+    }, 1000);
 };
