@@ -6,6 +6,7 @@ import com.mofp.flood.model.CellState;
 import com.mofp.flood.model.support.AbstractProjectAttribute;
 import lombok.Getter;
 import lombok.Setter;
+import org.geolatte.geom.Geometry;
 import org.postgresql.geometric.PGpolygon;
 
 import javax.persistence.*;
@@ -27,7 +28,7 @@ public class Cell extends AbstractProjectAttribute implements Comparable<Cell> {
 
     @Column(nullable = false)
     @Getter @Setter
-    private PGpolygon area;
+    private Geometry area;
 
     // Flood = add more inferred variable here
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "cell", cascade = CascadeType.ALL)

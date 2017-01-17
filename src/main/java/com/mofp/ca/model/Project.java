@@ -3,7 +3,7 @@ package com.mofp.ca.model;
 import com.mofp.flood.model.Flood;
 import lombok.Getter;
 import lombok.Setter;
-import org.postgresql.geometric.PGpolygon;
+import org.geolatte.geom.Geometry;
 
 import javax.persistence.*;
 import java.util.List;
@@ -30,19 +30,19 @@ public class Project {
 
     @Column
     @Getter @Setter
-    private PGpolygon areaSimulation;
+    private Geometry areaSimulation;
 
-    @Column(nullable = false)
+    @Column
     @Getter @Setter
     private String description;
 
-    @Column(nullable = false)
+    @Column
     @Getter @Setter
-    private int cellSize;
+    private Integer cellSize;
 
-    @Column(nullable = false)
+    @Column
     @Getter @Setter
-    private int timeStep;
+    private Integer timeStep;
 
     @Column(nullable = false)
     @Getter @Setter

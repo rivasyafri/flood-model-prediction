@@ -2,7 +2,7 @@ package com.mofp.framework.model;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.postgresql.geometric.PGpolygon;
+import org.geolatte.geom.Geometry;
 
 import javax.persistence.*;
 import java.util.Set;
@@ -22,7 +22,7 @@ public class District {
 
     @Column(nullable = false)
     @Getter @Setter
-    private PGpolygon area;
+    private Geometry area;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "district", cascade = CascadeType.ALL)
     @Getter @Setter
