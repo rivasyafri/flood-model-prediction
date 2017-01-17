@@ -2,6 +2,7 @@ package com.mofp.framework.model;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.geolatte.geom.Geometry;
 import org.postgresql.geometric.PGpolygon;
 
 import javax.persistence.*;
@@ -21,7 +22,7 @@ public class Topography {
 
     @Column(nullable = false)
     @Getter @Setter
-    private PGpolygon area;
+    private Geometry area;
 
     @Column(nullable = false)
     @Getter @Setter

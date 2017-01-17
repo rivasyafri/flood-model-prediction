@@ -3,7 +3,7 @@ package com.mofp.flood.model;
 import com.mofp.flood.model.support.AbstractFloodAttribute;
 import lombok.Getter;
 import lombok.Setter;
-import org.postgresql.geometric.PGpolygon;
+import org.geolatte.geom.Geometry;
 
 import javax.persistence.*;
 
@@ -12,7 +12,7 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "flood_area")
-public class FloodArea extends AbstractFloodAttribute<PGpolygon> {
+public class FloodArea extends AbstractFloodAttribute<Geometry> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator="flood_area_id_seq")
