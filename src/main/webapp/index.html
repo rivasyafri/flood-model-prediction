@@ -25,18 +25,42 @@
 </head>
 <body>
 <div class="container-fluid">
+    <!--Side Navigation menu-->
+    <div id="mySidenav" class="sidenav">
+        <a href="javascript:void(0)" class="closebtn" onclick="showNav()">&times;</a>
+        <a href="javascript:void(0)" data-toggle="modal" data-target="#create-modal" onclick="showNav()">Create Project</a>
+        <a href="javascript:void(0)" data-toggle="modal" data-target="#load-modal" onclick="showNav()">Load Project</a>
+        <a href="javascript:void(0)" onclick="showNav(); addRectangleGetter();">Set Border</a>
+        <a href="javascript:void(0)" data-toggle="modal" data-target="#variable-modal" onclick="showNav()">Set Variables</a>
+        <a href="javascript:void(0)" data-toggle="modal" data-target="#setting-modal" onclick="showNav()">Setting</a>
+    </div>
+
+    <!-- Button sidenav -->
+    <button onclick="showNav()" class="span-nav">☰</button>
+
+    <!-- Add all page content inside this div if you want the side nav to push page content to the right (not used if you only want the sidenav to sit on top of the page -->
+    <div id="main">
+        <!--Show the map-->
+        <div class="maps text-left" id="output-group">
+            <div id="data-output-maps">
+                <div id="map-visual"></div>
+            </div>
+        </div>
+    </div>
+
     <!--Load Projects-->
-    <div class="modal fade show" id="load-modal" tabindex="-1" role="dialog" aria-labelledby="LoadProjectLabel" style="display: block;">
+    <div class="modal fade" id="load-modal" tabindex="-1" role="dialog" aria-labelledby="LoadProjectLabel" aria-hidden="true" style="display: none;">
         <div class="modal-dialog">
             <div class="loginmodal-container">
-                <h1>Flood Simulator</h1><br>
+                <h1>Load Project</h1><br>
                 <form id="load-project">
                     <div class="form-group">
                         <label for="select-projects">Select Project:</label>
                         <select class="form-control" id="select-projects">
                         </select>
                     </div>
-                    <input type="submit" name="load" id="btn-load-project" class="login loginmodal-submit" value="Load">
+                    <input type="submit" id="btn-load-project" name="load" class="login loginmodal-submit" value="Load">
+                    <input type="submit" name="cancel" class="login loginmodal-reset" value="Cancel">
                 </form>
 
                 <div class="login-help">
@@ -47,24 +71,53 @@
     </div>
 
     <!--Create Project-->
-    <div class="modal fade" id="create-modal" tabindex="-1" role="dialog" aria-labelledby="CreateProjectLabel" style="display: none;">
+    <div class="modal fade" id="create-modal" tabindex="-1" role="dialog" aria-labelledby="CreateProjectLabel" aria-hidden="true" style="display: none;">
         <div class="modal-dialog">
             <div class="loginmodal-container">
                 <h1>Create Project</h1><br>
                 <form id="create-project">
                     <input type="text" name="project" id="txt-create-name" placeholder="Project Name">
                     <input type="submit" name="create" id="btn-create-project" class="login loginmodal-submit" value="Create">
+                    <input type="submit" name="cancel" class="login loginmodal-reset" value="Cancel">
                 </form>
             </div>
         </div>
     </div>
 
-    <!--Show the map-->
-    <div class="maps text-left" id="output-group">
-        <div id="data-output-maps">
-            <div id="map-visual"></div>
+    <!--Global Setting of Project-->
+    <div class="modal fade" id="setting-modal" tabindex="-1" role="dialog" aria-labelledby="SettingLabel" aria-hidden="true" style="display: none;">
+        <div class="modal-dialog">
+            <div class="loginmodal-container">
+                <h1>Settings</h1><br>
+                <form id="setting-project">
+                    <label for="txt-cell-size">Cell size in 0.00x lat or long:</label>
+                    <input type="text" name="project" id="txt-cell-size" placeholder="ex. '4'">
+                    <label for="txt-time-step">Time step in minutes:</label>
+                    <input type="text" name="project" id="txt-time-step" placeholder="ex. '5'">
+                    <label for="txt-start-date">Start date:</label>
+                    <input type="text" name="project" id="txt-start-date" placeholder="ex. '2016-01-01'">
+                    <label for="txt-interval-minutes">Interval in minutes:</label>
+                    <input type="text" name="project" id="txt-interval-minutes" placeholder="ex. '60'">
+                    <input type="submit" name="Done" id="btn-setting-project" class="login loginmodal-submit" value="Done">
+                    <input type="submit" name="cancel" class="login loginmodal-reset" value="Cancel">
+                </form>
+            </div>
         </div>
     </div>
+
+    <!--Variable Setting-->
+    <!--<div class="modal fade" id="variable-modal" tabindex="-1" role="dialog" aria-labelledby="VariableLabel" aria-hidden="true" style="display: none;">-->
+        <!--<div class="modal-dialog">-->
+            <!--<div class="loginmodal-container">-->
+                <!--<h1>Create Project</h1><br>-->
+                <!--<form id="variable-project">-->
+                    <!--<input type="text" name="project" id="txt-create-name" placeholder="Project Name">-->
+                    <!--<input type="submit" name="create" id="btn-create-project" class="login loginmodal-submit" value="Create">-->
+                    <!--<input type="submit" name="cancel" class="login loginmodal-reset" value="Cancel">-->
+                <!--</form>-->
+            <!--</div>-->
+        <!--</div>-->
+    <!--</div>-->
 </div>
 <script type="text/javascript">
     $(document).ready(function () {
@@ -79,7 +132,6 @@
             var url = $('#select-projects').val();
             var request = loadProject(url);
             request.done(function (response, textStatus, jqXHR) {
-                console.log(selectedProject);
                 removeShowInModal();
             });
         });
@@ -89,9 +141,14 @@
             var projectName = $('#txt-create-name').val();
             var request = createProject(projectName);
             request.done(function (response, textStatus, jqXHR) {
-                alert("finally create success");
+                alert("Project created successfully");
                 removeShowInModal();
             });
+        });
+
+        $(".loginmodal-reset").click(function (event) {
+           event.preventDefault();
+           removeShowInModal();
         });
     });
 </script>
