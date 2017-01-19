@@ -1,14 +1,13 @@
 var map;
 var geom_getter=[];
 var object=[];
-var delete_status=false;
 
 // map intialitation and function
 function initMap(){
     map = new google.maps.Map(document.getElementById('map-visual'), {
         center: {lat: -7.4143195, lng: 111.0043654},
-        zoom: 9
-    });
+        zoom: 12
+    }); // edited the center and zoom by Riva
 }
 function focusMap(object){
     bounds= new google.maps.LatLngBounds();
@@ -193,25 +192,34 @@ function addMarker(position){
 }
 function addRectangleGetter(){
     var bounds={
-        north: map.getCenter().lat()-0.003,
-        south: map.getCenter().lat()+0.003,
-        east: map.getCenter().lng()+0.003,
-        west: map.getCenter().lng()-0.003
-    }
+        north: map.getCenter().lat()-0.01,
+        south: map.getCenter().lat()+0.01,
+        east: map.getCenter().lng()+0.01,
+        west: map.getCenter().lng()-0.01
+    };
     var geom_getter_dummy = new google.maps.Rectangle({
         strokeColor: '#FF0000',
         strokeOpacity: 0.8,
         strokeWeight: 2,
-        fillColor: '#FF0000',
+        fillColor: '#FFFFFF',
         fillOpacity: 0.35,
         bounds: bounds,
         editable:true,
         draggable:true,
         map:map
-    })
-    geom_getter_dummy.addListener('click',function(){
-        if(delete_status){
-            geom_getter_dummy.setMap(null);
+    });
+    // Add the keyboard event for deleting and selecting
+    google.maps.event.addDomListener(document, 'keyup', function (e) {
+        var code = (e.keyCode ? e.keyCode : e.which);
+        if (code === 8 || code === 46) {
+            geom_getter.forEach(function (grid) {
+                grid.setMap(null);
+            });
+            removeCells();
+        } else if (code === 13) {
+            geom_getter_dummy.draggable = false;
+            geom_getter_dummy.editable = false;
+            drawGrid(geom_getter_dummy);
         }
     });
     geom_getter.push(geom_getter_dummy);
@@ -223,7 +231,6 @@ function changeColorObject(index,color){
     });
     focusMap(o.getBounds());
 }
-
 function checkIndexObject(index){
     for(i = 0; i< object.length; i++){
         var path = object[i];
@@ -262,4 +269,18 @@ function getCommGeomFilter(){
         }
     }
     return string_com;
+}
+
+// Added by Riva
+function convertMToLat(m) {
+    return (m/1000) / 110.574;
+}
+
+function convertMToLong(m, latInDegree) {
+    return (m/1000) * Math.acos(toRadians(latInDegree))/ 111.320;
+}
+
+/* Get from http://stackoverflow.com/questions/9705123/how-can-i-get-sin-cos-and-tan-to-use-degrees-instead-of-radians */
+function toRadians (angle) {
+    return angle * (Math.PI / 180);
 }
