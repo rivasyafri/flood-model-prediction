@@ -105,7 +105,8 @@ function drawGrid(area) {
     var xNumberOfCells = Math.round(rectangleHeight/dividerLat);
     var yNumberOfCells = Math.round(rectangleWidth/dividerLong);
     var deltaX = rectangleHeight/xNumberOfCells;
-    var deltaY = ne.lat() < 0 ? -1 * (rectangleWidth/yNumberOfCells) : rectangleWidth/yNumberOfCells ;
+    // var deltaY = ne.lat() < 0 ? -1 * (rectangleWidth/yNumberOfCells) : rectangleWidth/yNumberOfCells ;
+    var deltaY = rectangleWidth/yNumberOfCells;
     area.setMap(null);
     loopCreateCell(ne, sw, xNumberOfCells, yNumberOfCells, deltaX, deltaY);
 }
@@ -146,17 +147,26 @@ function createCell(north, south, east, west) {
 }
 
 function buttonPlayPress(){
-    for (var i = 0; i < 10; i++) {
-        var x = Math.floor(Math.random() * cells[0].length);
-        var y = Math.floor(Math.random() * cells.length);
-        setCellFlooded(x, y);
+    if (cells != null){
+        for (var i = 0; i < 10; i++) {
+            var x = Math.floor(Math.random() * cells[0].length);
+            var y = Math.floor(Math.random() * cells.length);
+            setCellFlooded(x, y);
+        }
+    }
+}
+
+function buttonStopPress(){
+    if (cells != null) {
+        cells.forEach(function (column) {
+            column.forEach(function (cell) {
+                cells[y][x].setOptions({fillColor: '#FFFFFF', fillOpacity:0.1})
+            })
+        })
     }
 }
 
 function setCellFlooded(x, y) {
-    console.log(cells[y][x]);
-    // cells[y][x].fillColor = '#1974D2';
-    // cells[y][x].fillOpacity = 0.9;
     cells[y][x].setOptions({fillColor: '#1974D2', fillOpacity:0.3})
 }
 
