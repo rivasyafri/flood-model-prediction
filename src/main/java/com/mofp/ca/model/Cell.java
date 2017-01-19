@@ -56,7 +56,7 @@ public class Cell extends AbstractProjectAttribute implements Comparable<Cell> {
 
     @Getter @Setter
     @Transient
-    private transient double height;
+    private double height;
 
     @Getter @Setter
     @Transient

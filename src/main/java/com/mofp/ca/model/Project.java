@@ -6,6 +6,7 @@ import lombok.Setter;
 import org.geolatte.geom.Geometry;
 
 import javax.persistence.*;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -43,6 +44,14 @@ public class Project {
     @Column
     @Getter @Setter
     private Integer timeStep;
+
+    @Column
+    @Getter @Setter
+    private Date startDate;
+
+    @Column
+    @Getter @Setter
+    private Integer interval;
 
     @Column(nullable = false)
     @Getter @Setter
