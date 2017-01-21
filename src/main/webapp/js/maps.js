@@ -39,7 +39,6 @@ function clearMap(){
 }
 
 // map attribute intialitation and function
-
 function addLine(index,polyline_path,info_object){
     // generate line in map
     var path_line = new google.maps.Polyline({
@@ -190,40 +189,6 @@ function addMarker(position){
     });
     return marker;
 }
-function addRectangleGetter(){
-    var bounds={
-        north: map.getCenter().lat()-0.01,
-        south: map.getCenter().lat()+0.01,
-        east: map.getCenter().lng()+0.01,
-        west: map.getCenter().lng()-0.01
-    };
-    var geom_getter_dummy = new google.maps.Rectangle({
-        strokeColor: '#FF0000',
-        strokeOpacity: 0.8,
-        strokeWeight: 2,
-        fillColor: '#FFFFFF',
-        fillOpacity: 0.35,
-        bounds: bounds,
-        editable:true,
-        draggable:true,
-        map:map
-    });
-    // Add the keyboard event for deleting and selecting
-    google.maps.event.addDomListener(document, 'keyup', function (e) {
-        var code = (e.keyCode ? e.keyCode : e.which);
-        if (code === 8 || code === 46) {
-            geom_getter.forEach(function (grid) {
-                grid.setMap(null);
-            });
-            removeCells();
-        } else if (code === 13) {
-            geom_getter_dummy.draggable = false;
-            geom_getter_dummy.editable = false;
-            drawGrid(geom_getter_dummy);
-        }
-    });
-    geom_getter.push(geom_getter_dummy);
-}
 function changeColorObject(index,color){
     var o = getObject(index)[2];
     o.setOptions({
@@ -271,11 +236,206 @@ function getCommGeomFilter(){
     return string_com;
 }
 
-// Added by Riva
+/**
+ * @author rivasyafri
+ */
+var cells=[];
+var lines=[];
+var ne=null;
+var sw=null;
+var xNumberOfCells = null;
+var yNumberOfCells = null;
+var deltaX=null;
+var deltaY=null;
+function addRectangleGetter(){
+    var bounds={
+        north: map.getCenter().lat()-0.01,
+        south: map.getCenter().lat()+0.01,
+        east: map.getCenter().lng()+0.01,
+        west: map.getCenter().lng()-0.01
+    };
+    var geom_getter_dummy = new google.maps.Rectangle({
+        strokeColor: '#FF0000',
+        strokeOpacity: 0.8,
+        strokeWeight: 2,
+        fillColor: '#FFFFFF',
+        fillOpacity: 0.35,
+        bounds: bounds,
+        editable:true,
+        draggable:true,
+        map:map
+    });
+    addButton(geom_getter_dummy);
+}
+
+/* Get from http://jsbin.com/ajimur/421/ */
+function addButton(poly) {
+    poly["btnDeleteClickHandler"] = function() {
+        poly.setMap(null);
+        return false;
+    };
+    poly["btnAcceptClickHandler"] = function() {
+        poly.draggable = false;
+        poly.editable = false;
+        drawGrid(poly);
+        return false;
+    };
+    poly["btnDeleteImageUrl"] = 'http://i.imgur.com/RUrKV.png';
+    poly["btnAcceptImageUrl"] = 'http://image.flaticon.com/icons/svg/148/148789.svg';
+
+    google.maps.event.addListener(poly,'bounds_changed',function () {
+        var btnDelete = getButton(poly.btnDeleteImageUrl);
+        var btnAccept = getButton(poly.btnAcceptImageUrl);
+        if(btnDelete.length === 0) {
+            var undoimg = $("img[src$='https://maps.gstatic.com/mapfiles/undo_poly.png']");
+            undoimg.parent().css('height', '21px !important');
+            undoimg.parent().parent().append(
+                '<div style="overflow-x: hidden; overflow-y: hidden; position: absolute; width: 30px; height: 27px;top:21px;">' +
+                '<img src="'+ poly.btnDeleteImageUrl +'" class="deletePoly" style="height:auto; width:auto; position: absolute; left:0;"/>' +
+                '</div>'+
+                '<div style="overflow-x: hidden; overflow-y: hidden; position: absolute; width: 30px; height: 27px;top:43px;left: 6px;">' +
+                '<img src="'+ poly.btnAcceptImageUrl +'" class="acceptPoly" style="height:21px; width:auto; position: absolute; left:0; border: 1px solid grey;"/>' +
+                '</div>'
+            );
+
+            // now get that button back again!
+            btnDelete = getButton(poly.btnDeleteImageUrl);
+            btnDelete.hover(function() { $(this).css('left', '-30px'); return false;},
+                function() { $(this).css('left', '0px'); return false;});
+            btnDelete.mousedown(function() { $(this).css('left', '-60px'); return false;});
+            btnAccept = getButton(poly.btnAcceptImageUrl);
+        }
+
+        // if we've already attached a handler, remove it
+        if(poly.btnDeleteClickHandler)
+            btnDelete.unbind('click', poly.btnDeleteClickHandler);
+        if(poly.btnAcceptClickHandler)
+            btnAccept.unbind('click', poly.btnAcceptClickHandler);
+
+        // now add a handler for removing the passed in index
+        poly.btnDeleteClickHandler = function() {
+            poly.setMap(null);
+            geom_getter=[];
+            return false;
+        };
+        poly.btnAcceptClickHandler = function() {
+            poly.draggable = false;
+            poly.editable = false;
+            drawGrid(poly);
+            return false;
+        };
+        btnDelete.click(poly.btnDeleteClickHandler);
+        btnAccept.click(poly.btnAcceptClickHandler);
+    });
+}
+function getButton(imageUrl) {
+    return $("img[src$='" + imageUrl + "']");
+}
+
+/* Function to create grid for cellular automata */
+function setBorder(){
+    if (selectedProject != null) {
+        addRectangleGetter();
+    } else {
+        alert('Please load the project or create new project first.');
+    }
+}
+function drawGrid(area) {
+    ne = area.getBounds().getNorthEast();
+    sw = area.getBounds().getSouthWest();
+    var rectangleHeight = Math.abs(ne.lng() - sw.lng());
+    var rectangleWidth = Math.abs(ne.lat() - sw.lat());
+    var dividerLat = convertMToLat(cellSize);
+    var avgLat = (ne.lat() + sw.lat()) / 2;
+    var dividerLong = convertMToLong(cellSize, avgLat);
+    xNumberOfCells = Math.round(rectangleHeight/dividerLat);
+    yNumberOfCells = Math.round(rectangleWidth/dividerLong);
+    deltaX = rectangleHeight/xNumberOfCells;
+    deltaY = ne.lat() < 0 ? -1 * (rectangleWidth/yNumberOfCells) : rectangleWidth/yNumberOfCells ;
+    // var deltaY = rectangleWidth/yNumberOfCells;
+    area.setMap(null);
+    loopCreateLines(xNumberOfCells, yNumberOfCells, deltaX, deltaY);
+}
+function loopCreateLines(xNumberOfCells, yNumberOfCells, deltaX, deltaY) {
+    for (var y = 0; y <= yNumberOfCells; y++){
+        var grid = [
+            {lat: ne.lat() + deltaY * y, lng: ne.lng()},
+            {lat: ne.lat() + deltaY * y, lng: sw.lng()}
+        ];
+        var line = new google.maps.Polyline({
+            path: grid,
+            strokeColor: '#000000',
+            strokeOpacity: 0.8,
+            strokeWeight: 2,
+            map:map
+        });
+        lines.push(line);
+    }
+    for (var x = 0; x <= xNumberOfCells; x++) {
+        var grid = [
+            {lat: ne.lat(), lng: sw.lng() + deltaX * x},
+            {lat: sw.lat(), lng: sw.lng() + deltaX * x}
+        ];
+        var line = new google.maps.Polyline({
+            path: grid,
+            strokeColor: '#000000',
+            strokeOpacity: 0.8,
+            strokeWeight: 2,
+            map:map
+        });
+        lines.push(line);
+    }
+}
+function createCellFlooded(x, y) {
+    var bounds={
+        north: ne.lat() + y * deltaY,
+        south: ne.lat() + (y + 1) * deltaY,
+        east: sw.lng() + (x + 1) * deltaX,
+        west: sw.lng() + x * deltaX
+    };
+    var cell = new google.maps.Rectangle({
+        strokeColor: '#000000',
+        strokeOpacity: 0.8,
+        strokeWeight: 2,
+        fillColor: '#1974D2',
+        fillOpacity: 0.3,
+        bounds: bounds,
+        map:map
+    });
+    cells.push(cell);
+}
+function clearCells() {
+    cells.forEach(function (cell) {
+        cell.setMap(null);
+    });
+    lines.forEach(function (line) {
+        line.setMap(null);
+    });
+    cells.splice(0, cells.length);
+    lines.splice(0, lines.length);
+}
+
+/* Get from http://www.coffeegnome.net/google-elevation-api-rectangle/ */
+function getElevation (loc, x, y, valX, valY){
+    elevator = new google.maps.ElevationService();
+    var positionalRequest = {
+        'locations': [loc]
+    };
+    elevator.getElevationForLocations(positionalRequest, function(results, status) {
+        if (status == google.maps.ElevationStatus.OK) {
+            if (results[0]) {
+                console.log(results[0].elevation);
+            } else {
+                alert('No results found');
+            }
+        }
+    });
+}
+
+/* Get from http://stackoverflow.com/questions/1253499/simple-calculations-for-working-with-lat-lon-km-distance */
 function convertMToLat(m) {
     return (m/1000) / 110.574;
 }
-
 function convertMToLong(m, latInDegree) {
     return (m/1000) * Math.acos(toRadians(latInDegree))/ 111.320;
 }

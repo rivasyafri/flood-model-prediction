@@ -32,21 +32,27 @@
         <a href="javascript:void(0)" class="closebtn" onclick="showNav()">&times;</a>
         <a href="javascript:void(0)" data-toggle="modal" data-target="#create-modal" onclick="showNav()">Create Project</a>
         <a href="javascript:void(0)" data-toggle="modal" data-target="#load-modal" onclick="showNav()">Load Project</a>
-        <a href="javascript:void(0)" onclick="showNav(); setBorder();">Set Border</a>
-        <a href="javascript:void(0)" data-toggle="modal" data-target="#variable-modal" onclick="showNav()">Set Variables</a>
-        <a href="javascript:void(0)" data-toggle="modal" data-target="#setting-modal" onclick="showNav()">Setting</a>
     </div>
 
     <!-- Button sidenav -->
     <button onclick="showNav()" class="span-nav">☰</button>
 
     <!-- Button play and stop. Get from http://codepen.io/superpikar/pen/zJsgH -->
-    <div class="player text-center">
+    <div class="player fade text-center">
+        <button type="button" id="button_save" class="btn btn-player" onclick='buttonSavePress()'>
+            <i class="fa fa-floppy-o"></i>
+        </button>
         <button type="button" id="button_play" class="btn btn-player" onclick='buttonPlayPress()'>
             <i class="fa fa-play"></i>
         </button>
         <button type="button" id="button_stop" class="btn btn-player" onclick='buttonStopPress()'>
             <i class="fa fa-stop"></i>
+        </button>
+        <button type="button" id="button_test" class="btn btn-player" onclick='buttonTestPress()'>
+            <i class="fa fa-fast-forward"></i>
+        </button>
+        <button type="button" id="button_close" class="btn btn-player" onclick='buttonClosePress()'>
+            <i class="fa fa-window-close"></i>
         </button>
     </div>
 
@@ -132,70 +138,6 @@
         <!--</div>-->
     <!--</div>-->
 </div>
-<script type="text/javascript">
-
-    $(document).ready(function () {
-        loadProjects();
-        $('#datetimepicker').datetimepicker();
-
-        $("#select-projects").click(function () {
-            loadProjects();
-        });
-
-        $('#load-form').submit(function () {
-            var url = $('#select-projects').val();
-            var request = loadProject(url);
-            request.done(function (response, textStatus, jqXHR) {
-                alert(textStatus);
-                console.log(response);
-                removeShowInModal();
-            });
-            return false;
-        });
-
-        $('#create-form').submit(function () {
-            var project = JSON.stringify($('#create-form').serializeObject());
-            project["done"] = false;
-            var request = createProject(project);
-            request.done(function (response, textStatus, jqXHR) {
-                alert(textStatus);
-                console.log(response);
-                removeShowInModal();
-            });
-            return false;
-        });
-
-        $("#btn-delete-project").click(function (event) {
-            event.preventDefault();
-            var url = $('#select-projects').val();
-            var request = deleteProject(url);
-            request.done(function (response, textStatus, jqXHR) {
-                alert(textStatus);
-                console.log(response);
-                loadProjects();
-            });
-        });
-
-        $('#setting-form').submit(function () {
-            if (selectedProject != null) {
-                var project = JSON.stringify($('#setting-form').serializeObject());
-                var request = editProject(project);
-                request.done(function (response, textStatus, jqXHR) {
-                    alert(textStatus);
-                    console.log(response);
-                    removeShowInModal();
-                });
-            } else {
-                alert("Load or create new project first!");
-            }
-            return false;
-        });
-
-        $(".loginmodal-cancel").click(function (event) {
-           event.preventDefault();
-           removeShowInModal();
-        });
-    });
-</script>
+<script type="text/javascript" src="js/interface.js"></script>
 </body>
 </html>
