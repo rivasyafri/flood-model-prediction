@@ -5,13 +5,14 @@ var cellSize = 1000;
 var timeStepInMinute = 5;
 var startDate = '2016-01-01';
 var intervalInMinute = 60;
-var cells=[];
 
-// For IE user
-if (window.XDomainRequest)
+/* For IE user */
+if (window.XDomainRequest) {
     contentType = "text/plain";
+}
 
-var loadProjects = function() {
+/* Method for Projects */
+var getProjects = function() {
     $.ajax({
         url: serviceUrl + "project",
         dataType: "json",
@@ -24,8 +25,7 @@ var loadProjects = function() {
         }
     });
 };
-
-var loadProject = function(url) {
+var getOneProject = function(url) {
     var request = $.ajax({
         url: url,
         dataType: "json",
@@ -43,8 +43,7 @@ var loadProject = function(url) {
     });
     return request;
 };
-
-var createProject = function(project) {
+var postProject = function(project) {
     var request = $.ajax({
         url: serviceUrl + 'project/',
         type: 'POST',
@@ -59,7 +58,6 @@ var createProject = function(project) {
     });
     return request;
 };
-
 var deleteProject = function(url) {
     var request = $.ajax({
         url: url,
@@ -70,8 +68,7 @@ var deleteProject = function(url) {
     });
     return request;
 };
-
-var editProject = function(project) {
+var patchProject = function(project) {
     var request = $.ajax({
         url: selectedProject._links.self.href,
         type: 'PATCH',
@@ -86,132 +83,22 @@ var editProject = function(project) {
     });
     return request;
 };
-
-/* Function to create grid for cellular automata */
-function setBorder(){
-    if (selectedProject != null) {
-        addRectangleGetter();
-    }
-}
-
-function drawGrid(area) {
-    var ne = area.getBounds().getNorthEast();
-    var sw = area.getBounds().getSouthWest();
-    var rectangleHeight = Math.abs(ne.lng() - sw.lng());
-    var rectangleWidth = Math.abs(ne.lat() - sw.lat());
-    var dividerLat = convertMToLat(cellSize);
-    var avgLat = (ne.lat() + sw.lat()) / 2;
-    var dividerLong = convertMToLong(cellSize, avgLat);
-    var xNumberOfCells = Math.round(rectangleHeight/dividerLat);
-    var yNumberOfCells = Math.round(rectangleWidth/dividerLong);
-    var deltaX = rectangleHeight/xNumberOfCells;
-    // var deltaY = ne.lat() < 0 ? -1 * (rectangleWidth/yNumberOfCells) : rectangleWidth/yNumberOfCells ;
-    var deltaY = rectangleWidth/yNumberOfCells;
-    area.setMap(null);
-    loopCreateCell(ne, sw, xNumberOfCells, yNumberOfCells, deltaX, deltaY);
-}
-
-function loopCreateCell(ne, sw, xNumberOfCells, yNumberOfCells, deltaX, deltaY) {
-    for (var y = 0; y < yNumberOfCells; y++){
-        var column = [];
-        for (var x = 0; x < xNumberOfCells; x++) {
-            var cell = createCell(
-                ne.lat() + y * deltaY,
-                ne.lat() + (y+1) * deltaY,
-                sw.lng() + (x+1) * deltaX,
-                sw.lng() + x * deltaX
-            );
-            column.push(cell);
+var putProject = function() {
+    console.log(JSON.stringify(selectedProject));
+    var request = $.ajax({
+        url: selectedProject._links.self.href,
+        type: 'PUT',
+        contentType: "application/json",
+        data: JSON.stringify(selectedProject),
+        xhrFields: {
+            withCredentials: false
+        },
+        success: function (data) {
+            selectedProject = data;
         }
-        cells.push(column);
-    }
-}
-
-function createCell(north, south, east, west) {
-    var bounds={
-        north: north,
-        south: south,
-        east: east,
-        west: west
-    };
-    var geom_getter_dummy = new google.maps.Rectangle({
-        strokeColor: '#000000',
-        strokeOpacity: 0.8,
-        strokeWeight: 2,
-        fillColor: '#FFFFFF',
-        fillOpacity: 0.1,
-        bounds: bounds,
-        map:map
     });
-    return geom_getter_dummy;
-}
-
-function buttonPlayPress(){
-    if (cells != null){
-        for (var i = 0; i < 10; i++) {
-            var x = Math.floor(Math.random() * cells[0].length);
-            var y = Math.floor(Math.random() * cells.length);
-            setCellFlooded(x, y);
-        }
-    }
-}
-
-function buttonStopPress(){
-    if (cells != null) {
-        cells.forEach(function (column) {
-            column.forEach(function (cell) {
-                cells[y][x].setOptions({fillColor: '#FFFFFF', fillOpacity:0.1})
-            })
-        })
-    }
-}
-
-function setCellFlooded(x, y) {
-    cells[y][x].setOptions({fillColor: '#1974D2', fillOpacity:0.3})
-}
-
-function removeCells() {
-    cells.forEach(function (column) {
-        column.forEach(function (cell) {
-            cell.setMap(null);
-        })
-    })
-}
-
-/* Function for interface */
-function removeShowInModal () {
-    $('.modal').removeClass('show');
-    $('body').removeClass('modal-open');
-    $('.modal-backdrop').remove();
-    setTimeout(function () {
-        $('.modal').css({ display: 'none'}).attr('aria-hidden', 'true');
-    }, 800);
-}
-
-function refreshSelect(projects) {
-    if (projects.length + 1 != $('#select-projects').find('option').length) {
-        $('#select-projects')
-            .find('option')
-            .remove()
-            .end()
-            .append('<option selected="selected" disabled="disabled" value="none">Project Name</option>')
-        ;
-        projects.forEach(function (project) {
-            $('#select-projects').append($('<option>', {
-                value: project._links.self.href,
-                text: project.name
-            }));
-        });
-    }
-}
-
-function showNav() {
-    if (document.getElementById("mySidenav").style.width == '250px') {
-        document.getElementById("mySidenav").style.width = "0px";
-    } else {
-        document.getElementById("mySidenav").style.width = "250px";
-    }
-}
+    return request;
+};
 
 /* Get from http://stackoverflow.com/questions/1184624/convert-form-data-to-javascript-object-with-jquery */
 $.fn.serializeObject = function()
