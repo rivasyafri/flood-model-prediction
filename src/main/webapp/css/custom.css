@@ -229,10 +229,25 @@
 .player{
   position: absolute;
   float: left;
-  z-index: 1999;
+  z-index: 1049;
   bottom: 27px;
   left: 40%;
   background: grey;
   padding: 5px;
   border-radius: 5px;
+}
+
+.btn-player {
+  font-size: 24px;
+  padding: 8px;
+  border-radius: 4px;
+  background-color: white;
+}
+
+.btn-player:hover {
+  background-color: lightgrey;
+}
+
+.btn-player:disabled {
+  background-color: darkgrey;
 }

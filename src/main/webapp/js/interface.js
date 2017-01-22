@@ -108,9 +108,17 @@ function showNav() {
 }
 function showPlayer() {
     if (selectedProject != null) {
-        $('.player').addClass("show");
+        $('#button_play').prop('disabled', false);
+        $('#button_close').prop('disabled', false);
+        $('#button_save').prop('disabled', false);
+        $('#button_stop').prop('disabled', false);
+        $('#button_test').prop('disabled', false);
     } else {
-        $('.player').removeClass("show");
+        $('#button_play').prop('disabled', true);
+        $('#button_close').prop('disabled', true);
+        $('#button_save').prop('disabled', true);
+        $('#button_stop').prop('disabled', true);
+        $('#button_test').prop('disabled', true);
     }
 }
 function buttonPlayPress() {
@@ -138,19 +146,15 @@ function buttonSavePress() {
     });
 }
 function buttonTestPress() {
-    var cell = cells[0][0];
-    console.log(selectedProject);
-    console.log(cell);
     var center = {};
-    var x1 = cell.getBounds().getSouthWest().lng();
-    var y1 = cell.getBounds().getSouthWest().lat();
-    var x2 = cell.getBounds().getNorthEast().lng();
-    var y2 = cell.getBounds().getNorthEast().lat();
+    var x1 = sw.lng();
+    var y1 = sw.lat();
+    var x2 = ne.lng();
+    var y2 = ne.lat();
     center.x = x1 + ((x2 - x1) / 2);
     center.y = y1 + ((y2 - y1) / 2);
     var mPosition = new google.maps.LatLng(center.y, center.x);
     getElevation(mPosition);
-
 }
 function buttonClosePress() {
     selectedProject = null;
