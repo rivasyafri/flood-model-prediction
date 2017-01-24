@@ -269,6 +269,30 @@ function addRectangleGetter(){
     });
     addButton();
 }
+function drawGridFromSelectedProject(selectedProject) {
+    console.log(selectedProject);
+    if (selectedProject != null) {
+        if (selectedProject.area != null) {
+            var bounds={
+                north: selectedProject.area.bbox[0],
+                west: selectedProject.area.bbox[1],
+                south: selectedProject.area.bbox[2],
+                east: selectedProject.area.bbox[3],
+            };
+            poly = new google.maps.Rectangle({
+                strokeColor: '#FF0000',
+                strokeOpacity: 0.8,
+                strokeWeight: 2,
+                fillColor: '#FFFFFF',
+                fillOpacity: 0.35,
+                bounds: bounds
+            });
+            ne = poly.getBounds().getNorthEast();
+            sw = poly.getBounds().getSouthWest();
+            drawGrid(selectedProject.cellSize);
+        }
+    }
+}
 
 /* Get from http://jsbin.com/ajimur/421/ */
 function addButton() {
@@ -315,7 +339,10 @@ function addButton() {
 }
 function acceptBorder() {
     addJsonBorderToSelectedProject(poly);
-    drawGrid(poly, selectedProject.cellSize);
+    ne = poly.getBounds().getNorthEast();
+    sw = poly.getBounds().getSouthWest();
+    drawGrid(selectedProject.cellSize);
+    poly.setMap(null);
     return false;
 }
 function deleteBorder() {
@@ -350,9 +377,7 @@ function addJsonBorderToSelectedProject(area) {
         ]
     };
 }
-function drawGrid(area, cellSize) {
-    ne = area.getBounds().getNorthEast();
-    sw = area.getBounds().getSouthWest();
+function drawGrid(cellSize) {
     var rectangleHeight = Math.abs(ne.lng() - sw.lng());
     var rectangleWidth = Math.abs(ne.lat() - sw.lat());
     var dividerLat = convertMToLat(cellSize);
@@ -363,7 +388,6 @@ function drawGrid(area, cellSize) {
     deltaX = rectangleHeight/xNumberOfCells;
     deltaY = ne.lat() < 0 ? -1 * (rectangleWidth/yNumberOfCells) : rectangleWidth/yNumberOfCells ;
     // var deltaY = rectangleWidth/yNumberOfCells;
-    area.setMap(null);
     loopCreateLines(xNumberOfCells, yNumberOfCells, deltaX, deltaY);
 }
 function loopCreateLines(xNumberOfCells, yNumberOfCells, deltaX, deltaY) {

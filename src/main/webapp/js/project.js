@@ -40,6 +40,7 @@ var getOneProject = function(url) {
             timeStepInMinute = selectedProject.timeStep != null ? selectedProject.timeStep : 5;
             startDate = selectedProject.startDate != null ? selectedProject.startDate : '2016-01-01T00:00:00.000Z';
             intervalInMinute = selectedProject.interval != null ? selectedProject.interval : 60;
+            drawGridFromSelectedProject(selectedProject);
         }
     });
     return request;
