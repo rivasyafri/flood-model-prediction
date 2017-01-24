@@ -3,7 +3,9 @@ package com.mofp.ca.model;
 import com.mofp.flood.model.Flood;
 import lombok.Getter;
 import lombok.Setter;
-import org.geolatte.geom.Geometry;
+import org.geolatte.geom.Polygon;
+import org.geolatte.common.dataformats.json.jackson.PolygonSerializer;
+import org.geolatte.geom.crs.CoordinateReferenceSystem;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -31,7 +33,7 @@ public class Project {
 
     @Column
     @Getter @Setter
-    private Geometry areaSimulation;
+    private Polygon area;
 
     @Column
     @Getter @Setter
