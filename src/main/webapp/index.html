@@ -38,20 +38,26 @@
     <button onclick="showNav()" class="span-nav">☰</button>
 
     <!-- Button play and stop. Get from http://codepen.io/superpikar/pen/zJsgH -->
-    <div class="player fade text-center">
-        <button type="button" id="button_save" class="btn btn-player" onclick='buttonSavePress()'>
+    <div class="player text-center">
+        <button type="button" id="button_load" class="btn btn-player" data-toggle="modal" data-target="#load-modal">
+            <i class="fa fa-folder-open"></i>
+        </button>
+        <button type="button" id="button_save" class="btn btn-player" onclick='buttonSavePress()' disabled>
             <i class="fa fa-floppy-o"></i>
         </button>
-        <button type="button" id="button_play" class="btn btn-player" onclick='buttonPlayPress()'>
+        <button type="button" id="button_box" class="btn btn-player" onclick='setBorder()' disabled>
+            <i class="fa fa-square"></i>
+        </button>
+        <button type="button" id="button_play" class="btn btn-player" onclick='buttonPlayPress()' disabled>
             <i class="fa fa-play"></i>
         </button>
-        <button type="button" id="button_stop" class="btn btn-player" onclick='buttonStopPress()'>
+        <button type="button" id="button_stop" class="btn btn-player" onclick='buttonStopPress()' disabled>
             <i class="fa fa-stop"></i>
         </button>
-        <button type="button" id="button_test" class="btn btn-player" onclick='buttonTestPress()'>
+        <button type="button" id="button_test" class="btn btn-player" onclick='buttonTestPress()' disabled>
             <i class="fa fa-fast-forward"></i>
         </button>
-        <button type="button" id="button_close" class="btn btn-player" onclick='buttonClosePress()'>
+        <button type="button" id="button_close" class="btn btn-player" onclick='buttonClosePress()' disabled>
             <i class="fa fa-window-close"></i>
         </button>
     </div>

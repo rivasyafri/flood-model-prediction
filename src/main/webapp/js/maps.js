@@ -247,6 +247,8 @@ var xNumberOfCells = null;
 var yNumberOfCells = null;
 var deltaX=null;
 var deltaY=null;
+var poly=null;
+
 function addRectangleGetter(){
     var bounds={
         north: map.getCenter().lat()-0.01,
@@ -254,7 +256,7 @@ function addRectangleGetter(){
         east: map.getCenter().lng()+0.01,
         west: map.getCenter().lng()-0.01
     };
-    var geom_getter_dummy = new google.maps.Rectangle({
+    poly = new google.maps.Rectangle({
         strokeColor: '#FF0000',
         strokeOpacity: 0.8,
         strokeWeight: 2,
@@ -265,21 +267,13 @@ function addRectangleGetter(){
         draggable:true,
         map:map
     });
-    addButton(geom_getter_dummy);
+    addButton();
 }
 
 /* Get from http://jsbin.com/ajimur/421/ */
-function addButton(poly) {
-    poly["btnDeleteClickHandler"] = function() {
-        poly.setMap(null);
-        return false;
-    };
-    poly["btnAcceptClickHandler"] = function() {
-        poly.draggable = false;
-        poly.editable = false;
-        drawGrid(poly);
-        return false;
-    };
+function addButton() {
+    poly["btnDeleteClickHandler"] = deleteBorder;
+    poly["btnAcceptClickHandler"] = acceptBorder;
     poly["btnDeleteImageUrl"] = 'http://i.imgur.com/RUrKV.png';
     poly["btnAcceptImageUrl"] = 'http://image.flaticon.com/icons/svg/148/148789.svg';
 
@@ -313,20 +307,21 @@ function addButton(poly) {
             btnAccept.unbind('click', poly.btnAcceptClickHandler);
 
         // now add a handler for removing the passed in index
-        poly.btnDeleteClickHandler = function() {
-            poly.setMap(null);
-            geom_getter=[];
-            return false;
-        };
-        poly.btnAcceptClickHandler = function() {
-            poly.draggable = false;
-            poly.editable = false;
-            drawGrid(poly);
-            return false;
-        };
+        poly.btnDeleteClickHandler = deleteBorder;
+        poly.btnAcceptClickHandler = acceptBorder;
         btnDelete.click(poly.btnDeleteClickHandler);
         btnAccept.click(poly.btnAcceptClickHandler);
     });
+}
+function acceptBorder() {
+    addJsonBorderToSelectedProject(poly);
+    drawGrid(poly, selectedProject.cellSize);
+    return false;
+}
+function deleteBorder() {
+    poly.setMap(null);
+    geom_getter = [];
+    return false;
 }
 function getButton(imageUrl) {
     return $("img[src$='" + imageUrl + "']");
@@ -340,7 +335,22 @@ function setBorder(){
         alert('Please load the project or create new project first.');
     }
 }
-function drawGrid(area) {
+function addJsonBorderToSelectedProject(area) {
+    ne = area.getBounds().getNorthEast();
+    sw = area.getBounds().getSouthWest();
+    selectedProject["area"] = {
+        "type" : "Polygon",
+        "coordinates" : [
+            [   [ne.lat(), ne.lng()],
+                [sw.lat(), ne.lng()],
+                [sw.lat(), sw.lng()],
+                [ne.lat(), sw.lng()],
+                [ne.lat(), ne.lng()]
+            ]
+        ]
+    };
+}
+function drawGrid(area, cellSize) {
     ne = area.getBounds().getNorthEast();
     sw = area.getBounds().getSouthWest();
     var rectangleHeight = Math.abs(ne.lng() - sw.lng());
