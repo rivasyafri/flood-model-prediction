@@ -1,11 +1,14 @@
 package com.mofp.ca.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.mofp.ca.model.json.PolygonToGeoJSON;
 import com.mofp.flood.model.Flood;
 import lombok.Getter;
 import lombok.Setter;
+import org.geolatte.common.dataformats.json.jackson.GeometryDeserializer;
+import org.geolatte.geom.G2D;
 import org.geolatte.geom.Polygon;
-import org.geolatte.common.dataformats.json.jackson.PolygonSerializer;
-import org.geolatte.geom.crs.CoordinateReferenceSystem;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -14,8 +17,7 @@ import java.util.List;
 /**
  * Saving the project configuration
  *
- * @author taufiq
- * @modifiedBy rivasyafri by adding connection to database via persistence
+ * @author rivasyafri
  */
 @Entity
 @Table(name = "project")
@@ -33,7 +35,9 @@ public class Project {
 
     @Column
     @Getter @Setter
-    private Polygon area;
+    @JsonSerialize(using = PolygonToGeoJSON.class)
+    @JsonDeserialize(using = GeometryDeserializer.class)
+    private Polygon<G2D> area;
 
     @Column
     @Getter @Setter
