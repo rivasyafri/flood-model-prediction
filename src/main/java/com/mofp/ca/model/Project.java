@@ -2,11 +2,11 @@ package com.mofp.ca.model;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.mofp.ca.model.json.PolygonDeserializer;
 import com.mofp.ca.model.json.PolygonToGeoJSON;
 import com.mofp.flood.model.Flood;
 import lombok.Getter;
 import lombok.Setter;
-import org.geolatte.common.dataformats.json.jackson.GeometryDeserializer;
 import org.geolatte.geom.G2D;
 import org.geolatte.geom.Polygon;
 
@@ -36,7 +36,7 @@ public class Project {
     @Column
     @Getter @Setter
     @JsonSerialize(using = PolygonToGeoJSON.class)
-    @JsonDeserialize(using = GeometryDeserializer.class)
+    @JsonDeserialize(using = PolygonDeserializer.class)
     private Polygon<G2D> area;
 
     @Column
