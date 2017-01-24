@@ -1,10 +1,11 @@
+/**
+ * @author rivasyafri
+ */
 var serviceUrl = 'http://127.0.0.1:8080/floodsimulator-0.0.1-SNAPSHOT/';
 var contentType = "application/x-www-form-urlencoded; charset=utf-8";
+
+/* Projects variable */
 var selectedProject = null;
-var cellSize = 1000;
-var timeStepInMinute = 5;
-var startDate = '2016-01-01';
-var intervalInMinute = 60;
 
 /* For IE user */
 if (window.XDomainRequest) {

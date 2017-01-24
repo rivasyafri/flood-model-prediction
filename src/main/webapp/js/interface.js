@@ -112,12 +112,14 @@ function showPlayer() {
         $('#button_close').prop('disabled', false);
         $('#button_save').prop('disabled', false);
         $('#button_stop').prop('disabled', false);
+        $('#button_box').prop('disabled', false);
         $('#button_test').prop('disabled', false);
     } else {
         $('#button_play').prop('disabled', true);
         $('#button_close').prop('disabled', true);
         $('#button_save').prop('disabled', true);
         $('#button_stop').prop('disabled', true);
+        $('#button_box').prop('disabled', true);
         $('#button_test').prop('disabled', true);
     }
 }
@@ -138,6 +140,7 @@ function buttonStopPress() {
     }
 }
 function buttonSavePress() {
+    console.log(selectedProject);
     var request = putProject();
     request.done(function (response, textStatus, jqXHR) {
         alert(textStatus);
