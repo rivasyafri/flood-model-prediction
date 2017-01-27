@@ -1,7 +1,7 @@
 /**
  * @author rivasyafri
  */
-var serviceUrl = 'http://127.0.0.1:8080/floodsimulator-0.0.1-SNAPSHOT/';
+var serviceUrl = 'http://127.0.0.1:8080/';
 var contentType = "application/x-www-form-urlencoded; charset=utf-8";
 
 /* Projects variable */
@@ -86,12 +86,43 @@ var patchProject = function(project) {
     return request;
 };
 var putProject = function() {
-    console.log(JSON.stringify(selectedProject));
     var request = $.ajax({
         url: selectedProject._links.self.href,
         type: 'PUT',
         contentType: "application/json",
         data: JSON.stringify(selectedProject),
+        xhrFields: {
+            withCredentials: false
+        },
+        success: function (data) {
+            selectedProject = data;
+        }
+    });
+    return request;
+};
+var setBorderAPI = function (ne, sw) {
+    var request = $.ajax({
+        url: serviceUrl+'project/setBorder?id='+selectedProject.id+
+            "&north="+ne.lat()+
+            "&west="+sw.lng()+
+            "&south="+sw.lat()+
+            "&east="+ne.lng(),
+        type: 'POST',
+        contentType: "application/json",
+        xhrFields: {
+            withCredentials: false
+        },
+        success: function (data) {
+            selectedProject = data;
+        }
+    });
+    return request;
+};
+var runProject = function () {
+    var request = $.ajax({
+        url: serviceUrl+'project/run?id='+selectedProject.id,
+        type: 'GET',
+        contentType: "application/json",
         xhrFields: {
             withCredentials: false
         },

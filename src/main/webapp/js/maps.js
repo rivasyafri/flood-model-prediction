@@ -248,6 +248,12 @@ var yNumberOfCells = null;
 var deltaX=null;
 var deltaY=null;
 var poly=null;
+var crs = {
+    "properties": {
+        "name" : "EPSG:4326"
+    },
+    "type": "name"
+};
 
 function addRectangleGetter(){
     var bounds={
@@ -267,10 +273,17 @@ function addRectangleGetter(){
         draggable:true,
         map:map
     });
+    google.maps.event.addDomListener(document, 'keyup', function (e) {
+        var code = (e.keyCode ? e.keyCode : e.which);
+        if (code === 8 || code === 46) {
+            poly.setMap(null);
+        } else if (code === 13) {
+            acceptBorder();
+        }
+    });
     addButton();
 }
 function drawGridFromSelectedProject(selectedProject) {
-    console.log(selectedProject);
     if (selectedProject != null) {
         if (selectedProject.area != null) {
             var bounds={
@@ -338,11 +351,8 @@ function addButton() {
     });
 }
 function acceptBorder() {
-    addJsonBorderToSelectedProject(poly);
-    ne = poly.getBounds().getNorthEast();
-    sw = poly.getBounds().getSouthWest();
+    // addJsonBorderToSelectedProject(poly);
     drawGrid(selectedProject.cellSize);
-    poly.setMap(null);
     return false;
 }
 function deleteBorder() {
@@ -357,27 +367,19 @@ function getButton(imageUrl) {
 /* Function to create grid for cellular automata */
 function setBorder(){
     if (selectedProject != null) {
-        addRectangleGetter();
+        if (selectedProject.cellSize != null) {
+            addRectangleGetter();
+        } else {
+            alert('Please set the project first.');
+        }
     } else {
         alert('Please load the project or create new project first.');
     }
 }
-function addJsonBorderToSelectedProject(area) {
-    ne = area.getBounds().getNorthEast();
-    sw = area.getBounds().getSouthWest();
-    selectedProject["area"] = {
-        "type" : "Polygon",
-        "coordinates" : [
-            [   [ne.lat(), ne.lng()],
-                [sw.lat(), ne.lng()],
-                [sw.lat(), sw.lng()],
-                [ne.lat(), sw.lng()],
-                [ne.lat(), ne.lng()]
-            ]
-        ]
-    };
-}
 function drawGrid(cellSize) {
+    ne = poly.getBounds().getNorthEast();
+    sw = poly.getBounds().getSouthWest();
+    poly.setMap(null);
     var rectangleHeight = Math.abs(ne.lng() - sw.lng());
     var rectangleWidth = Math.abs(ne.lat() - sw.lat());
     var dividerLat = convertMToLat(cellSize);

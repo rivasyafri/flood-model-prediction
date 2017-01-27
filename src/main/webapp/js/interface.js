@@ -114,6 +114,7 @@ function showPlayer() {
         $('#button_stop').prop('disabled', false);
         $('#button_box').prop('disabled', false);
         $('#button_test').prop('disabled', false);
+        $('#button_setting').prop('disabled', false);
     } else {
         $('#button_play').prop('disabled', true);
         $('#button_close').prop('disabled', true);
@@ -121,6 +122,7 @@ function showPlayer() {
         $('#button_stop').prop('disabled', true);
         $('#button_box').prop('disabled', true);
         $('#button_test').prop('disabled', true);
+        $('#button_setting').prop('disabled', true);
     }
 }
 function buttonPlayPress() {
@@ -140,8 +142,8 @@ function buttonStopPress() {
     }
 }
 function buttonSavePress() {
-    console.log(selectedProject);
-    var request = putProject();
+    var request = setBorderAPI(poly.getBounds().getNorthEast(),
+        poly.getBounds().getSouthWest());
     request.done(function (response, textStatus, jqXHR) {
         alert(textStatus);
         console.log(response);
