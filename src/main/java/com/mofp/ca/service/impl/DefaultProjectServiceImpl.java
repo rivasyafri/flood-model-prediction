@@ -5,6 +5,10 @@ import com.mofp.ca.thread.PredictionThread;
 import com.mofp.ca.dao.ProjectRepository;
 import com.mofp.ca.model.Project;
 import com.mofp.ca.service.ProjectService;
+import org.geolatte.geom.G2D;
+import org.geolatte.geom.Polygon;
+import org.geolatte.geom.codec.Wkt;
+import org.geolatte.geom.crs.CoordinateReferenceSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,5 +51,18 @@ public class DefaultProjectServiceImpl implements ProjectService {
             logger.error("Project have to be saved first/n" + e.toString());
             return null;
         }
+    }
+
+    @Override
+    public Polygon createRectangleFromBounds(double northLat, double westLong,
+                                             double southLat, double eastLong) {
+        StringBuilder wkt = new StringBuilder("SRID=4326;POLYGON((");
+        wkt.append(northLat + " " + eastLong + ", ");
+        wkt.append(southLat + " " + eastLong + ", ");
+        wkt.append(southLat + " " + westLong + ", ");
+        wkt.append(northLat + " " + westLong + ", ");
+        wkt.append(northLat + " " + eastLong);
+        wkt.append("))");
+        return (Polygon<G2D>) Wkt.fromWkt(wkt.toString());
     }
 }

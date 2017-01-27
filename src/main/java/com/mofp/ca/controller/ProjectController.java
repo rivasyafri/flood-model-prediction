@@ -42,4 +42,19 @@ public class ProjectController {
         }
         return false;
     }
+
+    @RequestMapping(value = "/project/setBorder", method = RequestMethod.POST)
+    public @ResponseBody Project setBorder(@RequestParam(value = "id") long id,
+                                           @RequestParam(value = "north") double north,
+                                           @RequestParam(value = "west") double west,
+                                           @RequestParam(value = "south") double south,
+                                           @RequestParam(value = "east") double east) {
+        Project project = projectRepository.findOne(id);
+        if (project != null) {
+            project.setArea(projectService.createRectangleFromBounds(north, west, south, east));
+            projectRepository.saveAndFlush(project);
+            return project;
+        }
+        return null;
+    }
 }
