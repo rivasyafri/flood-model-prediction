@@ -140,7 +140,6 @@
 }
 
 .modal-dialog {
-  height: 300px;
   margin: 0 auto;
   top: 20%;
 }
@@ -263,4 +262,10 @@
 
 .btn-player:disabled {
   background-color: darkgrey;
+}
+
+.container.modal-dialog {
+  background: white;
+  padding: 40px;
+  border-radius: 10px;
 }

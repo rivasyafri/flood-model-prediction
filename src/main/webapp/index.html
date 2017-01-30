@@ -30,7 +30,8 @@
     <!--Side Navigation menu-->
     <div id="mySidenav" class="sidenav">
         <a href="javascript:void(0)" class="closebtn" onclick="showNav()">&times;</a>
-        <a href="javascript:void(0)" data-toggle="modal" data-target="#create-modal" onclick="showNav()">Create Project</a>
+        <a href="javascript:void(0)" data-toggle="modal" data-target="#create-modal" onclick="showNav()">Create
+            Project</a>
         <a href="javascript:void(0)" data-toggle="modal" data-target="#load-modal" onclick="showNav()">Load Project</a>
     </div>
 
@@ -39,7 +40,8 @@
 
     <!-- Button play and stop. Get from http://codepen.io/superpikar/pen/zJsgH -->
     <div class="btn-group player">
-        <button type="button" id="button_load" class="btn btn-primary btn-player" data-toggle="modal" data-target="#load-modal">
+        <button type="button" id="button_load" class="btn btn-primary btn-player" data-toggle="modal"
+                data-target="#load-modal">
             <i class="fa fa-folder-open"></i>
         </button>
         <button type="button" id="button_save" class="btn btn-default btn-player" onclick='buttonSavePress()' disabled>
@@ -57,7 +59,8 @@
         <button type="button" id="button_test" class="btn btn-default btn-player" onclick='buttonTestPress()' disabled>
             <i class="fa fa-fast-forward"></i>
         </button>
-        <button type="button" id="button_setting" class="btn btn-default btn-player" data-toggle="modal" data-target="#setting-modal" disabled>
+        <button type="button" id="button_setting" class="btn btn-default btn-player" data-toggle="modal"
+                data-target="#setting-modal" disabled>
             <i class="fa fa-cog"></i>
         </button>
         <button type="button" id="button_close" class="btn btn-danger btn-player" onclick='buttonClosePress()' disabled>
@@ -76,7 +79,8 @@
     </div>
 
     <!--Load Projects-->
-    <div class="modal fade" id="load-modal" tabindex="-1" role="dialog" aria-labelledby="LoadProjectLabel" aria-hidden="true" style="display: none;">
+    <div class="modal fade" id="load-modal" tabindex="-1" role="dialog" aria-labelledby="LoadProjectLabel"
+         aria-hidden="true" style="display: none;">
         <div class="modal-dialog">
             <div class="loginmodal-container">
                 <h1>Load Project</h1><br>
@@ -87,7 +91,8 @@
                         </select>
                     </div>
                     <input type="submit" id="btn-load-project" name="load" class="login loginmodal-submit" value="Load">
-                    <input type="button" id="btn-delete-project" name="delete" class="login loginmodal-reset" value="Delete">
+                    <input type="button" id="btn-delete-project" name="delete" class="login loginmodal-reset"
+                           value="Delete">
                     <input type="button" name="cancel" class="login loginmodal-cancel" value="Cancel">
                 </form>
 
@@ -99,13 +104,15 @@
     </div>
 
     <!--Create Project-->
-    <div class="modal fade" id="create-modal" tabindex="-1" role="dialog" aria-labelledby="CreateProjectLabel" aria-hidden="true" style="display: none;">
+    <div class="modal fade" id="create-modal" tabindex="-1" role="dialog" aria-labelledby="CreateProjectLabel"
+         aria-hidden="true" style="display: none;">
         <div class="modal-dialog">
             <div class="loginmodal-container">
                 <h1>Create Project</h1><br>
                 <form id="create-form">
                     <input type="text" name="name" placeholder="Project Name">
-                    <input type="submit" name="create" id="btn-create-project" class="login loginmodal-submit" value="Create">
+                    <input type="submit" name="create" id="btn-create-project" class="login loginmodal-submit"
+                           value="Create">
                     <input type="button" name="cancel" class="login loginmodal-cancel" value="Cancel">
                 </form>
             </div>
@@ -113,32 +120,38 @@
     </div>
 
     <!--Global Setting of Project-->
-    <div class="modal fade" id="setting-modal" tabindex="-1" role="dialog" aria-labelledby="SettingLabel" aria-hidden="true" style="display: none;">
-        <div class="modal-dialog">
+    <div class="modal fade" id="setting-modal" tabindex="-1" role="dialog" aria-labelledby="SettingLabel"
+         aria-hidden="true" style="display: none;">
+        <div class="container modal-dialog">
             <h1>Settings</h1>
             <form id="setting-form" class="form-horizontal">
                 <div class="form-group">
                     <label>Cell size (in meter):</label>
                     <div class="col-md-4">
-                        <input type="number" class="form-control" id="txt_cellSize" name="cellSize" placeholder="ex. '100'">
+                        <input type="number" class="form-control" id="txt_cellSize" name="cellSize"
+                               placeholder="ex. '100'">
                     </div>
                 </div>
                 <div class="form-group">
                     <label>Time step (in minutes):</label>
                     <div class="col-md-4">
-                        <input type="number" class="form-control" id="txt_timeStep" name="timeStep" placeholder="ex. '5'">
+                        <input type="number" class="form-control" id="txt_timeStep" name="timeStep"
+                               placeholder="ex. '5'">
                     </div>
                 </div>
                 <div class="form-group">
                     <label>Start date:</label>
                     <div class="col-md-6">
-                        <input type="text" class="form-control" name="startDate" placeholder="ex. '2016-01-01T00:00:00.000'" id="datetimepicker" data-date-format="yyyy-mm-ddThh:ii:ss">
+                        <input type="text" class="form-control" name="startDate"
+                               placeholder="ex. '2016-01-01T00:00:00.000'" id="datetimepicker"
+                               data-date-format="yyyy-mm-ddThh:ii:ss">
                     </div>
                 </div>
                 <div class="form-group">
                     <label>Interval (in minutes):</label>
                     <div class="col-md-4">
-                        <input type="number" class="form-control" name="interval" id="txt_interval" placeholder="ex. '60'">
+                        <input type="number" class="form-control" name="interval" id="txt_interval"
+                               placeholder="ex. '60'">
                     </div>
                 </div>
                 <div class="btn-group">
@@ -151,16 +164,16 @@
 
     <!--Variable Setting-->
     <!--<div class="modal fade" id="variable-modal" tabindex="-1" role="dialog" aria-labelledby="VariableLabel" aria-hidden="true" style="display: none;">-->
-        <!--<div class="modal-dialog">-->
-            <!--<div class="loginmodal-container">-->
-                <!--<h1>Create Project</h1><br>-->
-                <!--<form id="variable-project">-->
-                    <!--<input type="text" name="project" id="txt-create-name" placeholder="Project Name">-->
-                    <!--<input type="submit" name="create" id="btn-create-project" class="login loginmodal-submit" value="Create">-->
-                    <!--<input type="submit" name="cancel" class="login loginmodal-reset" value="Cancel">-->
-                <!--</form>-->
-            <!--</div>-->
-        <!--</div>-->
+    <!--<div class="modal-dialog">-->
+    <!--<div class="loginmodal-container">-->
+    <!--<h1>Create Project</h1><br>-->
+    <!--<form id="variable-project">-->
+    <!--<input type="text" name="project" id="txt-create-name" placeholder="Project Name">-->
+    <!--<input type="submit" name="create" id="btn-create-project" class="login loginmodal-submit" value="Create">-->
+    <!--<input type="submit" name="cancel" class="login loginmodal-reset" value="Cancel">-->
+    <!--</form>-->
+    <!--</div>-->
+    <!--</div>-->
     <!--</div>-->
 </div>
 <script type="text/javascript" src="js/interface.js"></script>
