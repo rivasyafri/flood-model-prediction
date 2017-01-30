@@ -239,13 +239,26 @@
 
 .btn-player {
   font-size: 24px;
-  padding: 8px;
+  /*padding: 8px;*/
   border-radius: 4px;
-  background-color: white;
+  border-right: 2px solid grey;
+  /*background-color: white;*/
 }
 
 .btn-player:hover {
-  background-color: lightgrey;
+  background-color: darkgrey;
+}
+
+.btn-primary.btn-player:hover {
+  background-color: darkblue;
+}
+
+.btn-success.btn-player:hover {
+  background-color: darkgreen;
+}
+
+.btn-danger.btn-player:hover {
+  background-color: darkred;
 }
 
 .btn-player:disabled {

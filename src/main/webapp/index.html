@@ -38,29 +38,29 @@
     <button onclick="showNav()" class="span-nav">☰</button>
 
     <!-- Button play and stop. Get from http://codepen.io/superpikar/pen/zJsgH -->
-    <div class="player text-center">
-        <button type="button" id="button_load" class="btn btn-player" data-toggle="modal" data-target="#load-modal">
+    <div class="btn-group player">
+        <button type="button" id="button_load" class="btn btn-primary btn-player" data-toggle="modal" data-target="#load-modal">
             <i class="fa fa-folder-open"></i>
         </button>
-        <button type="button" id="button_save" class="btn btn-player" onclick='buttonSavePress()' disabled>
+        <button type="button" id="button_save" class="btn btn-default btn-player" onclick='buttonSavePress()' disabled>
             <i class="fa fa-floppy-o"></i>
         </button>
-        <button type="button" id="button_box" class="btn btn-player" onclick='setBorder()' disabled>
+        <button type="button" id="button_box" class="btn btn-default btn-player" onclick='setBorder()' disabled>
             <i class="fa fa-square"></i>
         </button>
-        <button type="button" id="button_play" class="btn btn-player" onclick='buttonPlayPress()' disabled>
+        <button type="button" id="button_play" class="btn btn-success btn-player" onclick='buttonPlayPress()' disabled>
             <i class="fa fa-play"></i>
         </button>
-        <button type="button" id="button_stop" class="btn btn-player" onclick='buttonStopPress()' disabled>
+        <button type="button" id="button_stop" class="btn btn-danger btn-player" onclick='buttonStopPress()' disabled>
             <i class="fa fa-stop"></i>
         </button>
-        <button type="button" id="button_test" class="btn btn-player" onclick='buttonTestPress()' disabled>
+        <button type="button" id="button_test" class="btn btn-default btn-player" onclick='buttonTestPress()' disabled>
             <i class="fa fa-fast-forward"></i>
         </button>
-        <button type="button" id="button_setting" class="btn btn-player" data-toggle="modal" data-target="#setting-modal" disabled>
+        <button type="button" id="button_setting" class="btn btn-default btn-player" data-toggle="modal" data-target="#setting-modal" disabled>
             <i class="fa fa-cog"></i>
         </button>
-        <button type="button" id="button_close" class="btn btn-player" onclick='buttonClosePress()' disabled>
+        <button type="button" id="button_close" class="btn btn-danger btn-player" onclick='buttonClosePress()' disabled>
             <i class="fa fa-window-close"></i>
         </button>
     </div>
@@ -115,21 +115,37 @@
     <!--Global Setting of Project-->
     <div class="modal fade" id="setting-modal" tabindex="-1" role="dialog" aria-labelledby="SettingLabel" aria-hidden="true" style="display: none;">
         <div class="modal-dialog">
-            <div class="loginmodal-container">
-                <h1>Settings</h1><br>
-                <form id="setting-form">
-                    <label>Cell size in meter:</label>
-                    <input type="number" name="cellSize" placeholder="ex. '100'">
-                    <label>Time step in minutes:</label>
-                    <input type="number" name="timeStep" placeholder="ex. '5'">
+            <h1>Settings</h1>
+            <form id="setting-form" class="form-horizontal">
+                <div class="form-group">
+                    <label>Cell size (in meter):</label>
+                    <div class="col-md-4">
+                        <input type="number" class="form-control" id="txt_cellSize" name="cellSize" placeholder="ex. '100'">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Time step (in minutes):</label>
+                    <div class="col-md-4">
+                        <input type="number" class="form-control" id="txt_timeStep" name="timeStep" placeholder="ex. '5'">
+                    </div>
+                </div>
+                <div class="form-group">
                     <label>Start date:</label>
-                    <input type="text" name="startDate" placeholder="ex. '2016-01-01T00:00:00.000'" id="datetimepicker" data-date-format="yyyy-mm-ddThh:ii:ss">
-                    <label>Interval in minutes:</label>
-                    <input type="number" name="interval" placeholder="ex. '60'">
-                    <input type="submit" name="Done" id="btn-setting-project" class="login loginmodal-submit" value="Done">
-                    <input type="button" name="cancel" class="login loginmodal-cancel" value="Cancel">
-                </form>
-            </div>
+                    <div class="col-md-6">
+                        <input type="text" class="form-control" name="startDate" placeholder="ex. '2016-01-01T00:00:00.000'" id="datetimepicker" data-date-format="yyyy-mm-ddThh:ii:ss">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Interval (in minutes):</label>
+                    <div class="col-md-4">
+                        <input type="number" class="form-control" name="interval" id="txt_interval" placeholder="ex. '60'">
+                    </div>
+                </div>
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                    <button type="button" class="btn btn-danger" onclick="cancelModal()">Cancel</button>
+                </div>
+            </form>
         </div>
     </div>
 
