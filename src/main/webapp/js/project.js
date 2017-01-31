@@ -36,10 +36,10 @@ var getOneProject = function(url) {
         },
         success: function (data) {
             selectedProject = data;
-            cellSize = selectedProject.cellSize != null ? selectedProject.cellSize : 1000;
-            timeStepInMinute = selectedProject.timeStep != null ? selectedProject.timeStep : 5;
-            startDate = selectedProject.startDate != null ? selectedProject.startDate : '2016-01-01T00:00:00.000Z';
-            intervalInMinute = selectedProject.interval != null ? selectedProject.interval : 60;
+            $('#txt_cellSize').val(selectedProject.cellSize != null ? selectedProject.cellSize : 1000);
+            $('#txt_timeStep').val(selectedProject.timeStep != null ? selectedProject.timeStep : 5);
+            $('#datetimepicker').val(selectedProject.startDate != null ? selectedProject.startDate : '2016-01-01T00:00:00.000Z');
+            $('#txt_interval').val(selectedProject.interval != null ? selectedProject.interval : 60);
             drawGridFromSelectedProject(selectedProject);
         }
     });

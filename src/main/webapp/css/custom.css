@@ -230,7 +230,8 @@
   float: left;
   z-index: 1049;
   bottom: 27px;
-  left: 40%;
+  left: 50%;
+  transform: translateX(-50%);
   background: grey;
   padding: 5px;
   border-radius: 5px;
