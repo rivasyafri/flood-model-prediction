@@ -29,15 +29,15 @@ public class GlobalFloodPrediction {
     public ArrayList<int[][]> NEIGHBOR;
 
     //// ************************** Public Variables *************************************** ////
+    public Project project;
     public Cell[][] MATRIX;
     public PriorityQueue<Cell> ACTIVE_CELLS;
     public PriorityQueue<Cell> NEW_ACTIVE_CELLS;
     public Random RANDOM_GENERATOR;
 
     //// ************************** Constant State *************************************** ////
-    private final State WET_STATE = stateRepository.findByName("WET").get(0);
-    private final State DRY_STATE = stateRepository.findByName("DRY").get(0);
-
+    private final State WET_STATE;
+    private final State DRY_STATE;
 
     public GlobalFloodPrediction() {
         CELL_SIZE = 4;
@@ -50,6 +50,9 @@ public class GlobalFloodPrediction {
         ACTIVE_CELLS = new PriorityQueue<>();
         NEW_ACTIVE_CELLS = new PriorityQueue<>();
         RANDOM_GENERATOR = new Random();
+
+        WET_STATE = new State("WET", true);
+        DRY_STATE = new State("DRY", false);
     }
 
     public void initialize() {

@@ -6,8 +6,7 @@ import com.mofp.ca.model.Project;
 import com.mofp.ca.service.ProjectService;
 import lombok.Getter;
 import lombok.Setter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -19,7 +18,7 @@ import org.springframework.stereotype.Component;
 @Scope("prototype")
 public class PredictionThread implements Runnable {
 
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final Logger logger = Logger.getLogger(getClass());
 
     @Autowired
     private ProjectService projectService;
