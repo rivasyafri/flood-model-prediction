@@ -1,11 +1,10 @@
 package com.mofp.ca.model;
 
-import com.mofp.ca.dao.StateRepository;
-import com.mofp.flood.prediction.HortonEquation;
-import com.mofp.flood.prediction.PrasetyaModel;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.geolatte.geom.G2D;
+import org.geolatte.geom.LineString;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Random;
 
@@ -14,13 +13,11 @@ import java.util.Random;
  */
 public class GlobalFloodPrediction {
 
-    @Autowired
-    private StateRepository stateRepository;
-
     ////*********************** Model Properties ******************************** ////
-    public int SIZE_X;
-    public int SIZE_Y;
-    public int CELL_SIZE;
+    public double SIZE_X;
+    public double SIZE_Y;
+    public double DELTA_X;
+    public double DELTA_Y;
     public int TIME_STEP;
     public int INTERVAL;
 
@@ -29,154 +26,82 @@ public class GlobalFloodPrediction {
     public ArrayList<int[][]> NEIGHBOR;
 
     //// ************************** Public Variables *************************************** ////
-    public Project project;
+    public Project PROJECT;
     public Cell[][] MATRIX;
     public PriorityQueue<Cell> ACTIVE_CELLS;
     public PriorityQueue<Cell> NEW_ACTIVE_CELLS;
     public Random RANDOM_GENERATOR;
 
     //// ************************** Constant State *************************************** ////
-    private final State WET_STATE;
-    private final State DRY_STATE;
+    public State WET_STATE;
+    public State DRY_STATE;
 
     public GlobalFloodPrediction() {
-        CELL_SIZE = 4;
         TIME_STEP = 1001;
         INTERVAL = 100000;
-
+        SIZE_X = 800;
+        SIZE_Y = 800;
+        initVariables();
+        initArea();
+        initMatrix();
+    }
+    public GlobalFloodPrediction(Project PROJECT) {
+        this.PROJECT = PROJECT;
+        TIME_STEP = PROJECT.getTimeStep();
+        INTERVAL = PROJECT.getTimeStep();
+        initVariables();
+        initArea();
+        initMatrix();
+    }
+    private void initVariables() {
         NEIGHBORHOOD = new Neighborhood();
         NEIGHBOR = NEIGHBORHOOD.use("moore");
 
         ACTIVE_CELLS = new PriorityQueue<>();
         NEW_ACTIVE_CELLS = new PriorityQueue<>();
         RANDOM_GENERATOR = new Random();
-
-        WET_STATE = new State("WET", true);
-        DRY_STATE = new State("DRY", false);
     }
-
-    public void initialize() {
-        int GridX = SIZE_X / CELL_SIZE;
-        int GridY = SIZE_Y / CELL_SIZE;
-        MATRIX = new Cell[GridX][GridY];
-        for (int y = 0; y < GridY; y++) {
-            for (int x = 0; x < GridX; x++) {
-                MATRIX[y][x] = new Cell(x, y, DRY_STATE);
+    private void initArea() {
+        double lat1, lat2 = 0, lon1, lon2 = 0;
+        LineString<G2D> line = PROJECT.getArea().getExteriorRing();
+        lat1 = line.getPositionN(0).getLat();
+        lon1 = line.getPositionN(0).getLon();
+        for (int i = 1; i < line.getNumPositions() - 1; i++) {
+            G2D position = line.getPositionN(i);
+            lat2 = lat1 != position.getLat() ? position.getLat() : lat2;
+            lon2 = lon1 != position.getLon() ? position.getLon() : lon2;
+        }
+        SIZE_X = Math.abs(lon1 - lon2);
+        SIZE_Y = Math.abs(lat1 - lat2);
+        DELTA_X = PROJECT != null ? convertMToLat(PROJECT.getCellSize()) : convertMToLat(1000);
+        DELTA_Y = PROJECT != null ? convertMToLon(PROJECT.getCellSize(), lon1) : convertMToLon(1000, lon1);
+    }
+    private void initMatrix() {
+        Long gridX = Math.round(SIZE_X / DELTA_X);
+        Long gridY = Math.round(SIZE_Y / DELTA_Y);
+        int numberOfCellX = gridX.intValue();
+        int numberOfCellY = gridY.intValue();
+        MATRIX = new Cell[numberOfCellY][numberOfCellX];
+        List<Cell> cells = new ArrayList<>();
+        for (int y = 0; y < numberOfCellY; y++) {
+            for (int x = 0; x < numberOfCellX; x++) {
+                Cell cell = new Cell(x, y, DRY_STATE);
+                MATRIX[y][x] = cell;
+                cells.add(cell);
                 MATRIX[y][x].randomizeData(); // for experiment
             }
         }
-        // Add initialize data from database
+        PROJECT.setCellList(cells);
     }
-
-    public void run() {
-        for (int timeStep = 0; timeStep < INTERVAL; timeStep = timeStep + TIME_STEP) {
-            calculateRunOffForAllCells("", timeStep);
-            while (ACTIVE_CELLS.size() != 0) {
-                Cell activeCell = ACTIVE_CELLS.poll();
-                runInundationModel(activeCell);
-            }
-            ACTIVE_CELLS = NEW_ACTIVE_CELLS;
-            NEW_ACTIVE_CELLS = new PriorityQueue<>();
-            while (ACTIVE_CELLS.size() != 0) {
-                Cell activeCell = ACTIVE_CELLS.poll();
-                runInundationModel(activeCell);
-            }
-            ACTIVE_CELLS = NEW_ACTIVE_CELLS;
-            NEW_ACTIVE_CELLS = new PriorityQueue<>();
-        }
+    /* Get from http://stackoverflow.com/questions/1253499/simple-calculations-for-working-with-lat-lon-km-distance */
+    private double convertMToLat(double m) {
+        return (m/1000) / 110.574;
     }
-
-    public void calculateRunOffForAllCells(String model, int timeStep) {
-        PrasetyaModel chosenModel = new PrasetyaModel();
-        for (Cell[] cells : MATRIX) {
-            for (Cell cell : cells) {
-                double runOff = cell.getWaterHeight();
-
-                // Add variation of infiltration capacity
-                int time = timeStep - cell.getTimeStartFlooded();
-                if (cell.getTimeStartFlooded() == 0) {
-                    time = 0;
-                }
-                double infiltrationRate = HortonEquation.calculate(cell.getConstantInfiltrationCapacity(),
-                        cell.getInitialInfiltrationCapacity(), cell.getKValue(), time);
-
-                // Calculation of water balance and saving, can add drainage
-                double waterBalance = infiltrationRate;
-                double saving = 0;
-                double temp = infiltrationRate - runOff;
-                if (temp > 0) {
-                    waterBalance = runOff;
-                    saving = infiltrationRate - runOff;
-                }
-                cell.setWaterBalance(cell.getWaterBalance() + waterBalance);
-
-                // Add precipitation of cell
-                double precipitation = RANDOM_GENERATOR.nextDouble();
-
-                // Calculation of run off
-                runOff = chosenModel.calculateRunOff(precipitation, saving) + (runOff - waterBalance);
-
-                // Set state, can add process to save the state
-                if (runOff > 0) {
-                    cell.setWaterHeight(runOff);
-                    cell.updateTotalHeight();
-                    if (cell.getTimeStartFlooded() > 0) {
-                        cell.setCurrentState(WET_STATE);
-                        cell.setTimeStartFlooded(timeStep);
-                    }
-                    NEW_ACTIVE_CELLS.add(cell);
-                } else if (cell.getWaterHeight() > 0) {
-                    cell.setWaterHeight(runOff);
-                    cell.updateTotalHeight();
-                    cell.setCurrentState(DRY_STATE);
-                    cell.setTimeStartFlooded(0);
-                }
-            }
-        }
+    private double convertMToLon(double m, double latInDegree) {
+        return (m/1000) * Math.acos(toRadians(latInDegree))/ 111.320;
     }
-
-    public void runInundationModel(Cell cell) {
-        int _x, _y;
-        ArrayList<Cell> neighborCells = new ArrayList<>();
-        for (int[][] i : NEIGHBOR) {
-            for (int[] j : i) {
-                _x = j[0] + cell.getXArray();
-                _y = j[1] + cell.getYArray();
-                if (_x > 0 && _y > 0) {
-                    neighborCells.add(MATRIX[_y][_x]);
-                }
-            }
-        }
-        double totalHeight = cell.getTotalHeight();
-        for (Cell neighborCell : neighborCells) {
-            totalHeight += neighborCell.getTotalHeight();
-        }
-        double averageOfTotalHeight = totalHeight / (neighborCells.size() + 1);
-
-        ArrayList<Cell> processedNeighborCells = new ArrayList<>();
-        for (Cell neighborCell: neighborCells) {
-            if (neighborCell.getTotalHeight() < averageOfTotalHeight &&
-                    neighborCell.getTotalHeight() < cell.getTotalHeight()) {
-                processedNeighborCells.add(neighborCell);
-            }
-        }
-
-        double inundation = cell.getWaterHeight() / (processedNeighborCells.size() + 1);
-        double deltaCenter = 0;
-        for (Cell processedNeighborCell: processedNeighborCells) {
-            if (processedNeighborCell.getTotalHeight() + inundation > cell.getTotalHeight()) {
-                double delta = cell.getTotalHeight() - processedNeighborCell.getTotalHeight();
-                processedNeighborCell.setWaterHeight(processedNeighborCell.getWaterHeight() + delta);
-                deltaCenter += inundation - delta;
-            } else {
-                processedNeighborCell.setWaterHeight(processedNeighborCell.getWaterHeight() + inundation);
-            }
-            if (!ACTIVE_CELLS.contains(processedNeighborCell)) {
-                ACTIVE_CELLS.add(processedNeighborCell);
-            }
-            processedNeighborCell.updateTotalHeight();
-        }
-        cell.setWaterHeight(inundation + deltaCenter);
-        cell.updateTotalHeight();
+    /* Get from http://stackoverflow.com/questions/9705123/how-can-i-get-sin-cos-and-tan-to-use-degrees-instead-of-radians */
+    private double toRadians (double angle) {
+        return angle * (Math.PI / 180);
     }
 }

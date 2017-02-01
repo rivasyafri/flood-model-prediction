@@ -10,7 +10,6 @@ $(document).ready(function () {
         request.done(function (response, textStatus, jqXHR) {
             alert(textStatus);
             console.log(response);
-            removeModal();
             showPlayer();
             sideNavValidation();
         });
@@ -23,7 +22,6 @@ $(document).ready(function () {
         request.done(function (response, textStatus, jqXHR) {
             alert(textStatus);
             console.log(response);
-            removeModal();
             sideNavValidation();
         });
         return false;
@@ -45,16 +43,11 @@ $(document).ready(function () {
             request.done(function (response, textStatus, jqXHR) {
                 alert(textStatus);
                 console.log(response);
-                removeModal();
             });
         } else {
             alert("Load or create new project first!");
         }
         return false;
-    });
-    $(".loginmodal-cancel").click(function (event) {
-        event.preventDefault();
-        removeModal();
     });
 });
 
@@ -90,14 +83,6 @@ function refreshSelect(projects) {
             }));
         });
     }
-}
-function removeModal() {
-    $('.modal').removeClass('show');
-    $('body').removeClass('modal-open');
-    $('.modal-backdrop').remove();
-    setTimeout(function () {
-        $('.modal').css({ display: 'none'}).attr('aria-hidden', 'true');
-    }, 800);
 }
 function showNav() {
     if (document.getElementById("mySidenav").style.width == '250px') {
