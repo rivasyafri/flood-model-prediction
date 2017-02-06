@@ -64,7 +64,11 @@ public class Project {
     @Getter @Setter
     private boolean done = false;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @Column(nullable = false)
+    @Getter @Setter
+    private String model = "Prasetya";
+
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "variableId", nullable = false)
     @Getter @Setter
     private Variable variable;
