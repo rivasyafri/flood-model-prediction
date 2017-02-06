@@ -127,7 +127,7 @@ var runProject = function () {
             withCredentials: false
         },
         success: function (data) {
-            selectedProject = data;
+            selectedProject = typeof data !== 'undefined' ? data : selectedProject;
         }
     });
     return request;

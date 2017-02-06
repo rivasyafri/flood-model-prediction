@@ -144,6 +144,12 @@
   top: 20%;
 }
 
+.container.modal-dialog {
+  margin: 0 auto;
+  top: 20%;
+  max-width: 100%;
+}
+
 .modal-open {
     color: black;
 }

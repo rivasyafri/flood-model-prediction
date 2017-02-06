@@ -1,54 +1,8 @@
 $(document).ready(function () {
     getProjects();
-    $('#datetimepicker').datetimepicker();
-    $("#select-projects").click(function () {
-        getProjects();
-    });
-    $('#load-form').submit(function () {
-        var url = $('#select-projects').val();
-        var request = getOneProject(url);
-        request.done(function (response, textStatus, jqXHR) {
-            alert(textStatus);
-            console.log(response);
-            showPlayer();
-            sideNavValidation();
-        });
-        return false;
-    });
-    $('#create-form').submit(function () {
-        var project = JSON.stringify($('#create-form').serializeObject());
-        project["done"] = false;
-        var request = postProject(project);
-        request.done(function (response, textStatus, jqXHR) {
-            alert(textStatus);
-            console.log(response);
-            sideNavValidation();
-        });
-        return false;
-    });
-    $("#btn-delete-project").click(function (event) {
-        event.preventDefault();
-        var url = $('#select-projects').val();
-        var request = deleteProject(url);
-        request.done(function (response, textStatus, jqXHR) {
-            alert(textStatus);
-            console.log(response);
-            getProjects();
-        });
-    });
-    $('#setting-form').submit(function () {
-        if (selectedProject != null) {
-            var project = JSON.stringify($('#setting-form').serializeObject());
-            var request = patchProject(project);
-            request.done(function (response, textStatus, jqXHR) {
-                alert(textStatus);
-                console.log(response);
-            });
-        } else {
-            alert("Load or create new project first!");
-        }
-        return false;
-    });
+    $('#create-modal').load('view/create-project-modal.html');
+    $('#load-modal').load('view/load-project-modal.html');
+    $('#setting-modal').load('view/setting-project-modal.html');
 });
 
 /* Function for interface */
@@ -111,13 +65,18 @@ function showPlayer() {
     }
 }
 function buttonPlayPress() {
-    if (lines != null){
-        for (var i = 0; i < 10; i++) {
-            var x = Math.floor(Math.random() * xNumberOfCells);
-            var y = Math.floor(Math.random() * yNumberOfCells);
-            createCellFlooded(x, y);
-        }
-    }
+    // if (lines != null){
+    //     for (var i = 0; i < 10; i++) {
+    //         var x = Math.floor(Math.random() * xNumberOfCells);
+    //         var y = Math.floor(Math.random() * yNumberOfCells);
+    //         createCellFlooded(x, y);
+    //     }
+    // }
+    var request = runProject();
+    request.done(function (response, textStatus, jqXHR) {
+        alert(textStatus);
+        console.log(response);
+    });
 }
 function buttonStopPress() {
     if (cells != null) {
@@ -132,7 +91,6 @@ function buttonSavePress() {
     request.done(function (response, textStatus, jqXHR) {
         alert(textStatus);
         console.log(response);
-        removeModal();
     });
 }
 function buttonTestPress() {
