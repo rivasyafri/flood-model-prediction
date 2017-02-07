@@ -186,17 +186,17 @@
                 var project = JSON.stringify($('#setting-form').serializeObject());
                 var request = patchProject(project);
                 request.done(function (response, textStatus, jqXHR) {
-                    notify("fa fa-check-circle-o", selectedProject.name + "settings are saved to database.", textStatus);
+                    notify("fa fa-check-circle-o", selectedProject.name + " settings are saved to database.", textStatus);
                     console.log(response);
                     var variable = patchVariable(project, selectedProject.variable.id);
                     variable.done(function (response, textStatus, jqXHR) {
-                        notify("fa fa-check-circle-o", selectedProject.name + "variables are saved to database.", textStatus);
+                        notify("fa fa-check-circle-o", selectedProject.name + " variables are saved to database.", textStatus);
                         console.log(response);
                         var load = getOneProject(selectedProject._links.self.href);
                         load.done(function (response, textStatus, jqXHR) {
                             selectedProject = response;
                             console.log(selectedProject);
-                            notify("fa fa-check-circle-o", "All" + selectedProject.name + "settings are successfully saved to database.", textStatus);
+                            notify("fa fa-check-circle-o", "All " + selectedProject.name + " settings are successfully saved to database.", textStatus);
                             loadDataToPlaceHolder();
                         });
                         load.fail(function (response, textStatus, jqXHR) {

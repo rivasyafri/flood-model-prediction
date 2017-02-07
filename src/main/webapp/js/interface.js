@@ -13,6 +13,10 @@ function notify(icon, message, type) {
     },{
         type: type,
         newest_on_top: true,
+        placement: {
+            from: "top",
+            align: "center"
+        },
         timer: 1000
     });
 }
@@ -147,12 +151,12 @@ function buttonSavePress() {
     var request = setBorderAPI(poly.getBounds().getNorthEast(),
         poly.getBounds().getSouthWest());
     request.done(function (response, textStatus, jqXHR) {
-        notify("fa fa-check-circle-o", selectedProject.name + "borders are successfully saved to database.", textStatus);
+        notify("fa fa-check-circle-o", selectedProject.name + " borders are successfully saved to database.", textStatus);
         var load = getOneProject(selectedProject._links.self.href);
         load.done(function (response, textStatus, jqXHR) {
             selectedProject = response;
             console.log(selectedProject);
-            notify("fa fa-check-circle-o", selectedProject.name + "are loaded successfully.", textStatus);
+            notify("fa fa-check-circle-o", selectedProject.name + " are loaded successfully.", textStatus);
             loadDataToPlaceHolder();
         });
         load.fail(function (response, textStatus, jqXHR) {
