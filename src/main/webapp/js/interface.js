@@ -6,6 +6,64 @@ $(document).ready(function () {
 });
 
 /* Function for interface */
+function notify(icon, message, type) {
+    $.notify({
+        icon: icon,
+        message: message
+    },{
+        type: type,
+        newest_on_top: true,
+        timer: 1000
+    });
+}
+function loadDataToPlaceHolder() {
+    $('#txt_cellSize').val(selectedProject.cellSize != null ? selectedProject.cellSize : 1000);
+    $('#txt_timeStep').val(selectedProject.timeStep != null ? selectedProject.timeStep : 5);
+    $('#datetimepicker').val(selectedProject.startDate != null ? selectedProject.startDate : '2016-01-01T00:00:00.000Z');
+    $('#txt_interval').val(selectedProject.interval != null ? selectedProject.interval : 60);
+    if (selectedProject.variable.usingDrainage) {
+        $('#txt_usingDrainage').attr('checked', 'checked');
+        $('#txt_usingDrainage').attr('value', 'true');
+        $('#div-using-drainage').css('display', 'block').addClass('show');
+    }
+    if (selectedProject.variable.evapotranspirationByData) {
+        $('#txt_evapotranspirationByData').attr('checked', 'checked');
+        $('#txt_evapotranspirationByData').attr('value', 'true');
+        $('#div-evapotranspiration-data').css('display', 'block').addClass('show');
+        $('#div-evapotranspiration-value').css('display', 'none').removeClass('show');
+    } else {
+        $('#div-evapotranspiration-value').css('display', 'block').addClass('show');
+    }
+    if (selectedProject.variable.usingEvapotranspiration) {
+        $('#txt_usingEvapotranspiration').attr('checked', 'checked');
+        $('#txt_usingEvapotranspiration').attr('value', 'true');
+        $('#div-using-evapotranspiration').css('display', 'block').addClass('show');
+        $('#div-evapotranspiration-value').css('display', 'block').addClass('show');
+    }
+    $('#txt_usingDrainage').val(selectedProject.variable.usingDrainage);
+    $('#txt_usingEvapotranspiration').val(selectedProject.variable.usingEvapotranspiration);
+    $('#txt_evapotranspirationByData').val(selectedProject.variable.evapotranspirationByData);
+    $('#txt_drainageValue').val(selectedProject.variable.drainageValue);
+    $('#txt_evapotranspirationValue').val(selectedProject.variable.evapotranspirationValue);
+    $('#txt_radiation').val(selectedProject.variable.radiation);
+    $('#txt_geothermal').val(selectedProject.variable.geothermal);
+    $('#txt_delta').val(selectedProject.variable.delta);
+    $('#txt_cn').val(selectedProject.variable.cn);
+    $('#txt_cd').val(selectedProject.variable.cd);
+    $('#txt_saturatedWaterVapor').val(selectedProject.variable.saturatedWaterVapor);
+    $('#txt_waterVapor').val(selectedProject.variable.waterVapor);
+    $('#txt_windSpeed').val(selectedProject.variable.windSpeed);
+    $('#txt_meanTemperature').val(selectedProject.variable.meanTemperature);
+    $('#txt_psychometric').val(selectedProject.variable.psychometric);
+    $('#select-model').val(selectedProject.model);
+    if (selectedProject.model == 'Chen') {
+        $('#select-model option[value="Chen"]').prop("selected",true);
+    } else if (selectedProject.model == 'VIC') {
+        $('#select-model option[value="VIC"]').prop("selected",true);
+    } else {
+        $('#select-model option[value="Prasetya"]').prop("selected",true);
+    }
+}
 function sideNavValidation() {
     if (selectedProject != null) {
         $('#mySidenav').append('<a href="javascript:void(0)" onclick="showNav(); setBorder();">Set Border</a>' +
@@ -89,8 +147,20 @@ function buttonSavePress() {
     var request = setBorderAPI(poly.getBounds().getNorthEast(),
         poly.getBounds().getSouthWest());
     request.done(function (response, textStatus, jqXHR) {
-        alert(textStatus);
-        console.log(response);
+        notify("fa fa-check-circle-o", selectedProject.name + "borders are successfully saved to database.", textStatus);
+        var load = getOneProject(selectedProject._links.self.href);
+        load.done(function (response, textStatus, jqXHR) {
+            selectedProject = response;
+            console.log(selectedProject);
+            notify("fa fa-check-circle-o", selectedProject.name + "are loaded successfully.", textStatus);
+            loadDataToPlaceHolder();
+        });
+        load.fail(function (response, textStatus, jqXHR) {
+            notify("fa fa-times-circle-o", selectedProject.name + " cannot be loaded. See log.", "danger");
+        });
+    });
+    request.fail(function (response, textStatus, jqXHR) {
+        notify("fa fa-times-circle-o", selectedProject.name + " borders cannot be saved. See log.", "danger");
     });
 }
 function buttonTestPress() {

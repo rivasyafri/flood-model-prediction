@@ -1,79 +1,181 @@
 <div class="container modal-dialog">
-    <div class="col-md-10">
-        <h1>Settings</h1>
-        <form id="setting-form" class="form-horizontal">
-            <div class="col-md-8">
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label>Cell size (in meter):</label>
-                            <div class="col-md-4">
-                                <input type="number" class="form-control" id="txt_cellSize" name="cellSize"
-                                       placeholder="ex. '100'">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>Time step (in minutes):</label>
-                            <div class="col-md-4">
-                                <input type="number" class="form-control" id="txt_timeStep" name="timeStep"
-                                       placeholder="ex. '5'">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>Start date:</label>
-                            <div class="col-md-4">
-                                <input type="text" class="form-control" name="startDate"
-                                       placeholder="ex. '2016-01-01T00:00:00.000'" id="datetimepicker"
-                                       data-date-format="yyyy-mm-ddThh:ii:ss">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>Interval (in minutes):</label>
-                            <div class="col-md-4">
-                                <input type="number" class="form-control" name="interval" id="txt_interval"
-                                       placeholder="ex. '60'">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label>Cell size (in meter):</label>
-                            <div class="col-md-4">
-                                <input type="number" class="form-control" id="txt_cellSize" name="cellSize"
-                                       placeholder="ex. '100'">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>Time step (in minutes):</label>
-                            <div class="col-md-4">
-                                <input type="number" class="form-control" id="txt_timeStep" name="timeStep"
-                                       placeholder="ex. '5'">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>Start date:</label>
-                            <div class="col-md-4">
-                                <input type="text" class="form-control" name="startDate"
-                                       placeholder="ex. '2016-01-01T00:00:00.000'" id="datetimepicker"
-                                       data-date-format="yyyy-mm-ddThh:ii:ss">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>Interval (in minutes):</label>
-                            <div class="col-md-4">
-                                <input type="number" class="form-control" name="interval" id="txt_interval"
-                                       placeholder="ex. '60'">
-                            </div>
-                        </div>
+    <h1>Settings</h1>
+    <form id="setting-form" class="form-horizontal">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>Selected model to process:</label>
+                    <div class="col-md-11">
+                        <select class="form-control" id="select-model" name="model">
+                            <option value="Prasetya">Prasetya</option>
+                            <option value="Chen">Chen</option>
+                            <option value="VIC">VIC</option>
+                        </select>
                     </div>
                 </div>
-                <div class="btn-group">
-                    <button type="submit" class="btn btn-primary" data-target="#setting-modal" data-toggle="modal">Save</button>
-                    <button type="button" class="btn btn-danger" data-target="#setting-modal" data-toggle="modal">Cancel</button>
+                <div class="form-group">
+                    <label>Cell size (in meter):</label>
+                    <div class="col-md-11">
+                        <input type="number" class="form-control" id="txt_cellSize" name="cellSize"
+                               placeholder="ex. '100'">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Time step (in minutes):</label>
+                    <div class="col-md-11">
+                        <input type="number" class="form-control" id="txt_timeStep" name="timeStep"
+                               placeholder="ex. '5'">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Start date:</label>
+                    <div class="col-md-11">
+                        <input type="text" class="form-control" name="startDate"
+                               placeholder="ex. '2016-01-01T00:00:00.000'" id="datetimepicker"
+                               data-date-format="yyyy-mm-ddThh:ii:ss">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Interval (in minutes):</label>
+                    <div class="col-md-11">
+                        <input type="number" class="form-control" name="interval" id="txt_interval"
+                               placeholder="ex. '60'">
+                    </div>
                 </div>
             </div>
-        </form>
-    </div>
+            <div class="col-md-6">
+                <div class="scrollable-div">
+                    <h2>Global Variable</h2>
+                    <div class="form-group">
+                        <label><input type="checkbox" value="false" name="usingDrainage" id="txt_usingDrainage"> Using drainage</label>
+                    </div>
+                    <div class="dynamic-input fade" id="div-using-drainage" style="display: none;">
+                        <div class="form-group">
+                            <label>Drainage value in a cell:</label>
+                            <div class="col-md-11">
+                                <input type="number" class="form-control" id="txt_drainageValue"
+                                       name="drainageValue"
+                                       placeholder="ex. '5'">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label><input type="checkbox" value="false" name="usingEvapotranspiration"
+                                      id="txt_usingEvapotranspiration"> Using evapotranspiration</label>
+                    </div>
+                    <div class="dynamic-input fade" id="div-using-evapotranspiration">
+                        <div class="form-group">
+                            <label><input type="checkbox" value="false" name="evapotranspirationByData"
+                                          id="txt_evapotranspirationByData"> Evapotranspiration by Data</label>
+                        </div>
+                        <div class="dynamic-input fade" id="div-evapotranspiration-value" style="display: none;">
+                            <div class="form-group">
+                                <label>Evapotranspiration value:</label>
+                                <div class="col-md-11">
+                                    <input type="number" class="form-control" name="evapotranspirationValue"
+                                           id="txt_evapotranspirationValue"
+                                           placeholder="ex. '60'">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="dynamic-input fade" id="div-evapotranspiration-data" style="display: none;">
+                            <div class="form-group">
+                                <label>Radiation value:</label>
+                                <div class="col-md-11">
+                                    <input type="number" class="form-control" name="radiation"
+                                           id="txt_radiation"
+                                           placeholder="ex. '5'">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Geothermal value:</label>
+                                <div class="col-md-11">
+                                    <input type="number" class="form-control" name="geothermal"
+                                           id="txt_geothermal"
+                                           placeholder="ex. '5'">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Delta value:</label>
+                                <div class="col-md-11">
+                                    <input type="number" class="form-control" name="delta" id="txt_delta"
+                                           placeholder="ex. '5'">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Cn Value:</label>
+                                <div class="col-md-11">
+                                    <input type="number" class="form-control" name="cn" id="txt_cn"
+                                           placeholder="ex. '5'">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Cd Value:</label>
+                                <div class="col-md-11">
+                                    <input type="number" class="form-control" name="cd" id="txt_cd"
+                                           placeholder="ex. '5'">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Saturated water vapor value:</label>
+                                <div class="col-md-11">
+                                    <input type="number" class="form-control" name="saturatedWaterVapor"
+                                           id="txt_saturatedWaterVapor"
+                                           placeholder="ex. '5'">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Water vapor value:</label>
+                                <div class="col-md-11">
+                                    <input type="number" class="form-control" name="waterVapor"
+                                           id="txt_waterVapor"
+                                           placeholder="ex. '5'">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Wind speed at 2 m value:</label>
+                                <div class="col-md-11">
+                                    <input type="number" class="form-control" name="windSpeed"
+                                           id="txt_windSpeed"
+                                           placeholder="ex. '5'">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Mean temperature value:</label>
+                                <div class="col-md-11">
+                                    <input type="number" class="form-control" name="meanTemperature"
+                                           id="txt_meanTemperature"
+                                           placeholder="ex. '5'">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Psychometric value:</label>
+                                <div class="col-md-11">
+                                    <input type="number" class="form-control" name="psychometric"
+                                           id="txt_psychometric"
+                                           placeholder="ex. '5'">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="span8 offset2 centered">
+                    <div class="btn-group">
+                        <button type="submit" class="btn btn-primary" data-target="#setting-modal" data-toggle="modal">
+                            Save
+                        </button>
+                        <button type="button" class="btn btn-danger" data-target="#setting-modal" data-toggle="modal">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
 </div>
 
 <script type="text/javascript">
@@ -84,13 +186,68 @@
                 var project = JSON.stringify($('#setting-form').serializeObject());
                 var request = patchProject(project);
                 request.done(function (response, textStatus, jqXHR) {
-                    alert(textStatus);
+                    notify("fa fa-check-circle-o", selectedProject.name + "settings are saved to database.", textStatus);
                     console.log(response);
+                    var variable = patchVariable(project, selectedProject.variable.id);
+                    variable.done(function (response, textStatus, jqXHR) {
+                        notify("fa fa-check-circle-o", selectedProject.name + "variables are saved to database.", textStatus);
+                        console.log(response);
+                        var load = getOneProject(selectedProject._links.self.href);
+                        load.done(function (response, textStatus, jqXHR) {
+                            selectedProject = response;
+                            console.log(selectedProject);
+                            notify("fa fa-check-circle-o", "All" + selectedProject.name + "settings are successfully saved to database.", textStatus);
+                            loadDataToPlaceHolder();
+                        });
+                        load.fail(function (response, textStatus, jqXHR) {
+                            notify("fa fa-times-circle-o", selectedProject.name + " cannot be loaded. See log.", "danger");
+                        });
+                    });
+                    variable.fail(function (response, textStatus, jqXHR) {
+                        notify("fa fa-times-circle-o", "Variables for " + selectedProject.name + " cannot be saved. See log.", "danger");
+                    });
+                });
+                request.fail(function (response, textStatus, jqXHR) {
+                    notify("fa fa-times-circle-o", "Setting for " + selectedProject.name + " cannot be saved. See log.", "danger");
                 });
             } else {
                 alert("Load or create new project first!");
             }
             return false;
+        });
+        $('#txt_usingDrainage').change(function () {
+            if ($(this).is(':checked')) {
+                $(this).attr('value', 'true');
+                $('#div-using-drainage').css('display', 'block').addClass('show');
+            } else {
+                $(this).attr('value', 'false');
+                $('#div-using-drainage').css('display', 'none').removeClass('show');
+            }
+
+        });
+        $('#txt_usingEvapotranspiration').change(function () {
+            if ($(this).is(':checked')) {
+                $(this).attr('value', 'true');
+                $('#div-using-evapotranspiration').css('display', 'block').addClass('show');
+                $('#div-evapotranspiration-value').css('display', 'block').addClass('show');
+            } else {
+                $(this).attr('value', 'false');
+                $('#div-using-evapotranspiration').css('display', 'none').removeClass('show');
+                $('#div-evapotranspiration-value').css('display', 'none').removeClass('show');
+            }
+
+        });
+        $('#txt_evapotranspirationByData').change(function () {
+            if ($(this).is(':checked')) {
+                $(this).attr('value', 'true');
+                $('#div-evapotranspiration-data').css('display', 'block').addClass('show');
+                $('#div-evapotranspiration-value').css('display', 'none').removeClass('show');
+            } else {
+                $(this).attr('value', 'false');
+                $('#div-evapotranspiration-data').css('display', 'none').removeClass('show');
+                $('#div-evapotranspiration-value').css('display', 'block').addClass('show');
+            }
+
         });
     });
 </script>

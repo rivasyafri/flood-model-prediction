@@ -18,9 +18,12 @@
             project["done"] = false;
             var request = postProject(project);
             request.done(function (response, textStatus, jqXHR) {
-                alert(textStatus);
+                notify("fa fa-check-circle-o", project.name + " is created successfully.", textStatus);
                 console.log(response);
                 sideNavValidation();
+            });
+            request.fail(function (response, textStatus, jqXHR) {
+                notify("fa fa-times-circle-o", project.name + " cannot be created. See log.", "danger");
             });
             return false;
         });

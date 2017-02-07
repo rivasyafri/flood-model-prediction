@@ -7,9 +7,9 @@
                 <select class="form-control" id="select-projects">
                 </select>
             </div>
-            <input type="submit" id="btn-load-PROJECT" name="load" class="login loginmodal-submit" value="Load"
+            <input type="submit" id="btn-load-project" name="load" class="login loginmodal-submit" value="Load"
                    data-target="#load-modal" data-toggle="modal">
-            <input type="button" id="btn-delete-PROJECT" name="delete" class="login loginmodal-reset"
+            <input type="button" id="btn-delete-project" name="delete" class="login loginmodal-reset"
                    value="Delete">
             <input type="button" name="cancel" class="login loginmodal-cancel" value="Cancel"
                    data-target="#load-modal" data-toggle="modal">
@@ -30,10 +30,15 @@
             var url = $('#select-projects').val();
             var request = getOneProject(url);
             request.done(function (response, textStatus, jqXHR) {
-                alert(textStatus);
-                console.log(response);
+                selectedProject = response;
+                console.log(selectedProject);
+                notify("fa fa-check-circle-o", selectedProject.name + " is loaded successfully.", textStatus);
+                loadDataToPlaceHolder();
                 showPlayer();
                 sideNavValidation();
+            });
+            request.fail(function (response, textStatus, jqXHR) {
+                notify("fa fa-times-circle-o", url + " cannot be loaded. See log.", "danger");
             });
             return false;
         });

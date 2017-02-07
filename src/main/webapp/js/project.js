@@ -23,24 +23,17 @@ var getProjects = function() {
         },
         success: function (data) {
             refreshSelect(data._embedded.project);
+            console.log(data);
         }
     });
 };
 var getOneProject = function(url) {
     var request = $.ajax({
-        url: url,
+        url: url + '?projection=inlineVariable',
         dataType: "json",
         contentType: contentType,
         xhrFields: {
             withCredentials: false
-        },
-        success: function (data) {
-            selectedProject = data;
-            $('#txt_cellSize').val(selectedProject.cellSize != null ? selectedProject.cellSize : 1000);
-            $('#txt_timeStep').val(selectedProject.timeStep != null ? selectedProject.timeStep : 5);
-            $('#datetimepicker').val(selectedProject.startDate != null ? selectedProject.startDate : '2016-01-01T00:00:00.000Z');
-            $('#txt_interval').val(selectedProject.interval != null ? selectedProject.interval : 60);
-            drawGridFromSelectedProject(selectedProject);
         }
     });
     return request;
@@ -53,9 +46,6 @@ var postProject = function(project) {
         data: project,
         xhrFields: {
             withCredentials: false
-        },
-        success: function (data) {
-            selectedProject = data;
         }
     });
     return request;
@@ -78,9 +68,6 @@ var patchProject = function(project) {
         data: project,
         xhrFields: {
             withCredentials: false
-        },
-        success: function (data) {
-            selectedProject = data;
         }
     });
     return request;
@@ -93,9 +80,18 @@ var putProject = function() {
         data: JSON.stringify(selectedProject),
         xhrFields: {
             withCredentials: false
-        },
-        success: function (data) {
-            selectedProject = data;
+        }
+    });
+    return request;
+};
+var patchVariable = function(variable, id) {
+    var request = $.ajax({
+        url: serviceUrl + 'variable/' + id,
+        type: 'PATCH',
+        contentType: "application/json",
+        data: variable,
+        xhrFields: {
+            withCredentials: false
         }
     });
     return request;
@@ -111,9 +107,6 @@ var setBorderAPI = function (ne, sw) {
         contentType: "application/json",
         xhrFields: {
             withCredentials: false
-        },
-        success: function (data) {
-            selectedProject = data;
         }
     });
     return request;
