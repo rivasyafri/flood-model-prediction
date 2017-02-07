@@ -2,16 +2,16 @@
 
 /****** LOGIN MODAL ******/
 .loginmodal-container {
-  padding: 30px;
-  max-width: 350px;
-  width: 100% !important;
-  background-color: #F7F7F7;
-  margin: 0 auto;
-  border-radius: 2px;
-  box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
-  overflow: hidden;
-  font-family: roboto;
-}
+   padding: 30px;
+   max-width: 350px;
+   width: 100% !important;
+   background-color: #F7F7F7;
+   margin: 0 auto;
+   border-radius: 2px;
+   box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+   overflow: hidden;
+   font-family: roboto;
+ }
 
 .loginmodal-container h1 {
   text-align: center;
@@ -140,7 +140,6 @@
 }
 
 .modal-dialog {
-  height: 300px;
   margin: 0 auto;
   top: 20%;
 }
@@ -231,7 +230,8 @@
   float: left;
   z-index: 1049;
   bottom: 27px;
-  left: 40%;
+  left: 50%;
+  transform: translateX(-50%);
   background: grey;
   padding: 5px;
   border-radius: 5px;
@@ -239,15 +239,53 @@
 
 .btn-player {
   font-size: 24px;
-  padding: 8px;
+  /*padding: 8px;*/
   border-radius: 4px;
-  background-color: white;
+  border-right: 2px solid grey;
+  /*background-color: white;*/
 }
 
 .btn-player:hover {
-  background-color: lightgrey;
+  background-color: darkgrey;
+}
+
+.btn-primary.btn-player:hover {
+  background-color: darkblue;
+}
+
+.btn-success.btn-player:hover {
+  background-color: darkgreen;
+}
+
+.btn-danger.btn-player:hover {
+  background-color: darkred;
 }
 
 .btn-player:disabled {
   background-color: darkgrey;
+}
+
+.container.modal-dialog {
+  background: white;
+  padding: 40px;
+  border-radius: 10px;
+  margin: 0 auto;
+  top: 50%;
+  max-width: 60%;
+  transform: translateY(-50%) !important;
+  max-height: 80%;
+}
+
+.centered {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.scrollable-div {
+  max-height: 45%;
+  overflow-y: auto;
+}
+
+.dynamic-input.fade {
+  background-color: white;
 }

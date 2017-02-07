@@ -248,6 +248,12 @@ var yNumberOfCells = null;
 var deltaX=null;
 var deltaY=null;
 var poly=null;
+var crs = {
+    "properties": {
+        "name" : "EPSG:4326"
+    },
+    "type": "name"
+};
 
 function addRectangleGetter(){
     var bounds={
@@ -267,7 +273,38 @@ function addRectangleGetter(){
         draggable:true,
         map:map
     });
+    google.maps.event.addDomListener(document, 'keyup', function (e) {
+        var code = (e.keyCode ? e.keyCode : e.which);
+        if (code === 8 || code === 46) {
+            poly.setMap(null);
+        } else if (code === 13) {
+            acceptBorder();
+        }
+    });
     addButton();
+}
+function drawGridFromSelectedProject(selectedProject) {
+    if (selectedProject != null) {
+        if (selectedProject.area != null) {
+            var bounds={
+                north: selectedProject.area.bbox[0],
+                west: selectedProject.area.bbox[1],
+                south: selectedProject.area.bbox[2],
+                east: selectedProject.area.bbox[3],
+            };
+            poly = new google.maps.Rectangle({
+                strokeColor: '#FF0000',
+                strokeOpacity: 0.8,
+                strokeWeight: 2,
+                fillColor: '#FFFFFF',
+                fillOpacity: 0.35,
+                bounds: bounds
+            });
+            ne = poly.getBounds().getNorthEast();
+            sw = poly.getBounds().getSouthWest();
+            drawGrid(selectedProject.cellSize);
+        }
+    }
 }
 
 /* Get from http://jsbin.com/ajimur/421/ */
@@ -314,8 +351,8 @@ function addButton() {
     });
 }
 function acceptBorder() {
-    addJsonBorderToSelectedProject(poly);
-    drawGrid(poly, selectedProject.cellSize);
+    // addJsonBorderToSelectedProject(poly);
+    drawGrid(selectedProject.cellSize);
     return false;
 }
 function deleteBorder() {
@@ -330,29 +367,19 @@ function getButton(imageUrl) {
 /* Function to create grid for cellular automata */
 function setBorder(){
     if (selectedProject != null) {
-        addRectangleGetter();
+        if (selectedProject.cellSize != null) {
+            addRectangleGetter();
+        } else {
+            alert('Please set the project first.');
+        }
     } else {
         alert('Please load the project or create new project first.');
     }
 }
-function addJsonBorderToSelectedProject(area) {
-    ne = area.getBounds().getNorthEast();
-    sw = area.getBounds().getSouthWest();
-    selectedProject["area"] = {
-        "type" : "Polygon",
-        "coordinates" : [
-            [   [ne.lat(), ne.lng()],
-                [sw.lat(), ne.lng()],
-                [sw.lat(), sw.lng()],
-                [ne.lat(), sw.lng()],
-                [ne.lat(), ne.lng()]
-            ]
-        ]
-    };
-}
-function drawGrid(area, cellSize) {
-    ne = area.getBounds().getNorthEast();
-    sw = area.getBounds().getSouthWest();
+function drawGrid(cellSize) {
+    ne = poly.getBounds().getNorthEast();
+    sw = poly.getBounds().getSouthWest();
+    poly.setMap(null);
     var rectangleHeight = Math.abs(ne.lng() - sw.lng());
     var rectangleWidth = Math.abs(ne.lat() - sw.lat());
     var dividerLat = convertMToLat(cellSize);
@@ -363,7 +390,6 @@ function drawGrid(area, cellSize) {
     deltaX = rectangleHeight/xNumberOfCells;
     deltaY = ne.lat() < 0 ? -1 * (rectangleWidth/yNumberOfCells) : rectangleWidth/yNumberOfCells ;
     // var deltaY = rectangleWidth/yNumberOfCells;
-    area.setMap(null);
     loopCreateLines(xNumberOfCells, yNumberOfCells, deltaX, deltaY);
 }
 function loopCreateLines(xNumberOfCells, yNumberOfCells, deltaX, deltaY) {

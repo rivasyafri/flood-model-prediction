@@ -1,64 +1,82 @@
 $(document).ready(function () {
     getProjects();
-    $('#datetimepicker').datetimepicker();
-    $("#select-projects").click(function () {
-        getProjects();
-    });
-    $('#load-form').submit(function () {
-        var url = $('#select-projects').val();
-        var request = getOneProject(url);
-        request.done(function (response, textStatus, jqXHR) {
-            alert(textStatus);
-            console.log(response);
-            removeModal();
-            showPlayer();
-            sideNavValidation();
-        });
-        return false;
-    });
-    $('#create-form').submit(function () {
-        var project = JSON.stringify($('#create-form').serializeObject());
-        project["done"] = false;
-        var request = postProject(project);
-        request.done(function (response, textStatus, jqXHR) {
-            alert(textStatus);
-            console.log(response);
-            removeModal();
-            sideNavValidation();
-        });
-        return false;
-    });
-    $("#btn-delete-project").click(function (event) {
-        event.preventDefault();
-        var url = $('#select-projects').val();
-        var request = deleteProject(url);
-        request.done(function (response, textStatus, jqXHR) {
-            alert(textStatus);
-            console.log(response);
-            getProjects();
-        });
-    });
-    $('#setting-form').submit(function () {
-        if (selectedProject != null) {
-            var project = JSON.stringify($('#setting-form').serializeObject());
-            var request = patchProject(project);
-            request.done(function (response, textStatus, jqXHR) {
-                alert(textStatus);
-                console.log(response);
-                removeModal();
-            });
-        } else {
-            alert("Load or create new project first!");
-        }
-        return false;
-    });
-    $(".loginmodal-cancel").click(function (event) {
-        event.preventDefault();
-        removeModal();
-    });
+    $('#create-modal').load('view/create-project-modal.html');
+    $('#load-modal').load('view/load-project-modal.html');
+    $('#setting-modal').load('view/setting-project-modal.html');
 });
 
 /* Function for interface */
+function notify(icon, message, type) {
+    $.notify({
+        icon: icon,
+        message: message
+    },{
+        type: type,
+        newest_on_top: true,
+        placement: {
+            from: "top",
+            align: "center"
+        },
+        timer: 1000
+    });
+}
+function loadDataToPlaceHolder() {
+    $('#txt_cellSize').val(selectedProject.cellSize != null ? selectedProject.cellSize : 1000);
+    $('#txt_timeStep').val(selectedProject.timeStep != null ? selectedProject.timeStep : 5);
+    $('#datetimepicker').val(selectedProject.startDate != null ? selectedProject.startDate : '2016-01-01T00:00:00.000Z');
+    $('#txt_interval').val(selectedProject.interval != null ? selectedProject.interval : 60);
+    if (selectedProject.variable.usingDrainage) {
+        $('#txt_usingDrainageHidden').prop("disabled", true);
+        $('#txt_usingDrainage').attr('checked', 'checked');
+        $('#div-using-drainage').css('display', 'block').addClass('show');
+    } else {
+        $('#txt_usingDrainageHidden').prop("disabled", false);
+        $('#div-using-drainage').css('display', 'none').removeClass('show');
+    }
+    if (selectedProject.variable.evapotranspirationByData) {
+        $('#txt_evapotranspirationByDataHidden').prop("disabled", true);
+        $('#txt_evapotranspirationByData').attr('checked', 'checked');
+        $('#div-evapotranspiration-data').css('display', 'block').addClass('show');
+        $('#div-evapotranspiration-value').css('display', 'none').removeClass('show');
+    } else {
+        $('#txt_evapotranspirationByDataHidden').prop("disabled", false);
+        $('#div-evapotranspiration-data').css('display', 'none').removeClass('show');
+        $('#div-evapotranspiration-value').css('display', 'block').addClass('show');
+    }
+    if (selectedProject.variable.usingEvapotranspiration) {
+        $('#txt_usingEvapotranspirationHidden').prop("disabled", true);
+        $('#txt_usingEvapotranspiration').attr('checked', 'checked');
+        $('#div-using-evapotranspiration').css('display', 'block').addClass('show');
+        $('#div-evapotranspiration-value').css('display', 'block').addClass('show');
+    } else {
+        $('#txt_usingEvapotranspirationHidden').prop("disabled", false);
+        $('#div-using-evapotranspiration').css('display', 'none').removeClass('show');
+        $('#div-evapotranspiration-value').css('display', 'none').removeClass('show');
+    }
+    $('#txt_usingDrainage').val(selectedProject.variable.usingDrainage);
+    $('#txt_usingEvapotranspiration').val(selectedProject.variable.usingEvapotranspiration);
+    $('#txt_evapotranspirationByData').val(selectedProject.variable.evapotranspirationByData);
+    $('#txt_drainageValue').val(selectedProject.variable.drainageValue);
+    $('#txt_evapotranspirationValue').val(selectedProject.variable.evapotranspirationValue);
+    $('#txt_radiation').val(selectedProject.variable.radiation);
+    $('#txt_geothermal').val(selectedProject.variable.geothermal);
+    $('#txt_delta').val(selectedProject.variable.delta);
+    $('#txt_cn').val(selectedProject.variable.cn);
+    $('#txt_cd').val(selectedProject.variable.cd);
+    $('#txt_saturatedWaterVapor').val(selectedProject.variable.saturatedWaterVapor);
+    $('#txt_waterVapor').val(selectedProject.variable.waterVapor);
+    $('#txt_windSpeed').val(selectedProject.variable.windSpeed);
+    $('#txt_meanTemperature').val(selectedProject.variable.meanTemperature);
+    $('#txt_psychometric').val(selectedProject.variable.psychometric);
+    $('#select-model').val(selectedProject.model);
+    if (selectedProject.model == 'Chen') {
+        $('#select-model option[value="Chen"]').prop("selected",true);
+    } else if (selectedProject.model == 'VIC') {
+        $('#select-model option[value="VIC"]').prop("selected",true);
+    } else {
+        $('#select-model option[value="Prasetya"]').prop("selected",true);
+    }
+}
 function sideNavValidation() {
     if (selectedProject != null) {
         $('#mySidenav').append('<a href="javascript:void(0)" onclick="showNav(); setBorder();">Set Border</a>' +
@@ -91,14 +109,6 @@ function refreshSelect(projects) {
         });
     }
 }
-function removeModal() {
-    $('.modal').removeClass('show');
-    $('body').removeClass('modal-open');
-    $('.modal-backdrop').remove();
-    setTimeout(function () {
-        $('.modal').css({ display: 'none'}).attr('aria-hidden', 'true');
-    }, 800);
-}
 function showNav() {
     if (document.getElementById("mySidenav").style.width == '250px') {
         document.getElementById("mySidenav").style.width = "0px";
@@ -114,6 +124,7 @@ function showPlayer() {
         $('#button_stop').prop('disabled', false);
         $('#button_box').prop('disabled', false);
         $('#button_test').prop('disabled', false);
+        $('#button_setting').prop('disabled', false);
     } else {
         $('#button_play').prop('disabled', true);
         $('#button_close').prop('disabled', true);
@@ -121,16 +132,22 @@ function showPlayer() {
         $('#button_stop').prop('disabled', true);
         $('#button_box').prop('disabled', true);
         $('#button_test').prop('disabled', true);
+        $('#button_setting').prop('disabled', true);
     }
 }
 function buttonPlayPress() {
-    if (lines != null){
-        for (var i = 0; i < 10; i++) {
-            var x = Math.floor(Math.random() * xNumberOfCells);
-            var y = Math.floor(Math.random() * yNumberOfCells);
-            createCellFlooded(x, y);
-        }
-    }
+    // if (lines != null){
+    //     for (var i = 0; i < 10; i++) {
+    //         var x = Math.floor(Math.random() * xNumberOfCells);
+    //         var y = Math.floor(Math.random() * yNumberOfCells);
+    //         createCellFlooded(x, y);
+    //     }
+    // }
+    var request = runProject();
+    request.done(function (response, textStatus, jqXHR) {
+        alert(textStatus);
+        console.log(response);
+    });
 }
 function buttonStopPress() {
     if (cells != null) {
@@ -140,12 +157,23 @@ function buttonStopPress() {
     }
 }
 function buttonSavePress() {
-    console.log(selectedProject);
-    var request = putProject();
+    var request = setBorderAPI(poly.getBounds().getNorthEast(),
+        poly.getBounds().getSouthWest());
     request.done(function (response, textStatus, jqXHR) {
-        alert(textStatus);
-        console.log(response);
-        removeModal();
+        notify("fa fa-check-circle-o", selectedProject.name + " borders are successfully saved to database.", textStatus);
+        var load = getOneProject(selectedProject._links.self.href);
+        load.done(function (response, textStatus, jqXHR) {
+            selectedProject = response;
+            console.log(selectedProject);
+            notify("fa fa-check-circle-o", selectedProject.name + " are loaded successfully.", textStatus);
+            loadDataToPlaceHolder();
+        });
+        load.fail(function (response, textStatus, jqXHR) {
+            notify("fa fa-times-circle-o", selectedProject.name + " cannot be loaded. See log.", "danger");
+        });
+    });
+    request.fail(function (response, textStatus, jqXHR) {
+        notify("fa fa-times-circle-o", selectedProject.name + " borders cannot be saved. See log.", "danger");
     });
 }
 function buttonTestPress() {
