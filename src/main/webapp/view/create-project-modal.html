@@ -18,7 +18,7 @@
             project["done"] = false;
             var request = postProject(project);
             request.done(function (response, textStatus, jqXHR) {
-                notify("fa fa-check-circle-o", project.name + " is created successfully.", textStatus);
+                notify("fa fa-check-circle-o", response.name + " is created successfully.", textStatus);
                 console.log(response);
                 sideNavValidation();
             });

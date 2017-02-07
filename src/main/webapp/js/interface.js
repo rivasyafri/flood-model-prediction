@@ -21,10 +21,10 @@ function notify(icon, message, type) {
     });
 }
 function loadDataToPlaceHolder() {
-    $('#txt_cellSize').val(selectedProject.cellSize != null ? selectedProject.cellSize : 1000);
-    $('#txt_timeStep').val(selectedProject.timeStep != null ? selectedProject.timeStep : 5);
+    $('#txt_cellSize').val(selectedProject.cellSize != null ? selectedProject.cellSize : 100);
+    $('#txt_timeStep').val(selectedProject.timeStep != null ? selectedProject.timeStep : 60);
     $('#datetimepicker').val(selectedProject.startDate != null ? selectedProject.startDate : '2016-01-01T00:00:00.000Z');
-    $('#txt_interval').val(selectedProject.interval != null ? selectedProject.interval : 60);
+    $('#txt_interval').val(selectedProject.interval != null ? selectedProject.interval : 3600);
     if (selectedProject.variable.usingDrainage) {
         $('#txt_usingDrainageHidden').prop("disabled", true);
         $('#txt_usingDrainage').attr('checked', 'checked');
@@ -79,7 +79,7 @@ function loadDataToPlaceHolder() {
 }
 function sideNavValidation() {
     if (selectedProject != null) {
-        $('#mySidenav').append('<a href="javascript:void(0)" onclick="showNav(); setBorder();">Set Border</a>' +
+        $('#mySidenav').append('<a href="javascript:void(0)" onclick="showNav(); buttonSelectBorder();">Set Border</a>' +
             '<a href="javascript:void(0)" data-toggle="modal" data-target="#variable-modal" onclick="showNav()">Set Variables</a>' +
             '<a href="javascript:void(0)" data-toggle="modal" data-target="#setting-modal" onclick="showNav()">Setting</a>'
         );
@@ -122,28 +122,54 @@ function showPlayer() {
         $('#button_close').prop('disabled', false);
         $('#button_save').prop('disabled', false);
         $('#button_stop').prop('disabled', false);
-        $('#button_box').prop('disabled', false);
-        $('#button_test').prop('disabled', false);
+        $('#button_set_area').prop('disabled', false);
+        $('#button_remove_area').prop('disabled', false);
         $('#button_setting').prop('disabled', false);
     } else {
         $('#button_play').prop('disabled', true);
         $('#button_close').prop('disabled', true);
         $('#button_save').prop('disabled', true);
         $('#button_stop').prop('disabled', true);
-        $('#button_box').prop('disabled', true);
-        $('#button_test').prop('disabled', true);
+        $('#button_set_area').prop('disabled', true);
+        $('#button_remove_area').prop('disabled', true);
         $('#button_setting').prop('disabled', true);
     }
 }
-function buttonPlayPress() {
-    // if (lines != null){
-    //     for (var i = 0; i < 10; i++) {
-    //         var x = Math.floor(Math.random() * xNumberOfCells);
-    //         var y = Math.floor(Math.random() * yNumberOfCells);
-    //         createCellFlooded(x, y);
-    //     }
-    // }
-    var request = runProject();
+function buttonSelectBorder(){
+    if (selectedProject != null) {
+        if (selectedProject.cellSize != null) {
+            addRectangleGetter();
+        } else {
+            alert('Please set the project first.');
+        }
+    } else {
+        alert('Please load the project or create new project first.');
+    }
+}
+function buttonSavePress() {
+    var request = setBorderAPI(poly.getBounds().getNorthEast(),
+        poly.getBounds().getSouthWest());
+    request.done(function (response, textStatus, jqXHR) {
+        notify("fa fa-check-circle-o", selectedProject.name + " borders are successfully saved to database.", textStatus);
+        var load = getOneProject(selectedProject._links.self.href);
+        load.done(function (response, textStatus, jqXHR) {
+            selectedProject = response;
+            console.log(selectedProject);
+            notify("fa fa-check-circle-o", selectedProject.name + " are loaded successfully.", textStatus);
+            loadDataToPlaceHolder();
+        });
+        load.fail(function (response, textStatus, jqXHR) {
+            notify("fa fa-times-circle-o", selectedProject.name + " cannot be loaded. See log.", "danger");
+        });
+    });
+    request.fail(function (response, textStatus, jqXHR) {
+        notify("fa fa-times-circle-o", selectedProject.name + " borders cannot be saved. See log.", "danger");
+    });
+}
+function buttonRemoveBorder() {
+    selectedProject.area = null;
+    clearCells();
+    var request = putProject();
     request.done(function (response, textStatus, jqXHR) {
         alert(textStatus);
         console.log(response);

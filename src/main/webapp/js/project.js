@@ -98,7 +98,7 @@ var patchVariable = function(variable, id) {
 };
 var setBorderAPI = function (ne, sw) {
     var request = $.ajax({
-        url: serviceUrl+'project/setBorder?id='+selectedProject.id+
+        url: serviceUrl+'project/buttonSelectBorder?id='+selectedProject.id+
             "&north="+ne.lat()+
             "&west="+sw.lng()+
             "&south="+sw.lat()+
@@ -113,7 +113,7 @@ var setBorderAPI = function (ne, sw) {
 };
 var runProject = function () {
     var request = $.ajax({
-        url: serviceUrl+'project/run?id='+selectedProject.id,
+        url: serviceUrl+'project/run?id='+selectedProject.id+'&model="'+selectedProject.model+'"',
         type: 'GET',
         contentType: "application/json",
         xhrFields: {

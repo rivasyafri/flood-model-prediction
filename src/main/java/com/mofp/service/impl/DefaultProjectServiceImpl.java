@@ -32,17 +32,19 @@ public class DefaultProjectServiceImpl implements ProjectService {
             Project project = projectRepository.findOne(id);
             if (project.isDone()) {
                 return project;
-            } else {
+            } else if (project.getArea() != null) {
                 logger.debug(project.getName() + " is running");
                 project = GLOBAL.run(selectedModel, project);
                 logger.debug(project.getName() + " is finished");
 //                project.setDone(true);
                 projectRepository.saveAndFlush(project);
                 return project;
+            } else {
+                throw new Exception("Area is not specified");
             }
         } catch (Exception e) {
             logger.error(e.toString());
-            throw e;
+            return null;
         }
     }
 

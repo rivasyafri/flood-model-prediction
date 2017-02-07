@@ -1,6 +1,7 @@
 package com.mofp.model.support;
 
 import com.mofp.model.Cell;
+import com.mofp.model.Project;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,4 +19,9 @@ public abstract class AbstractCellAttribute<T> extends MovingObject<T> {
     @JoinColumn(name = "cellId", nullable = false)
     @Getter @Setter
     private Cell cell;
+
+    @ManyToOne
+    @JoinColumn(name = "projectId", nullable = false)
+    @Getter @Setter
+    private Project project;
 }

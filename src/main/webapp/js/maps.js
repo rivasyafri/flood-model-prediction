@@ -283,7 +283,7 @@ function addRectangleGetter(){
     });
     addButton();
 }
-function drawGridFromSelectedProject(selectedProject) {
+function drawGridFromSelectedProject() {
     if (selectedProject != null) {
         if (selectedProject.area != null) {
             var bounds={
@@ -365,17 +365,6 @@ function getButton(imageUrl) {
 }
 
 /* Function to create grid for cellular automata */
-function setBorder(){
-    if (selectedProject != null) {
-        if (selectedProject.cellSize != null) {
-            addRectangleGetter();
-        } else {
-            alert('Please set the project first.');
-        }
-    } else {
-        alert('Please load the project or create new project first.');
-    }
-}
 function drawGrid(cellSize) {
     ne = poly.getBounds().getNorthEast();
     sw = poly.getBounds().getSouthWest();

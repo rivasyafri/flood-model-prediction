@@ -1,6 +1,7 @@
 package com.mofp.model.moving;
 
 import com.mofp.model.Cell;
+import com.mofp.model.Project;
 import com.mofp.model.support.MovingState;
 import lombok.Getter;
 import lombok.Setter;
@@ -24,4 +25,9 @@ public class CellState extends MovingState {
     @JoinColumn(name = "cellId", nullable = false)
     @Getter @Setter
     private Cell cell;
+
+    @ManyToOne
+    @JoinColumn(name = "projectId", nullable = false)
+    @Getter @Setter
+    private Project project;
 }

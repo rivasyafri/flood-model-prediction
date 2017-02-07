@@ -40,32 +40,40 @@
     <button onclick="showNav()" class="span-nav">☰</button>
 
     <!-- Button play and stop. Get from http://codepen.io/superpikar/pen/zJsgH -->
-    <div class="btn-group player">
+    <div class="btn-group-vertical project">
+        <button type="button" id="button_close" class="btn btn-danger btn-player" onclick='buttonClosePress()' disabled
+                title="Close Project">
+            <i class="fa fa-window-close"></i>
+        </button>
         <button type="button" id="button_load" class="btn btn-primary btn-player" data-toggle="modal"
-                data-target="#load-modal">
+                data-target="#load-modal" title="Load Project">
             <i class="fa fa-folder-open"></i>
         </button>
-        <button type="button" id="button_save" class="btn btn-default btn-player" onclick='buttonSavePress()' disabled>
+        <button type="button" id="button_save" class="btn btn-default btn-player" onclick='buttonSavePress()' disabled
+                title="Save Border Project">
             <i class="fa fa-floppy-o"></i>
         </button>
-        <button type="button" id="button_box" class="btn btn-default btn-player" onclick='setBorder()' disabled>
-            <i class="fa fa-square"></i>
-        </button>
-        <button type="button" id="button_play" class="btn btn-success btn-player" onclick='buttonPlayPress()' disabled>
-            <i class="fa fa-play"></i>
-        </button>
-        <button type="button" id="button_stop" class="btn btn-danger btn-player" onclick='buttonStopPress()' disabled>
-            <i class="fa fa-stop"></i>
-        </button>
-        <button type="button" id="button_test" class="btn btn-default btn-player" onclick='buttonTestPress()' disabled>
-            <i class="fa fa-fast-forward"></i>
-        </button>
         <button type="button" id="button_setting" class="btn btn-default btn-player" data-toggle="modal"
-                data-target="#setting-modal" disabled>
+                data-target="#setting-modal" disabled title="Setting Up Project">
             <i class="fa fa-cog"></i>
         </button>
-        <button type="button" id="button_close" class="btn btn-danger btn-player" onclick='buttonClosePress()' disabled>
-            <i class="fa fa-window-close"></i>
+    </div>
+    <div class="btn-group player">
+        <button type="button" id="button_set_area" class="btn btn-default btn-player" onclick='buttonSelectBorder()' disabled
+                title="Select Border">
+            <i class="fa fa-table"></i>
+        </button>
+        <button type="button" id="button_remove_area" class="btn btn-default btn-player" onclick='buttonRemoveBorder()' disabled
+                title="Clear Border">
+            <i class="fa fa-eraser"></i>
+        </button>
+        <button type="button" id="button_play" class="btn btn-success btn-player" onclick='buttonPlayPress()' disabled
+                title="Play">
+            <i class="fa fa-play"></i>
+        </button>
+        <button type="button" id="button_stop" class="btn btn-danger btn-player" onclick='buttonStopPress()' disabled
+                title="Stop">
+            <i class="fa fa-stop"></i>
         </button>
     </div>
 

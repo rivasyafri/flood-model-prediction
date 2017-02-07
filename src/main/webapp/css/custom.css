@@ -289,3 +289,14 @@
 .dynamic-input.fade {
   background-color: white;
 }
+
+.project {
+  position: absolute;
+  float: left;
+  z-index: 1049;
+  top: 100px;
+  left: 10px;
+  background: grey;
+  padding: 5px;
+  border-radius: 5px;
+}

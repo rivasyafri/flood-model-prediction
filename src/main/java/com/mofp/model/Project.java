@@ -3,6 +3,8 @@ package com.mofp.model;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.mofp.dao.VariableRepository;
+import com.mofp.model.moving.CellHeightWater;
+import com.mofp.model.moving.CellState;
 import com.mofp.model.support.json.PolygonDeserializer;
 import com.mofp.model.support.json.PolygonToGeoJSON;
 import lombok.Getter;
@@ -46,11 +48,11 @@ public class Project {
 
     @Column
     @Getter @Setter
-    private Integer cellSize;
+    private Integer cellSize = 100;
 
     @Column
     @Getter @Setter
-    private Integer timeStep;
+    private Integer timeStep = 60;
 
     @Column
     @Getter @Setter
@@ -58,7 +60,7 @@ public class Project {
 
     @Column
     @Getter @Setter
-    private Integer interval;
+    private Integer interval = 3600;
 
     @Column(nullable = false)
     @Getter @Setter
@@ -80,6 +82,14 @@ public class Project {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "project", cascade = CascadeType.ALL)
     @Getter @Setter
     private List<Flood> floods;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "project", cascade = CascadeType.ALL)
+    @Getter @Setter
+    private List<CellHeightWater> cellHeightWaters;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "project", cascade = CascadeType.ALL)
+    @Getter @Setter
+    private List<CellState> cellStates;
 
     public Project() {
         this.variable = new Variable();

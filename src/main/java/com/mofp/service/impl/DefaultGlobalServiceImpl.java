@@ -1,5 +1,6 @@
 package com.mofp.service.impl;
 
+import com.mofp.dao.ProjectRepository;
 import com.mofp.dao.StateRepository;
 import com.mofp.model.Cell;
 import com.mofp.model.Neighborhood;
@@ -8,6 +9,7 @@ import com.mofp.model.State;
 import com.mofp.model.moving.CellHeightWater;
 import com.mofp.model.moving.CellState;
 import com.mofp.service.GlobalService;
+import com.mofp.service.ProjectService;
 import com.mofp.service.method.ChenModel;
 import com.mofp.service.method.PrasetyaModel;
 import com.mofp.service.method.VICModel;
@@ -15,6 +17,7 @@ import com.mofp.service.method.formula.WaterBalance;
 import com.mofp.service.method.support.FloodModel;
 import org.geolatte.geom.G2D;
 import org.geolatte.geom.LineString;
+import org.geolatte.geom.Point;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -34,17 +37,28 @@ public class DefaultGlobalServiceImpl implements GlobalService {
     @Autowired
     private StateRepository stateRepository;
 
+    @Autowired
+    private ProjectRepository projectRepository;
+
+    @Autowired
+    private ProjectService projectService;
+
     ////*********************** Model Properties ******************************** ////
     private double SIZE_X;
     private double SIZE_Y;
     private double DELTA_X;
     private double DELTA_Y;
+    private int NUMBER_OF_CELL_X;
+    private int NUMBER_OF_CELL_Y;
 
     private int TIME_STEP;
     private int TIME_ELAPSED;
     private int INTERVAL;
 
     private FloodModel selectedModel;
+
+    private double latNorth;
+    private double longWest;
 
     //// ************************** Neighborhood *************************************** ////
     private Neighborhood NEIGHBORHOOD;
@@ -71,6 +85,7 @@ public class DefaultGlobalServiceImpl implements GlobalService {
             iterateAllCell(TIME_ELAPSED, TIME_STEP);
             ACTIVE_CELLS = NEW_ACTIVE_CELLS;
             NEW_ACTIVE_CELLS = new PriorityQueue<>();
+            projectRepository.saveAndFlush(PROJECT);
         }
         return PROJECT;
     }
@@ -95,6 +110,8 @@ public class DefaultGlobalServiceImpl implements GlobalService {
             lat2 = lat1 != position.getLat() ? position.getLat() : lat2;
             lon2 = lon1 != position.getLon() ? position.getLon() : lon2;
         }
+        latNorth = lat1 > lat2 ? lat1 : lat2;
+        longWest = lon1 > lon2 ? lon2 : lon1;
         SIZE_X = Math.abs(lon1 - lon2);
         SIZE_Y = Math.abs(lat1 - lat2);
         DELTA_X = PROJECT != null ? convertMToLat(PROJECT.getCellSize()) : convertMToLat(1000);
@@ -103,16 +120,25 @@ public class DefaultGlobalServiceImpl implements GlobalService {
     private void initMatrix() {
         Long gridX = Math.round(SIZE_X / DELTA_X);
         Long gridY = Math.round(SIZE_Y / DELTA_Y);
-        int numberOfCellX = gridX.intValue();
-        int numberOfCellY = gridY.intValue();
-        MATRIX = new Cell[numberOfCellY][numberOfCellX];
-        for (int y = 0; y < numberOfCellY; y++) {
-            for (int x = 0; x < numberOfCellX; x++) {
+        NUMBER_OF_CELL_X = gridX.intValue();
+        NUMBER_OF_CELL_Y = gridY.intValue();
+        MATRIX = new Cell[NUMBER_OF_CELL_Y][NUMBER_OF_CELL_X];
+        ArrayList<Cell> cells = new ArrayList<>();
+        for (int y = 0; y < NUMBER_OF_CELL_Y; y++) {
+            for (int x = 0; x < NUMBER_OF_CELL_X; x++) {
                 Cell cell = new Cell(x, y, DRY_STATE);
+                cell.setArea(projectService.createRectangleFromBounds(
+                        latNorth + latNorth * y,
+                        longWest + longWest * x,
+                        latNorth + latNorth * (y+1),
+                        longWest + longWest * (x + 1)
+                ));
                 cell.randomizeData(); // for experiment
                 MATRIX[y][x] = cell;
+                cells.add(cell);
             }
         }
+        PROJECT.setCells(cells);
     }
     private void initModel(String selectedModel) {
         if (selectedModel.compareTo(PrasetyaModel.getModelName()) == 0) {
@@ -241,6 +267,7 @@ public class DefaultGlobalServiceImpl implements GlobalService {
         cellHeightWater.setCell(cell);
         cellHeightWater.setValue(cell.getWaterHeight());
         cellHeightWater.setStartTime(time);
+        cellHeightWater.setProject(PROJECT);
         heightWaters.add(cellHeightWater);
         cell.setCellHeightWaters(heightWaters);
         cellReference.set(cell);
@@ -258,6 +285,7 @@ public class DefaultGlobalServiceImpl implements GlobalService {
         cellState.setCell(cell);
         cellState.setValue(updatedState);
         cellState.setStartTime(time);
+        cellState.setProject(PROJECT);
         cellStates.add(cellState);
         cell.setCellStates(cellStates);
         cellReference.set(cell);
