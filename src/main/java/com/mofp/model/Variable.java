@@ -78,4 +78,8 @@ public class Variable {
     @Column
     @Getter @Setter
     private double psychometric = 0;
+
+    @OneToOne(mappedBy = "variable", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @Getter @Setter
+    private Project project;
 }
