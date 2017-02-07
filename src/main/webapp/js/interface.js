@@ -26,23 +26,32 @@ function loadDataToPlaceHolder() {
     $('#datetimepicker').val(selectedProject.startDate != null ? selectedProject.startDate : '2016-01-01T00:00:00.000Z');
     $('#txt_interval').val(selectedProject.interval != null ? selectedProject.interval : 60);
     if (selectedProject.variable.usingDrainage) {
+        $('#txt_usingDrainageHidden').prop("disabled", true);
         $('#txt_usingDrainage').attr('checked', 'checked');
-        $('#txt_usingDrainage').attr('value', 'true');
         $('#div-using-drainage').css('display', 'block').addClass('show');
+    } else {
+        $('#txt_usingDrainageHidden').prop("disabled", false);
+        $('#div-using-drainage').css('display', 'none').removeClass('show');
     }
     if (selectedProject.variable.evapotranspirationByData) {
+        $('#txt_evapotranspirationByDataHidden').prop("disabled", true);
         $('#txt_evapotranspirationByData').attr('checked', 'checked');
-        $('#txt_evapotranspirationByData').attr('value', 'true');
         $('#div-evapotranspiration-data').css('display', 'block').addClass('show');
         $('#div-evapotranspiration-value').css('display', 'none').removeClass('show');
     } else {
+        $('#txt_evapotranspirationByDataHidden').prop("disabled", false);
+        $('#div-evapotranspiration-data').css('display', 'none').removeClass('show');
         $('#div-evapotranspiration-value').css('display', 'block').addClass('show');
     }
     if (selectedProject.variable.usingEvapotranspiration) {
+        $('#txt_usingEvapotranspirationHidden').prop("disabled", true);
         $('#txt_usingEvapotranspiration').attr('checked', 'checked');
-        $('#txt_usingEvapotranspiration').attr('value', 'true');
         $('#div-using-evapotranspiration').css('display', 'block').addClass('show');
         $('#div-evapotranspiration-value').css('display', 'block').addClass('show');
+    } else {
+        $('#txt_usingEvapotranspirationHidden').prop("disabled", false);
+        $('#div-using-evapotranspiration').css('display', 'none').removeClass('show');
+        $('#div-evapotranspiration-value').css('display', 'none').removeClass('show');
     }
     $('#txt_usingDrainage').val(selectedProject.variable.usingDrainage);
     $('#txt_usingEvapotranspiration').val(selectedProject.variable.usingEvapotranspiration);
