@@ -53,46 +53,57 @@ public class Cell extends AbstractProjectAttribute implements Comparable<Cell> {
 
     @Getter @Setter
     @Transient
+    @JsonIgnore
     private transient State currentState;
 
     @Getter @Setter
     @Transient
+    @JsonIgnore
     private transient double waterHeight = 0;
 
     @Getter @Setter
     @Transient
+    @JsonIgnore
     private transient double totalHeight;
 
     @Getter @Setter
     @Transient
+    @JsonIgnore
     private transient double waterBalanceBefore = 0;
 
     @Getter @Setter
     @Transient
+    @JsonIgnore
     private transient double waterBalanceAfter = 0;
 
     @Getter @Setter
     @Transient
+    @JsonIgnore
     private transient double constantInfiltrationCapacity = 0;
 
     @Getter @Setter
     @Transient
+    @JsonIgnore
     private transient double initialInfiltrationCapacity = 0;
 
     @Getter @Setter
     @Transient
+    @JsonIgnore
     private transient double kValue = 0;
 
     @Getter @Setter
     @Transient
+    @JsonIgnore
     private transient double waterProofPercentage = 0;
 
     @Getter @Setter
     @Transient
+    @JsonIgnore
     private transient double psiOrBi = 0;
 
     @Getter @Setter
     @Transient
+    @JsonIgnore
     private transient int timeStartFlooded = 0;
 
     public Cell() {}

@@ -14,14 +14,14 @@ public abstract class MovingObject<T>{
 
     @Column(nullable = false)
     @Getter @Setter
-    private T value;
+    protected T value;
 
     @Column(nullable = false)
     @Getter @Setter
-    private Integer startTime;
+    protected Integer startTime;
 
     @Column
     @Getter @Setter
-    private Integer endTime;
+    protected Integer endTime;
 }
 

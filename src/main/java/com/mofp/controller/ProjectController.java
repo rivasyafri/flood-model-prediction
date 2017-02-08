@@ -42,4 +42,13 @@ public class ProjectController {
         }
         return null;
     }
+
+    @RequestMapping(value = "/project/result", method = RequestMethod.GET)
+    public @ResponseBody Project getResult(@RequestParam(value = "id") long id) {
+        Project project = projectRepository.findOne(id);
+        if (project != null) {
+            return project;
+        }
+        return null;
+    }
 }

@@ -2,6 +2,7 @@ package com.mofp.dao;
 
 import com.mofp.model.State;
 import com.mofp.dao.support.JpaSpecificationRepository;
+import com.mofp.model.support.json.CellStateToStateProjectAndCellProjection;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 

@@ -5,6 +5,7 @@ import com.mofp.model.Project;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
@@ -15,13 +16,13 @@ import javax.persistence.MappedSuperclass;
 @MappedSuperclass
 public abstract class AbstractCellAttribute<T> extends MovingObject<T> {
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cellId", nullable = false)
     @Getter @Setter
-    private Cell cell;
+    protected Cell cell;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "projectId", nullable = false)
     @Getter @Setter
-    private Project project;
+    protected Project project;
 }

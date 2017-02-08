@@ -1,13 +1,14 @@
 package com.mofp.model.support;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.mofp.model.State;
+import com.mofp.model.support.json.StateSerializer;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.Column;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.MappedSuperclass;
+import javax.persistence.*;
 
 /**
  * @author rivasyafri
@@ -15,17 +16,19 @@ import javax.persistence.MappedSuperclass;
 @MappedSuperclass
 public abstract class MovingState {
 
-    @ManyToOne
+    @JsonSerialize(using = StateSerializer.class)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "stateId", nullable = false)
     @Getter @Setter
-    private State value;
+    @JsonManagedReference
+    protected State value;
 
     @Column(nullable = false)
     @Getter @Setter
-    private Integer startTime;
+    protected Integer startTime;
 
     @Column
     @Getter @Setter
-    private Integer endTime;
+    protected Integer endTime;
 }
 

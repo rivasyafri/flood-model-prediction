@@ -17,5 +17,5 @@ public abstract class AbstractFloodAttribute<T> extends MovingObject<T> {
     @ManyToOne
     @JoinColumn(name = "floodId", nullable = false)
     @Getter @Setter
-    private Flood flood;
+    protected Flood flood;
 }

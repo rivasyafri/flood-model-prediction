@@ -1,9 +1,13 @@
 package com.mofp.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.mofp.model.moving.CellHeightWater;
 import com.mofp.model.moving.CellState;
+import com.mofp.model.support.json.CellSerializer;
+import com.mofp.model.support.json.CellStateSerializer;
 import com.mofp.model.support.json.PolygonDeserializer;
 import com.mofp.model.support.json.PolygonToGeoJSON;
 import lombok.Getter;
@@ -75,6 +79,7 @@ public class Project {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "project", cascade = CascadeType.ALL)
     @Getter @Setter
+    @JsonIgnore
     private List<Cell> cells;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "project", cascade = CascadeType.ALL)
@@ -83,10 +88,12 @@ public class Project {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "project", cascade = CascadeType.ALL)
     @Getter @Setter
+    @JsonIgnore
     private List<CellHeightWater> cellHeightWaters;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "project", cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "project", cascade = CascadeType.ALL)
     @Getter @Setter
+    @JsonManagedReference
     private List<CellState> cellStates;
 
     public Project() {

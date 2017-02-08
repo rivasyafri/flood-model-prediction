@@ -328,13 +328,15 @@ public class DefaultGlobalServiceImpl implements GlobalService {
             cellStateRepository.save(cellState);
             cellStates.set(cellStates.size() - 1, cellState);
         }
-        cellState = new CellState();
-        cellState.setCell(cell);
-        cellState.setValue(updatedState);
-        cellState.setStartTime(time);
-        cellState.setProject(PROJECT);
-        cellStateRepository.save(cellState);
-        cellStates.add(cellState);
+        if (updatedState.isActive()) {
+            cellState = new CellState();
+            cellState.setCell(cell);
+            cellState.setValue(updatedState);
+            cellState.setStartTime(time);
+            cellState.setProject(PROJECT);
+            cellStateRepository.save(cellState);
+            cellStates.add(cellState);
+        }
         cellStateRepository.flush();
         return cell;
     }

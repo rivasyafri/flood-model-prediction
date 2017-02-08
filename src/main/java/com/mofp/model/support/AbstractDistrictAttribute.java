@@ -17,5 +17,5 @@ public abstract class AbstractDistrictAttribute extends MovingObject<Double> {
     @ManyToOne
     @JoinColumn(name = "districtId", nullable = false)
     @Getter @Setter
-    private District district;
+    protected District district;
 }

@@ -14,4 +14,5 @@ import java.util.List;
 public interface CellHeightWaterRepository extends JpaSpecificationRepository<CellHeightWater, Long> {
 
     List<CellHeightWater> findByCellId(@Param("cellId") Long cellId);
+    List<CellHeightWater> findByProjectId(@Param("projectId") Long projectId);
 }

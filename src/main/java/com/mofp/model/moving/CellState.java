@@ -1,8 +1,13 @@
 package com.mofp.model.moving;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.mofp.model.Cell;
 import com.mofp.model.Project;
 import com.mofp.model.support.MovingState;
+import com.mofp.model.support.json.CellSerializer;
+import com.mofp.model.support.json.ProjectSerializer;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,14 +26,17 @@ public class CellState extends MovingState {
     @Getter @Setter
     private Long id;
 
-    @ManyToOne
+    @JsonSerialize(using = CellSerializer.class)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "cellId", nullable = false)
     @Getter @Setter
     private Cell cell;
 
-    @ManyToOne
+    @JsonSerialize(using = ProjectSerializer.class)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "projectId", nullable = false)
     @Getter @Setter
+    @JsonBackReference
     private Project project;
 
     @Override
