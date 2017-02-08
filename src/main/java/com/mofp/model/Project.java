@@ -2,7 +2,6 @@ package com.mofp.model;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.mofp.dao.VariableRepository;
 import com.mofp.model.moving.CellHeightWater;
 import com.mofp.model.moving.CellState;
 import com.mofp.model.support.json.PolygonDeserializer;
@@ -11,7 +10,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.geolatte.geom.G2D;
 import org.geolatte.geom.Polygon;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.persistence.*;
 import java.util.Date;

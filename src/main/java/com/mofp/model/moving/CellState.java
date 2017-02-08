@@ -30,4 +30,19 @@ public class CellState extends MovingState {
     @JoinColumn(name = "projectId", nullable = false)
     @Getter @Setter
     private Project project;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        CellState cellState = (CellState) o;
+
+        return id != null ? id.equals(cellState.id) : cellState.id == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
+    }
 }

@@ -1,12 +1,20 @@
 package com.mofp.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.mofp.model.moving.CellBalance;
 import com.mofp.model.moving.CellHeightWater;
 import com.mofp.model.moving.CellState;
 import com.mofp.model.support.AbstractProjectAttribute;
+import com.mofp.model.support.json.PolygonDeserializer;
+import com.mofp.model.support.json.PolygonToGeoJSON;
 import lombok.Getter;
 import lombok.Setter;
+import org.geolatte.geom.G2D;
 import org.geolatte.geom.Geometry;
+import org.geolatte.geom.Polygon;
 
 import javax.persistence.*;
 import java.util.List;
@@ -28,7 +36,8 @@ public class Cell extends AbstractProjectAttribute implements Comparable<Cell> {
 
     @Column(nullable = false)
     @Getter @Setter
-    private Geometry area;
+    @JsonIgnore
+    private Polygon<G2D> area;
 
     @Getter
     @Setter
@@ -86,14 +95,6 @@ public class Cell extends AbstractProjectAttribute implements Comparable<Cell> {
     @Transient
     private transient int timeStartFlooded = 0;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "cell", cascade = CascadeType.ALL)
-    @Getter @Setter
-    private List<CellHeightWater> cellHeightWaters;
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "cell", cascade = CascadeType.ALL)
-    @Getter @Setter
-    private List<CellState> cellStates;
-
     public Cell() {}
 
     public Cell(int xArray, int yArray, State state) {
@@ -130,5 +131,25 @@ public class Cell extends AbstractProjectAttribute implements Comparable<Cell> {
         this.psiOrBi = randomGenerator.nextDouble();
         this.waterProofPercentage = randomGenerator.nextDouble();
         this.updateTotalHeight();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Cell cell = (Cell) o;
+
+        if (id != null ? !id.equals(cell.id) : cell.id != null) return false;
+        if (xArray != null ? !xArray.equals(cell.xArray) : cell.xArray != null) return false;
+        return yArray != null ? yArray.equals(cell.yArray) : cell.yArray == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (xArray != null ? xArray.hashCode() : 0);
+        result = 31 * result + (yArray != null ? yArray.hashCode() : 0);
+        return result;
     }
 }

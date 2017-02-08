@@ -27,15 +27,6 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 public class AppConfig {
 
     @Bean
-    public ThreadPoolTaskExecutor taskExecutor() {
-        ThreadPoolTaskExecutor pool = new ThreadPoolTaskExecutor();
-        pool.setCorePoolSize(5);
-        pool.setMaxPoolSize(10);
-        pool.setWaitForTasksToCompleteOnShutdown(true);
-        return pool;
-    }
-
-    @Bean
     public CorsFilter corsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();

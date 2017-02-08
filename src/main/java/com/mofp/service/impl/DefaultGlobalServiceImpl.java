@@ -1,7 +1,10 @@
 package com.mofp.service.impl;
 
+import com.mofp.dao.CellRepository;
 import com.mofp.dao.ProjectRepository;
 import com.mofp.dao.StateRepository;
+import com.mofp.dao.moving.CellHeightWaterRepository;
+import com.mofp.dao.moving.CellStateRepository;
 import com.mofp.model.Cell;
 import com.mofp.model.Neighborhood;
 import com.mofp.model.Project;
@@ -15,16 +18,20 @@ import com.mofp.service.method.PrasetyaModel;
 import com.mofp.service.method.VICModel;
 import com.mofp.service.method.formula.WaterBalance;
 import com.mofp.service.method.support.FloodModel;
+import org.apache.log4j.Logger;
 import org.geolatte.geom.G2D;
 import org.geolatte.geom.LineString;
 import org.geolatte.geom.Point;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Random;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -34,6 +41,8 @@ import java.util.concurrent.atomic.AtomicReference;
 @Service
 public class DefaultGlobalServiceImpl implements GlobalService {
 
+    private final Logger logger = Logger.getLogger(getClass());
+
     @Autowired
     private StateRepository stateRepository;
 
@@ -41,7 +50,16 @@ public class DefaultGlobalServiceImpl implements GlobalService {
     private ProjectRepository projectRepository;
 
     @Autowired
+    private CellHeightWaterRepository cellHeightWaterRepository;
+
+    @Autowired
+    private CellStateRepository cellStateRepository;
+
+    @Autowired
     private ProjectService projectService;
+
+    @Autowired
+    private CellRepository cellRepository;
 
     ////*********************** Model Properties ******************************** ////
     private double SIZE_X;
@@ -67,8 +85,9 @@ public class DefaultGlobalServiceImpl implements GlobalService {
     //// ************************** Public Variables *************************************** ////
     private Project PROJECT;
     private Cell[][] MATRIX;
-    private PriorityQueue<AtomicReference<Cell>> ACTIVE_CELLS;
-    private PriorityQueue<AtomicReference<Cell>> NEW_ACTIVE_CELLS;
+    private ArrayList<Cell> PROCESSED_CELLS;
+    private PriorityQueue<Cell> ACTIVE_CELLS;
+    private PriorityQueue<Cell> NEW_ACTIVE_CELLS;
     private Random RANDOM_GENERATOR;
 
     //// ************************** Constant State *************************************** ////
@@ -77,28 +96,48 @@ public class DefaultGlobalServiceImpl implements GlobalService {
 
     public Project run(String selectedModel, Project project) {
         this.init(selectedModel, project);
+        projectRepository.save(PROJECT);
         for (TIME_ELAPSED = 0; TIME_ELAPSED < INTERVAL; TIME_ELAPSED = TIME_ELAPSED + TIME_STEP) {
+            logger.debug("Time elapsed: " + TIME_ELAPSED + " from " + INTERVAL);
+            logger.debug("Start inundation from all active cells : " + ACTIVE_CELLS.size() + "cells");
             while (ACTIVE_CELLS.size() != 0) {
-                AtomicReference<Cell> activeCell = ACTIVE_CELLS.poll();
-                inundation(activeCell);
+                Cell activeCell = ACTIVE_CELLS.poll();
+                PROCESSED_CELLS.add(activeCell);
+                MATRIX[activeCell.getYArray()][activeCell.getXArray()] =
+                        inundation(MATRIX[activeCell.getYArray()][activeCell.getXArray()]);
             }
+            logger.debug("Ending inundation from all active cells : " + ACTIVE_CELLS.size() + "cells");
+            logger.debug("Start iterate all cell");
             iterateAllCell(TIME_ELAPSED, TIME_STEP);
+            logger.debug("End iterate all cell");
             ACTIVE_CELLS = NEW_ACTIVE_CELLS;
+            PROCESSED_CELLS = new ArrayList<>();
             NEW_ACTIVE_CELLS = new PriorityQueue<>();
-            projectRepository.saveAndFlush(PROJECT);
         }
         return PROJECT;
     }
 
     private void init(String selectedModel, Project PROJECT) {
+        logger.debug("Initiation for GLOBAL start");
         this.PROJECT = PROJECT;
         TIME_STEP = PROJECT.getTimeStep();
         INTERVAL = PROJECT.getInterval();
+        logger.debug("Initiation for GLOBAL area start");
         initArea();
+        logger.debug("Initiation for GLOBAL area end");
+        logger.debug("Initiation for GLOBAL matrix start");
         initMatrix();
+        logger.debug("Initiation for GLOBAL matrix end");
+        logger.debug("Initiation for GLOBAL model start");
         initModel(selectedModel);
+        logger.debug("Initiation for GLOBAL model end");
+        logger.debug("Initiation for GLOBAL state start");
         initState();
+        logger.debug("Initiation for GLOBAL state end");
+        logger.debug("Initiation for GLOBAL variable start");
         initVariables();
+        logger.debug("Initiation for GLOBAL variable end");
+        logger.debug("Initiation for GLOBAL end");
     }
     private void initArea() {
         double lat1, lat2 = 0, lon1, lon2 = 0;
@@ -134,10 +173,12 @@ public class DefaultGlobalServiceImpl implements GlobalService {
                         longWest + longWest * (x + 1)
                 ));
                 cell.randomizeData(); // for experiment
+                cell = cellRepository.save(cell);
                 MATRIX[y][x] = cell;
                 cells.add(cell);
             }
         }
+        cellRepository.flush();
         PROJECT.setCells(cells);
     }
     private void initModel(String selectedModel) {
@@ -160,51 +201,50 @@ public class DefaultGlobalServiceImpl implements GlobalService {
         NEIGHBOR = NEIGHBORHOOD.use("moore");
         ACTIVE_CELLS = new PriorityQueue<>();
         NEW_ACTIVE_CELLS = new PriorityQueue<>();
+        PROCESSED_CELLS = new ArrayList<>();
         RANDOM_GENERATOR = new Random();
     }
 
     private void iterateAllCell(int timeElapsed, int timeStep) {
         for (int y = 0; y < MATRIX.length; y++) {
             for (int x = 0; x < MATRIX[0].length; x++) {
-                AtomicReference<Cell> cellReference = new AtomicReference<>(MATRIX[y][x]);
                 double precipitation = getPrecipitation();
-                int time = getDeltaTime(cellReference.get(), timeElapsed, timeStep);
-                double runOff = selectedModel.calculateRunOff(PROJECT.getVariable(), cellReference.get(),
+                int time = getDeltaTime(MATRIX[y][x], timeElapsed, timeStep);
+                double runOff = selectedModel.calculateRunOff(PROJECT.getVariable(), MATRIX[y][x],
                         precipitation, time);
-                double waterBalance = WaterBalance.calculate(cellReference.get().getWaterBalanceBefore(),
+                double waterBalance = WaterBalance.calculate(MATRIX[y][x].getWaterBalanceBefore(),
                         precipitation, runOff, timeElapsed);
-                Cell updatedCell = cellReference.get();
-                updatedCell.setWaterBalanceAfter(waterBalance);
-                cellReference.set(updatedCell);
-                updateCellByRunOff(cellReference, runOff, timeElapsed);
+                MATRIX[y][x].setWaterBalanceAfter(waterBalance);
+                MATRIX[y][x] = updateCellByRunOff(MATRIX[y][x], runOff, timeElapsed);
             }
         }
     }
-    private void inundation(AtomicReference<Cell> cellReference) {
+    private Cell inundation(Cell cell) {
         int _x, _y;
-        Cell cell = cellReference.get();
-        ArrayList<AtomicReference<Cell>> neighborCells = new ArrayList<>();
+        ArrayList<Cell> neighborCells = new ArrayList<>();
         for (int[][] i : NEIGHBOR) {
             for (int[] j : i) {
                 _x = j[0] + cell.getXArray();
                 _y = j[1] + cell.getYArray();
-                if (_x > 0 && _y > 0) {
-                    AtomicReference<Cell> neighborCell = new AtomicReference<>(MATRIX[_y][_x]);
+                if (_x >= 0 && _y >= 0 && _x < NUMBER_OF_CELL_X && _y < NUMBER_OF_CELL_Y) {
+                    Cell neighborCell = MATRIX[_y][_x];
                     neighborCells.add(neighborCell);
                 }
             }
         }
         double totalHeight = cell.getTotalHeight();
-        for (AtomicReference<Cell> neighborCellReference : neighborCells) {
-            totalHeight += neighborCellReference.get().getTotalHeight();
+        for (Cell neighborCell : neighborCells) {
+            totalHeight += neighborCell.getTotalHeight();
         }
         double averageOfTotalHeight = totalHeight / (neighborCells.size() + 1);
 
         ArrayList<AtomicReference<Cell>> processedNeighborCells = new ArrayList<>();
-        for (AtomicReference<Cell> neighborCell: neighborCells) {
-            if (neighborCell.get().getTotalHeight() < averageOfTotalHeight &&
-                    neighborCell.get().getTotalHeight() < cell.getTotalHeight()) {
-                processedNeighborCells.add(neighborCell);
+        for (Cell neighborCell: neighborCells) {
+            if (neighborCell.getTotalHeight() < averageOfTotalHeight &&
+                    neighborCell.getTotalHeight() < cell.getTotalHeight()) {
+                AtomicReference<Cell> processedCell = new AtomicReference<>(
+                        MATRIX[neighborCell.getYArray()][neighborCell.getXArray()]);
+                processedNeighborCells.add(processedCell);
             }
         }
 
@@ -221,46 +261,48 @@ public class DefaultGlobalServiceImpl implements GlobalService {
             }
             processedNeighborCell.updateTotalHeight();
             processedNeighborCellReference.set(processedNeighborCell);
-            if (!ACTIVE_CELLS.contains(processedNeighborCellReference)) {
-                ACTIVE_CELLS.add(processedNeighborCellReference);
+            if (!PROCESSED_CELLS.contains(processedNeighborCell)) {
+                ACTIVE_CELLS.add(processedNeighborCell);
             }
         }
         cell.setWaterHeight(inundation + deltaCenter);
         cell.updateTotalHeight();
-        cellReference.set(cell);
+        return cell;
     }
 
-    private void updateCellByRunOff(AtomicReference<Cell> cellReference, double runOff, int timeElapsed) {
-        Cell cell = cellReference.get();
+    private Cell updateCellByRunOff(Cell beforeCell, double runOff, int timeElapsed) {
+        Cell cell = beforeCell;
         if (runOff > 0) {
             cell.setWaterHeight(runOff);
             cell.updateTotalHeight();
             if (cell.getTimeStartFlooded() == 0) {
                 cell.setCurrentState(WET_STATE);
                 cell.setTimeStartFlooded(timeElapsed);
-                cellReference.set(cell);
-                createOrUpdateCellStateRecord(cellReference, WET_STATE, timeElapsed);
+                cell = createOrUpdateCellStateRecord(cell, WET_STATE, timeElapsed);
             }
-            cellReference.set(cell);
-            createOrUpdateHeightWaterRecord(cellReference, timeElapsed);
-            NEW_ACTIVE_CELLS.add(cellReference);
+            cell = createOrUpdateHeightWaterRecord(cell, timeElapsed);
+            NEW_ACTIVE_CELLS.add(cell);
         } else if (cell.getWaterHeight() > 0) {
             cell.setWaterHeight(runOff);
             cell.updateTotalHeight();
             cell.setCurrentState(DRY_STATE);
             cell.setTimeStartFlooded(0);
-            cellReference.set(cell);
-            createOrUpdateCellStateRecord(cellReference, DRY_STATE, timeElapsed);
+            cell = createOrUpdateCellStateRecord(cell, DRY_STATE, timeElapsed);
         }
+        return cell;
 
     }
-    private void createOrUpdateHeightWaterRecord(AtomicReference<Cell> cellReference, int time) {
-        Cell cell = cellReference.get();
-        List<CellHeightWater> heightWaters = cell.getCellHeightWaters();
+    private Cell createOrUpdateHeightWaterRecord(Cell beforeCell, int time) {
+        Cell cell = beforeCell;
+        List<CellHeightWater> heightWaters = cellHeightWaterRepository.findByCellId(cell.getId());
         CellHeightWater cellHeightWater;
+        if (heightWaters == null) {
+            heightWaters = new ArrayList<>();
+        }
         if (heightWaters.size() != 0) {
             cellHeightWater = heightWaters.get(heightWaters.size() - 1);
             cellHeightWater.setEndTime(time);
+            cellHeightWaterRepository.save(cellHeightWater);
             heightWaters.set(heightWaters.size() - 1, cellHeightWater);
         }
         cellHeightWater = new CellHeightWater();
@@ -268,17 +310,22 @@ public class DefaultGlobalServiceImpl implements GlobalService {
         cellHeightWater.setValue(cell.getWaterHeight());
         cellHeightWater.setStartTime(time);
         cellHeightWater.setProject(PROJECT);
+        cellHeightWaterRepository.save(cellHeightWater);
         heightWaters.add(cellHeightWater);
-        cell.setCellHeightWaters(heightWaters);
-        cellReference.set(cell);
+        cellHeightWaterRepository.flush();
+        return cell;
     }
-    private void createOrUpdateCellStateRecord(AtomicReference<Cell> cellReference, State updatedState, int time) {
-        Cell cell = cellReference.get();
-        List<CellState> cellStates = cell.getCellStates();
+    private Cell createOrUpdateCellStateRecord(Cell beforeCell, State updatedState, int time) {
+        Cell cell = beforeCell;
+        List<CellState> cellStates = cellStateRepository.findByCellId(cell.getId());
         CellState cellState;
+        if (cellStates == null) {
+            cellStates = new ArrayList<>();
+        }
         if (cellStates.size() != 0) {
             cellState = cellStates.get(cellStates.size() - 1);
             cellState.setEndTime(time);
+            cellStateRepository.save(cellState);
             cellStates.set(cellStates.size() - 1, cellState);
         }
         cellState = new CellState();
@@ -286,9 +333,10 @@ public class DefaultGlobalServiceImpl implements GlobalService {
         cellState.setValue(updatedState);
         cellState.setStartTime(time);
         cellState.setProject(PROJECT);
+        cellStateRepository.save(cellState);
         cellStates.add(cellState);
-        cell.setCellStates(cellStates);
-        cellReference.set(cell);
+        cellStateRepository.flush();
+        return cell;
     }
 
     private int getDeltaTime(Cell cell, int timeElapsed, int timeStep) {

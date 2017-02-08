@@ -44,6 +44,7 @@ public class DefaultProjectServiceImpl implements ProjectService {
             }
         } catch (Exception e) {
             logger.error(e.toString());
+            e.printStackTrace();
             return null;
         }
     }
@@ -51,7 +52,11 @@ public class DefaultProjectServiceImpl implements ProjectService {
     @Override
     public Polygon createRectangleFromBounds(double northLat, double westLong,
                                              double southLat, double eastLong) {
-        logger.debug("Create polygon using WKT initiated");
+        logger.debug("Create polygon using WKT initiated on "
+                + northLat + ", "
+                + westLong + ", "
+                + southLat + ", "
+                + eastLong);
         StringBuilder wkt = new StringBuilder("SRID=4326;POLYGON((");
         wkt.append(northLat + " " + eastLong + ", ");
         wkt.append(southLat + " " + eastLong + ", ");
