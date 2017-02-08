@@ -151,16 +151,20 @@ public class DefaultGlobalServiceImpl implements GlobalService {
         }
         latNorth = lat1 > lat2 ? lat1 : lat2;
         longWest = lon1 > lon2 ? lon2 : lon1;
+        double avgLat = (lat1 + lat2) / 2;
         SIZE_X = Math.abs(lon1 - lon2);
         SIZE_Y = Math.abs(lat1 - lat2);
-        DELTA_X = PROJECT != null ? convertMToLat(PROJECT.getCellSize()) : convertMToLat(1000);
-        DELTA_Y = PROJECT != null ? convertMToLon(PROJECT.getCellSize(), lon1) : convertMToLon(1000, lon1);
+        DELTA_X = PROJECT != null ? convertMToLon(PROJECT.getCellSize(), avgLat) : convertMToLon(1000, avgLat);
+        DELTA_Y = PROJECT != null ? convertMToLat(PROJECT.getCellSize()) : convertMToLat(1000);
     }
     private void initMatrix() {
         Long gridX = Math.round(SIZE_X / DELTA_X);
         Long gridY = Math.round(SIZE_Y / DELTA_Y);
+        logger.debug("SIZE X: " + SIZE_X + ", SIZE Y: " + SIZE_Y);
+        logger.debug("DELTA X: " + DELTA_X + ", DELTA Y: " + DELTA_Y);
         NUMBER_OF_CELL_X = gridX.intValue();
         NUMBER_OF_CELL_Y = gridY.intValue();
+        logger.debug("Number of X: " + NUMBER_OF_CELL_X + ", Number Of Y: " + NUMBER_OF_CELL_Y);
         MATRIX = new Cell[NUMBER_OF_CELL_Y][NUMBER_OF_CELL_X];
         ArrayList<Cell> cells = new ArrayList<>();
         for (int y = 0; y < NUMBER_OF_CELL_Y; y++) {
@@ -174,6 +178,7 @@ public class DefaultGlobalServiceImpl implements GlobalService {
                 ));
                 cell.randomizeData(); // for experiment
                 cell = cellRepository.save(cell);
+                logger.debug(cell.toString());
                 MATRIX[y][x] = cell;
                 cells.add(cell);
             }

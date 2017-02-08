@@ -58,11 +58,11 @@ public class DefaultProjectServiceImpl implements ProjectService {
                 + southLat + ", "
                 + eastLong);
         StringBuilder wkt = new StringBuilder("SRID=4326;POLYGON((");
-        wkt.append(northLat + " " + eastLong + ", ");
-        wkt.append(southLat + " " + eastLong + ", ");
-        wkt.append(southLat + " " + westLong + ", ");
-        wkt.append(northLat + " " + westLong + ", ");
-        wkt.append(northLat + " " + eastLong);
+        wkt.append(eastLong + " " + northLat + ", ");
+        wkt.append(eastLong + " " + southLat + ", ");
+        wkt.append(westLong + " " + southLat + ", ");
+        wkt.append(westLong + " " + northLat + ", ");
+        wkt.append(eastLong + " " + northLat);
         wkt.append("))");
         return (Polygon<G2D>) Wkt.fromWkt(wkt.toString());
     }

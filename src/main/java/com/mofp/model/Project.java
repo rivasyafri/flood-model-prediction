@@ -93,7 +93,6 @@ public class Project {
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "project", cascade = CascadeType.ALL)
     @Getter @Setter
-    @JsonManagedReference
     private List<CellState> cellStates;
 
     public Project() {

@@ -163,4 +163,13 @@ public class Cell extends AbstractProjectAttribute implements Comparable<Cell> {
         result = 31 * result + (yArray != null ? yArray.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "Cell{" +
+                "id=" + id +
+                ", xArray=" + xArray +
+                ", yArray=" + yArray +
+                '}';
+    }
 }

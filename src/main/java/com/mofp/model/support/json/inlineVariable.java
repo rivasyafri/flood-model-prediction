@@ -25,4 +25,5 @@ public interface inlineVariable {
     boolean isDone();
     String getModel();
     Variable getVariable();
+    List<CellState> getCellStates();
 }
