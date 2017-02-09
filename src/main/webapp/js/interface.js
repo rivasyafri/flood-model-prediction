@@ -6,6 +6,7 @@ $(document).ready(function () {
 });
 
 /* Function for interface */
+var timeElapsed = 0;
 function notify(icon, message, type) {
     $.notify({
         icon: icon,
@@ -201,7 +202,7 @@ function buttonPlayPress() {
             var invertedCellStates = response._embedded.cell_state;
             notify("fa fa-check-circle-o", selectedProject.name + "is running.", textStatus);
             if (selectedProject.cellStates.length != 0) {
-                var timeElapsed = 0;
+                timeElapsed = 0;
                 var j = 0;
                 var i = 0;
                 var k = 0;
@@ -243,17 +244,17 @@ function buttonPlayPress() {
                     timeElapsed += selectedProject.timeStep;
                     k++;
                 }
+                if (timeElapsed < selectedProject.interval) {
+                    setTimeout(function () {
+                        buttonPlayPress();
+                    }, k * 4000 + 2000);
+                }
             } else {
-                // console.log("salah");
                 var request = runProject();
                 request.done(function (response, textStatus, jqXHR) {
-                    var load = getOne(selectedProject._links.self.href);
-                    load.done(function (response, textStatus, jqXHR) {
-                        selectedProject = response;
-                        console.log(selectedProject);
-                        notify("fa fa-check-circle-o", selectedProject.name + " are loaded successfully.", textStatus);
-                        loadDataToPlaceHolder();
-                    });
+                    setTimeout(function () {
+                        buttonPlayPress();
+                    }, 3000);
                 });
             }
         });

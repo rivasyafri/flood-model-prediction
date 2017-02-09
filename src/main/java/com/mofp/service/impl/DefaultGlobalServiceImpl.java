@@ -32,7 +32,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author rivasyafri
- * Edited from Global.class from Taufiqurrahman
+ *         Edited from Global.class from Taufiqurrahman
  */
 @Service
 public class DefaultGlobalServiceImpl implements GlobalService {
@@ -90,7 +90,7 @@ public class DefaultGlobalServiceImpl implements GlobalService {
     private State WET_STATE;
     private State DRY_STATE;
 
-    private final int MAX_NUMBER_OF_LOCATION_IN_REQUEST = 512;
+    private final int MAX_NUMBER_OF_LOCATION_IN_REQUEST = 50;
 
     public Project run(String selectedModel, Project project) {
         this.init(selectedModel, project);
@@ -137,6 +137,7 @@ public class DefaultGlobalServiceImpl implements GlobalService {
         logger.debug("Initiation for GLOBAL variable end");
         logger.debug("Initiation for GLOBAL end");
     }
+
     private void initArea() {
         double lat1, lat2 = 0, lon1, lon2 = 0;
         LineString<G2D> line = PROJECT.getArea().getExteriorRing();
@@ -155,6 +156,7 @@ public class DefaultGlobalServiceImpl implements GlobalService {
         DELTA_X = PROJECT != null ? convertMToLon(PROJECT.getCellSize(), avgLat) : convertMToLon(1000, avgLat);
         DELTA_Y = PROJECT != null ? convertMToLat(PROJECT.getCellSize()) : convertMToLat(1000);
     }
+
     private void initMatrix() {
         Long gridX = Math.round(SIZE_X / DELTA_X);
         Long gridY = Math.round(SIZE_Y / DELTA_Y);
@@ -172,11 +174,12 @@ public class DefaultGlobalServiceImpl implements GlobalService {
                 cell.setArea(projectService.createRectangleFromBounds(
                         latNorth + DELTA_Y * y,
                         longWest + DELTA_X * x,
-                        latNorth + DELTA_Y * (y+1),
+                        latNorth + DELTA_Y * (y + 1),
                         longWest + DELTA_X * (x + 1)
                 ));
                 cell.setProject(PROJECT);
                 cell.randomizeData(); // for experiment
+//                cell = getHeightFromGoogleElevation(cell);
                 cell = cellRepository.save(cell);
                 logger.debug(cell.toString());
                 MATRIX[y][x] = cell;
@@ -195,6 +198,7 @@ public class DefaultGlobalServiceImpl implements GlobalService {
         cellRepository.save(cells);
         cellRepository.flush();
     }
+
     private void initModel(String selectedModel) {
         if (selectedModel.compareTo(PrasetyaModel.getModelName()) == 0) {
             this.selectedModel = new PrasetyaModel();
@@ -206,10 +210,12 @@ public class DefaultGlobalServiceImpl implements GlobalService {
             this.selectedModel = new PrasetyaModel();
         }
     }
+
     private void initState() {
         WET_STATE = stateRepository.findByName("WET").get(0);
         DRY_STATE = stateRepository.findByName("DRY").get(0);
     }
+
     private void initVariables() {
         NEIGHBORHOOD = new Neighborhood();
         NEIGHBOR = NEIGHBORHOOD.use("moore");
@@ -233,6 +239,7 @@ public class DefaultGlobalServiceImpl implements GlobalService {
             }
         }
     }
+
     private Cell inundation(Cell cell) {
         int _x, _y;
         ArrayList<Cell> neighborCells = new ArrayList<>();
@@ -253,7 +260,7 @@ public class DefaultGlobalServiceImpl implements GlobalService {
         double averageOfTotalHeight = totalHeight / (neighborCells.size() + 1);
 
         ArrayList<AtomicReference<Cell>> processedNeighborCells = new ArrayList<>();
-        for (Cell neighborCell: neighborCells) {
+        for (Cell neighborCell : neighborCells) {
             if (neighborCell.getTotalHeight() < averageOfTotalHeight &&
                     neighborCell.getTotalHeight() < cell.getTotalHeight()) {
                 AtomicReference<Cell> processedCell = new AtomicReference<>(
@@ -264,7 +271,7 @@ public class DefaultGlobalServiceImpl implements GlobalService {
 
         double inundation = cell.getWaterHeight() / (processedNeighborCells.size() + 1);
         double deltaCenter = 0;
-        for (AtomicReference<Cell> processedNeighborCellReference: processedNeighborCells) {
+        for (AtomicReference<Cell> processedNeighborCellReference : processedNeighborCells) {
             Cell processedNeighborCell = processedNeighborCellReference.get();
             if (processedNeighborCell.getTotalHeight() + inundation > cell.getTotalHeight()) {
                 double delta = cell.getTotalHeight() - processedNeighborCell.getTotalHeight();
@@ -306,6 +313,7 @@ public class DefaultGlobalServiceImpl implements GlobalService {
         return cell;
 
     }
+
     private Cell createOrUpdateHeightWaterRecord(Cell beforeCell, int time) {
         Cell cell = beforeCell;
         List<CellHeightWater> heightWaters = cellHeightWaterRepository.findByCellId(cell.getId());
@@ -329,6 +337,7 @@ public class DefaultGlobalServiceImpl implements GlobalService {
         cellHeightWaterRepository.flush();
         return cell;
     }
+
     private Cell createOrUpdateCellStateRecord(Cell beforeCell, State updatedState, int time) {
         Cell cell = beforeCell;
         List<CellState> cellStates = cellStateRepository.findByCellId(cell.getId());
@@ -363,19 +372,22 @@ public class DefaultGlobalServiceImpl implements GlobalService {
         time += timeStep;
         return time;
     }
+
     private double getPrecipitation() {
         return RANDOM_GENERATOR.nextDouble();
     }
 
     /* Get from http://stackoverflow.com/questions/1253499/simple-calculations-for-working-with-lat-lon-km-distance */
     private double convertMToLat(double m) {
-        return (m/1000) / 110.574;
+        return (m / 1000) / 110.574;
     }
+
     private double convertMToLon(double m, double latInDegree) {
-        return (m/1000) * Math.acos(toRadians(latInDegree))/ 111.320;
+        return (m / 1000) * Math.acos(toRadians(latInDegree)) / 111.320;
     }
+
     /* Get from http://stackoverflow.com/questions/9705123/how-can-i-get-sin-cos-and-tan-to-use-degrees-instead-of-radians */
-    private double toRadians (double angle) {
+    private double toRadians(double angle) {
         return angle * (Math.PI / 180);
     }
 
@@ -384,13 +396,14 @@ public class DefaultGlobalServiceImpl implements GlobalService {
         String url = "https://maps.googleapis.com/maps/api/elevation/json?"
                 + combinedCellForGoogleElevation + "&key=AIzaSyCA6AY3nH7zkkYlvSWj3t_eXKBCbyQmtGs";
         logger.debug("Getting data from " + url);
-        return restTemplate.getForObject(url, GoogleElevationResponse.class);
+        GoogleElevationResponse response = restTemplate.getForObject(url, GoogleElevationResponse.class);
+        return response;
     }
 
     private ArrayList<Cell> getElevationForAllCells(ArrayList<ArrayList<Cell>> listOfCellForGoogleElevation) {
         logger.debug("Start getting elevation from google elevation");
         ArrayList<Cell> allCells = new ArrayList<>();
-        for (ArrayList<Cell> cellsForGoogleElevation: listOfCellForGoogleElevation) {
+        for (ArrayList<Cell> cellsForGoogleElevation : listOfCellForGoogleElevation) {
             String combinedCellForGoogleElevation = createStringCombinedCellForGoogleElevation(cellsForGoogleElevation);
             GoogleElevationResponse response = getFromGoogleElevation(combinedCellForGoogleElevation);
             if (response.getStatus().compareTo("OK") != 0) {
@@ -422,5 +435,23 @@ public class DefaultGlobalServiceImpl implements GlobalService {
             }
         }
         return stringBuilder.toString();
+    }
+
+    private Cell getHeightFromGoogleElevation(Cell cell) {
+        StringBuilder stringBuilder = new StringBuilder("locations=");
+        HashMap<Integer, Double> map = cell.getCenterPointOfArea();
+        stringBuilder.append(map.get(1));
+        stringBuilder.append(",");
+        stringBuilder.append(map.get(2));
+        RestTemplate restTemplate = new RestTemplate();
+        String url = "https://maps.googleapis.com/maps/api/elevation/json?"
+                + stringBuilder.toString() + "&key=AIzaSyCA6AY3nH7zkkYlvSWj3t_eXKBCbyQmtGs";
+        logger.debug("Getting data from " + url);
+        GoogleElevationResponse response = restTemplate.getForObject(url, GoogleElevationResponse.class);
+        ArrayList<Elevation> elevations = new ArrayList<>(response.getResults());
+        Elevation elevation = elevations.get(0);
+        cell.setHeight(elevation.getElevation());
+        cell.updateTotalHeight();
+        return cell;
     }
 }
