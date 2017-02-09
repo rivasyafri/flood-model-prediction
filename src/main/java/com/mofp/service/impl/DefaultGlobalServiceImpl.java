@@ -170,11 +170,12 @@ public class DefaultGlobalServiceImpl implements GlobalService {
             for (int x = 0; x < NUMBER_OF_CELL_X; x++) {
                 Cell cell = new Cell(x, y, DRY_STATE);
                 cell.setArea(projectService.createRectangleFromBounds(
-                        latNorth + latNorth * y,
-                        longWest + longWest * x,
-                        latNorth + latNorth * (y+1),
-                        longWest + longWest * (x + 1)
+                        latNorth + DELTA_Y * y,
+                        longWest + DELTA_X * x,
+                        latNorth + DELTA_Y * (y+1),
+                        longWest + DELTA_X * (x + 1)
                 ));
+                cell.setProject(PROJECT);
                 cell.randomizeData(); // for experiment
                 cell = cellRepository.save(cell);
                 logger.debug(cell.toString());
@@ -188,10 +189,11 @@ public class DefaultGlobalServiceImpl implements GlobalService {
                 }
             }
         }
+        listOfCellForGoogleElevation.add(cellsForGoogleElevation);
+        cellRepository.flush();
         ArrayList<Cell> cells = getElevationForAllCells(listOfCellForGoogleElevation);
         cellRepository.save(cells);
         cellRepository.flush();
-        PROJECT.setCells(cells);
     }
     private void initModel(String selectedModel) {
         if (selectedModel.compareTo(PrasetyaModel.getModelName()) == 0) {
@@ -381,10 +383,12 @@ public class DefaultGlobalServiceImpl implements GlobalService {
         RestTemplate restTemplate = new RestTemplate();
         String url = "https://maps.googleapis.com/maps/api/elevation/json?"
                 + combinedCellForGoogleElevation + "&key=AIzaSyCA6AY3nH7zkkYlvSWj3t_eXKBCbyQmtGs";
+        logger.debug("Getting data from " + url);
         return restTemplate.getForObject(url, GoogleElevationResponse.class);
     }
 
     private ArrayList<Cell> getElevationForAllCells(ArrayList<ArrayList<Cell>> listOfCellForGoogleElevation) {
+        logger.debug("Start getting elevation from google elevation");
         ArrayList<Cell> allCells = new ArrayList<>();
         for (ArrayList<Cell> cellsForGoogleElevation: listOfCellForGoogleElevation) {
             String combinedCellForGoogleElevation = createStringCombinedCellForGoogleElevation(cellsForGoogleElevation);
@@ -401,6 +405,7 @@ public class DefaultGlobalServiceImpl implements GlobalService {
                 allCells.add(cell);
             }
         }
+        logger.debug("End getting elevation from google elevation");
         return allCells;
     }
 

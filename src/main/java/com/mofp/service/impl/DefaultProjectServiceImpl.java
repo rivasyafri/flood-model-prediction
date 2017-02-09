@@ -36,7 +36,7 @@ public class DefaultProjectServiceImpl implements ProjectService {
                 logger.debug(project.getName() + " is running");
                 project = GLOBAL.run(selectedModel, project);
                 logger.debug(project.getName() + " is finished");
-//                project.setDone(true);
+                project.setDone(true);
                 projectRepository.saveAndFlush(project);
                 return project;
             } else {
