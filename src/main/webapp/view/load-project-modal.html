@@ -28,14 +28,18 @@
         });
         $('#load-form').submit(function () {
             var url = $('#select-projects').val();
-            var request = getOneProject(url);
+            var request = getOne(url);
             request.done(function (response, textStatus, jqXHR) {
                 selectedProject = response;
                 console.log(selectedProject);
-                notify("fa fa-check-circle-o", selectedProject.name + " is loaded successfully.", textStatus);
-                loadDataToPlaceHolder();
-                showPlayer();
-                sideNavValidation();
+                var variable = getOne(selectedProject._links.variable.href);
+                variable.done(function (response, textStatus, jqXHR) {
+                    selectedProject.variable = response;
+                    notify("fa fa-check-circle-o", selectedProject.name + " is loaded successfully.", textStatus);
+                    loadDataToPlaceHolder();
+                    showPlayer();
+                    sideNavValidation();
+                });
             });
             request.fail(function (response, textStatus, jqXHR) {
                 notify("fa fa-times-circle-o", url + " cannot be loaded. See log.", "danger");

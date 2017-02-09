@@ -239,7 +239,7 @@ function getCommGeomFilter(){
 /**
  * @author rivasyafri
  */
-var cells=[];
+var matrix=[[]];
 var lines=[];
 var ne=null;
 var sw=null;
@@ -248,12 +248,6 @@ var yNumberOfCells = null;
 var deltaX=null;
 var deltaY=null;
 var poly=null;
-var crs = {
-    "properties": {
-        "name" : "EPSG:4326"
-    },
-    "type": "name"
-};
 
 function addRectangleGetter(){
     var bounds={
@@ -282,29 +276,6 @@ function addRectangleGetter(){
         }
     });
     addButton();
-}
-function drawGridFromSelectedProject() {
-    if (selectedProject != null) {
-        if (selectedProject.area != null) {
-            var bounds={
-                north: selectedProject.area.bbox[0],
-                west: selectedProject.area.bbox[1],
-                south: selectedProject.area.bbox[2],
-                east: selectedProject.area.bbox[3],
-            };
-            poly = new google.maps.Rectangle({
-                strokeColor: '#FF0000',
-                strokeOpacity: 0.8,
-                strokeWeight: 2,
-                fillColor: '#FFFFFF',
-                fillOpacity: 0.35,
-                bounds: bounds
-            });
-            ne = poly.getBounds().getNorthEast();
-            sw = poly.getBounds().getSouthWest();
-            drawGrid(selectedProject.cellSize);
-        }
-    }
 }
 
 /* Get from http://jsbin.com/ajimur/421/ */
@@ -353,6 +324,7 @@ function addButton() {
 function acceptBorder() {
     // addJsonBorderToSelectedProject(poly);
     drawGrid(selectedProject.cellSize);
+    buttonSavePress();
     return false;
 }
 function deleteBorder() {
@@ -366,22 +338,32 @@ function getButton(imageUrl) {
 
 /* Function to create grid for cellular automata */
 function drawGrid(cellSize) {
+    console.log("draw grid");
     ne = poly.getBounds().getNorthEast();
     sw = poly.getBounds().getSouthWest();
+    // latitude and longitude is inverted, different from java
+    console.log(ne.lng() + " " + ne.lat());
+    console.log(sw.lng() + " " + sw.lat());
     poly.setMap(null);
-    var rectangleHeight = Math.abs(ne.lng() - sw.lng());
-    var rectangleWidth = Math.abs(ne.lat() - sw.lat());
+    var rectangleWidth = Math.abs(ne.lng() - sw.lng());
+    var rectangleHeight = Math.abs(ne.lat() - sw.lat());
     var dividerLat = convertMToLat(cellSize);
     var avgLat = (ne.lat() + sw.lat()) / 2;
     var dividerLong = convertMToLong(cellSize, avgLat);
-    xNumberOfCells = Math.round(rectangleHeight/dividerLat);
-    yNumberOfCells = Math.round(rectangleWidth/dividerLong);
-    deltaX = rectangleHeight/xNumberOfCells;
-    deltaY = ne.lat() < 0 ? -1 * (rectangleWidth/yNumberOfCells) : rectangleWidth/yNumberOfCells ;
+    console.log(rectangleWidth + " " + rectangleHeight);
+    console.log(dividerLong + " " + dividerLat);
+    xNumberOfCells = Math.round(rectangleWidth/dividerLong);
+    yNumberOfCells = Math.round(rectangleHeight/dividerLat);
+    console.log(yNumberOfCells + " " + xNumberOfCells);
+    deltaX = rectangleWidth/xNumberOfCells;
+    deltaY = ne.lat() < 0 ? -1 * (rectangleHeight/yNumberOfCells) : rectangleHeight/yNumberOfCells ;
+    console.log(deltaY + " " + deltaX);
+    initMatrix();
     // var deltaY = rectangleWidth/yNumberOfCells;
     loopCreateLines(xNumberOfCells, yNumberOfCells, deltaX, deltaY);
 }
 function loopCreateLines(xNumberOfCells, yNumberOfCells, deltaX, deltaY) {
+    console.log("loop create line : " + xNumberOfCells + ", " + yNumberOfCells);
     for (var y = 0; y <= yNumberOfCells; y++){
         var grid = [
             {lat: ne.lat() + deltaY * y, lng: ne.lng()},
@@ -411,28 +393,43 @@ function loopCreateLines(xNumberOfCells, yNumberOfCells, deltaX, deltaY) {
         lines.push(line);
     }
 }
-function createCellFlooded(x, y) {
-    var bounds={
-        north: ne.lat() + y * deltaY,
-        south: ne.lat() + (y + 1) * deltaY,
-        east: sw.lng() + (x + 1) * deltaX,
-        west: sw.lng() + x * deltaX
-    };
-    var cell = new google.maps.Rectangle({
-        strokeColor: '#000000',
-        strokeOpacity: 0.8,
-        strokeWeight: 2,
-        fillColor: '#1974D2',
-        fillOpacity: 0.3,
-        bounds: bounds,
-        map:map
-    });
-    cells.push(cell);
+function initMatrix() {
+    console.log("init matrix");
+    for (var i = 0; i < yNumberOfCells; i++) {
+        var column=[];
+        for (var j = 0; j < xNumberOfCells; j++) {
+            column.push(0);
+        }
+        matrix.push(column);
+    }
+}
+function createFloodedCell(x, y) {
+    if (!matrix[y][x]) {
+        var bounds={
+            north: ne.lat() + y * deltaY,
+            south: ne.lat() + (y + 1) * deltaY,
+            east: sw.lng() + (x + 1) * deltaX,
+            west: sw.lng() + x * deltaX
+        };
+        var cell = new google.maps.Rectangle({
+            strokeColor: '#000000',
+            strokeOpacity: 0.8,
+            strokeWeight: 2,
+            fillColor: '#1974D2',
+            fillOpacity: 0.3,
+            bounds: bounds,
+            map:map
+        });
+        matrix[y][x] = cell;
+    }
+}
+function removeFloodedCell(x, y) {
+    if (matrix[y][x]) {
+        matrix[y][x].setMap(null);
+        matrix[y][x] = 0;
+    }
 }
 function clearCells() {
-    cells.forEach(function (cell) {
-        cell.setMap(null);
-    });
     lines.forEach(function (line) {
         line.setMap(null);
     });

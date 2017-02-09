@@ -10,7 +10,7 @@ function notify(icon, message, type) {
     $.notify({
         icon: icon,
         message: message
-    },{
+    }, {
         type: type,
         newest_on_top: true,
         placement: {
@@ -70,11 +70,11 @@ function loadDataToPlaceHolder() {
     $('#txt_psychometric').val(selectedProject.variable.psychometric);
     $('#select-model').val(selectedProject.model);
     if (selectedProject.model == 'Chen') {
-        $('#select-model option[value="Chen"]').prop("selected",true);
+        $('#select-model option[value="Chen"]').prop("selected", true);
     } else if (selectedProject.model == 'VIC') {
-        $('#select-model option[value="VIC"]').prop("selected",true);
+        $('#select-model option[value="VIC"]').prop("selected", true);
     } else {
-        $('#select-model option[value="Prasetya"]').prop("selected",true);
+        $('#select-model option[value="Prasetya"]').prop("selected", true);
     }
 }
 function sideNavValidation() {
@@ -88,8 +88,8 @@ function sideNavValidation() {
             .find('a')
             .remove()
             .end()
-            .append('<a href="javascript:void(0)" class="closebtn" onclick="showNav()">&times;</a>'+
-                '<a href="javascript:void(0)" data-toggle="modal" data-target="#create-modal" onclick="showNav()">Create Project</a>'+
+            .append('<a href="javascript:void(0)" class="closebtn" onclick="showNav()">&times;</a>' +
+                '<a href="javascript:void(0)" data-toggle="modal" data-target="#create-modal" onclick="showNav()">Create Project</a>' +
                 '<a href="javascript:void(0)" data-toggle="modal" data-target="#load-modal" onclick="showNav()">Load Project</a>'
             );
     }
@@ -135,9 +135,11 @@ function showPlayer() {
         $('#button_setting').prop('disabled', true);
     }
 }
-function buttonSelectBorder(){
+function buttonSelectBorder() {
     if (selectedProject != null) {
-        if (selectedProject.cellSize != null) {
+        if (selectedProject.area != null) {
+            drawGridFromSelectedProject();
+        } else if (selectedProject.cellSize != null) {
             addRectangleGetter();
         } else {
             alert('Please set the project first.');
@@ -151,7 +153,7 @@ function buttonSavePress() {
         poly.getBounds().getSouthWest());
     request.done(function (response, textStatus, jqXHR) {
         notify("fa fa-check-circle-o", selectedProject.name + " borders are successfully saved to database.", textStatus);
-        var load = getOneProject(selectedProject._links.self.href);
+        var load = getOne(selectedProject._links.self.href);
         load.done(function (response, textStatus, jqXHR) {
             selectedProject = response;
             console.log(selectedProject);
@@ -176,42 +178,79 @@ function buttonRemoveBorder() {
     });
 }
 function buttonStopPress() {
-    if (cells != null) {
-        cells.forEach(function (cell) {
-            cell.setOptions({fillColor: '#FFFFFF', fillOpacity:0.1});
-        });
-    }
+    // if (cells != null) {
+    //     cells.forEach(function (cell) {
+    //         cell.setOptions({fillColor: '#FFFFFF', fillOpacity: 0.1});
+    //     });
+    // }
 }
-function buttonSavePress() {
-    var request = setBorderAPI(poly.getBounds().getNorthEast(),
-        poly.getBounds().getSouthWest());
-    request.done(function (response, textStatus, jqXHR) {
-        notify("fa fa-check-circle-o", selectedProject.name + " borders are successfully saved to database.", textStatus);
-        var load = getOneProject(selectedProject._links.self.href);
-        load.done(function (response, textStatus, jqXHR) {
-            selectedProject = response;
-            console.log(selectedProject);
-            notify("fa fa-check-circle-o", selectedProject.name + " are loaded successfully.", textStatus);
-            loadDataToPlaceHolder();
-        });
-        load.fail(function (response, textStatus, jqXHR) {
-            notify("fa fa-times-circle-o", selectedProject.name + " cannot be loaded. See log.", "danger");
+function buttonPlayPress() {
+    var requestCellStates = getCellStatesSortedByStartTime();
+    requestCellStates.done(function (response, textStatus, jqXHR) {
+        selectedProject.cellStates = response._embedded.cell_state;
+        console.log(selectedProject);
+        var requestInvertedCellStates = getCellStatesSortedByEndTime();
+        requestInvertedCellStates.done(function (response, textStatus, jqXHR) {
+            var invertedCellStates = response._embedded.cell_state;
+            notify("fa fa-check-circle-o", selectedProject.name + "is running.", textStatus);
+            if (selectedProject.cellStates.length != 0) {
+                var timeElapsed = 0;
+                var j = 0;
+                var i = 0;
+                var k = 0;
+                while ((j < invertedCellStates.length || i < selectedProject.cellStates.length) &&
+                        timeElapsed < selectedProject.interval) {
+                    console.log(i + " " + j + " in " + timeElapsed);
+                    var cellState = selectedProject.cellStates[i];
+                    if (typeof cellState != 'undefined' && cellState != null) {
+                        while (timeElapsed == cellState.startTime && i < selectedProject.cellStates.length) {
+                            (function(cellState, k) {
+                                setTimeout(function () {
+                                    console.log(cellState.xarray + " " + cellState.yarray);
+                                    createFloodedCell(cellState.xarray, cellState.yarray);
+                                }, k * 2500);
+                            })(cellState, k);
+                            i++;
+                            cellState = selectedProject.cellStates[i];
+                            if (typeof cellState == 'undefined' || cellState == null) {
+                                break;
+                            }
+                        }
+                    }
+                    var invertedCellState = invertedCellStates[j];
+                    if (typeof invertedCellState != 'undefined' && invertedCellState != null) {
+                        while (timeElapsed == invertedCellState.endTime && j < invertedCellStates.length) {
+                            (function(invertedCellState, k) {
+                                setTimeout(function () {
+                                    console.log(invertedCellState.xarray + " " + invertedCellState.yarray);
+                                    removeFloodedCell(invertedCellState.xarray, invertedCellState.yarray);
+                                }, k * 2500);
+                            })(invertedCellState, k);
+                            j++;
+                            invertedCellState = invertedCellStates[j];
+                            if (typeof invertedCellState == 'undefined' || invertedCellState == null) {
+                                break;
+                            }
+                        }
+                    }
+                    timeElapsed += selectedProject.timeStep;
+                    k++;
+                }
+            } else {
+                // console.log("salah");
+                var request = runProject();
+                request.done(function (response, textStatus, jqXHR) {
+                    var load = getOne(selectedProject._links.self.href);
+                    load.done(function (response, textStatus, jqXHR) {
+                        selectedProject = response;
+                        console.log(selectedProject);
+                        notify("fa fa-check-circle-o", selectedProject.name + " are loaded successfully.", textStatus);
+                        loadDataToPlaceHolder();
+                    });
+                });
+            }
         });
     });
-    request.fail(function (response, textStatus, jqXHR) {
-        notify("fa fa-times-circle-o", selectedProject.name + " borders cannot be saved. See log.", "danger");
-    });
-}
-function buttonTestPress() {
-    var center = {};
-    var x1 = sw.lng();
-    var y1 = sw.lat();
-    var x2 = ne.lng();
-    var y2 = ne.lat();
-    center.x = x1 + ((x2 - x1) / 2);
-    center.y = y1 + ((y2 - y1) / 2);
-    var mPosition = new google.maps.LatLng(center.y, center.x);
-    getElevation(mPosition);
 }
 function buttonClosePress() {
     selectedProject = null;

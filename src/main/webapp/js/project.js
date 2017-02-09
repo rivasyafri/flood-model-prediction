@@ -14,7 +14,7 @@ if (window.XDomainRequest) {
 
 /* Method for Projects */
 var getProjects = function() {
-    $.ajax({
+    return $.ajax({
         url: serviceUrl + "project",
         dataType: "json",
         contentType: contentType,
@@ -27,9 +27,47 @@ var getProjects = function() {
         }
     });
 };
-var getOneProject = function(url) {
+var getCellStatesSortedByStartTime = function() {
+    return $.ajax({
+        url: serviceUrl + "cell_state/search/findByProjectIdWithSorting?id="
+            + selectedProject.id +"&sort=startTime,asc",
+        dataType: "json",
+        contentType: contentType,
+        xhrFields: {
+            withCredentials: false
+        },
+        success: function (data) {
+            console.log(data);
+        }
+    });
+};
+var getCellStatesSortedByEndTime = function() {
+    return $.ajax({
+        url: serviceUrl + "cell_state/search/findByProjectIdWithSorting?id="
+        + selectedProject.id +"&sort=endTime,asc",
+        dataType: "json",
+        contentType: contentType,
+        xhrFields: {
+            withCredentials: false
+        }
+    });
+};
+var getOne = function(url) {
+    var request = $.ajax({
+        // url: url + '?projection=inlineVariable',
+        url: url,
+        dataType: "json",
+        contentType: contentType,
+        xhrFields: {
+            withCredentials: false
+        }
+    });
+    return request;
+};
+var getOneWithProjection = function(url) {
     var request = $.ajax({
         url: url + '?projection=inlineVariable',
+        // url: url,
         dataType: "json",
         contentType: contentType,
         xhrFields: {
@@ -98,7 +136,7 @@ var patchVariable = function(variable, id) {
 };
 var setBorderAPI = function (ne, sw) {
     var request = $.ajax({
-        url: serviceUrl+'project/buttonSelectBorder?id='+selectedProject.id+
+        url: serviceUrl+'project/setBorder?id='+selectedProject.id+
             "&north="+ne.lat()+
             "&west="+sw.lng()+
             "&south="+sw.lat()+
@@ -125,6 +163,42 @@ var runProject = function () {
     });
     return request;
 };
+function drawGridFromSelectedProject() {
+    console.log("draw grid from selected project")
+    var bounds={
+                north: selectedProject.area.bbox[3],
+                west: selectedProject.area.bbox[2],
+                south: selectedProject.area.bbox[1],
+                east: selectedProject.area.bbox[0],
+            };
+    poly = new google.maps.Rectangle({
+        strokeColor: '#FF0000',
+        strokeOpacity: 0.8,
+        strokeWeight: 2,
+        fillColor: '#FFFFFF',
+        fillOpacity: 0.35,
+        bounds: bounds,
+        map:map
+    });
+    ne = poly.getBounds().getNorthEast();
+    sw = poly.getBounds().getSouthWest();
+    drawGrid(selectedProject.cellSize);
+}
+function loadProject(url) {
+    var req = getOne(url);
+    req.done(function (response, textStatus, jqXHR) {
+        selectedProject = response;
+        console.log(selectedProject);
+        var variable = getOne(selectedProject._links.variable.href);
+        variable.done(function (response, textStatus, jqXHR) {
+            selectedProject.variable = response;
+            notify("fa fa-check-circle-o", selectedProject.name + " is loaded successfully.", textStatus);
+        });
+    });
+    req.fail(function (response, textStatus, jqXHR) {
+        notify("fa fa-times-circle-o", url + " cannot be loaded. See log.", "danger");
+    });
+}
 
 /* Get from http://stackoverflow.com/questions/1184624/convert-form-data-to-javascript-object-with-jquery */
 $.fn.serializeObject = function()
