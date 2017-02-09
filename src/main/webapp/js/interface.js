@@ -158,7 +158,14 @@ function buttonSavePress() {
             selectedProject = response;
             console.log(selectedProject);
             notify("fa fa-check-circle-o", selectedProject.name + " are loaded successfully.", textStatus);
-            loadDataToPlaceHolder();
+            var variable = getOne(selectedProject._links.variable.href);
+            variable.done(function (response, textStatus, jqXHR) {
+                selectedProject.variable = response;
+                notify("fa fa-check-circle-o", selectedProject.name + " is loaded successfully.", textStatus);
+                loadDataToPlaceHolder();
+                showPlayer();
+                sideNavValidation();
+            });
         });
         load.fail(function (response, textStatus, jqXHR) {
             notify("fa fa-times-circle-o", selectedProject.name + " cannot be loaded. See log.", "danger");
@@ -208,7 +215,7 @@ function buttonPlayPress() {
                                 setTimeout(function () {
                                     console.log(cellState.xarray + " " + cellState.yarray);
                                     createFloodedCell(cellState.xarray, cellState.yarray);
-                                }, k * 2500);
+                                }, k * 4000);
                             })(cellState, k);
                             i++;
                             cellState = selectedProject.cellStates[i];
@@ -224,7 +231,7 @@ function buttonPlayPress() {
                                 setTimeout(function () {
                                     console.log(invertedCellState.xarray + " " + invertedCellState.yarray);
                                     removeFloodedCell(invertedCellState.xarray, invertedCellState.yarray);
-                                }, k * 2500);
+                                }, k * 4000 + 2000);
                             })(invertedCellState, k);
                             j++;
                             invertedCellState = invertedCellStates[j];

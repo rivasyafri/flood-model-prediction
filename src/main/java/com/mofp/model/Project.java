@@ -79,11 +79,6 @@ public class Project {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "project", cascade = CascadeType.ALL)
     @Getter @Setter
-    @JsonIgnore
-    private List<Cell> cells;
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "project", cascade = CascadeType.ALL)
-    @Getter @Setter
     private List<Flood> floods;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "project", cascade = CascadeType.ALL)

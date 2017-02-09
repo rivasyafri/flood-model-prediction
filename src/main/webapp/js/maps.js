@@ -430,10 +430,17 @@ function removeFloodedCell(x, y) {
     }
 }
 function clearCells() {
+    matrix.forEach(function (column) {
+        column.forEach(function (cell) {
+            if (typeof cell == 'object') {
+                cell.setMap(null);
+            }
+        });
+    });
     lines.forEach(function (line) {
         line.setMap(null);
     });
-    cells.splice(0, cells.length);
+    matrix.splice(0, matrix.length);
     lines.splice(0, lines.length);
 }
 
