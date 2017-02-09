@@ -140,7 +140,6 @@ public class Cell extends AbstractProjectAttribute implements Comparable<Cell> {
         this.kValue = randomGenerator.nextDouble();
         this.psiOrBi = randomGenerator.nextDouble();
         this.waterProofPercentage = randomGenerator.nextDouble();
-        this.updateTotalHeight();
     }
 
     @Override

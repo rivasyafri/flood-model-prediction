@@ -389,11 +389,15 @@ public class DefaultGlobalServiceImpl implements GlobalService {
         for (ArrayList<Cell> cellsForGoogleElevation: listOfCellForGoogleElevation) {
             String combinedCellForGoogleElevation = createStringCombinedCellForGoogleElevation(cellsForGoogleElevation);
             GoogleElevationResponse response = getFromGoogleElevation(combinedCellForGoogleElevation);
+            if (response.getStatus().compareTo("OK") != 0) {
+                logger.debug("response not OK : " + response.getResults().size());
+            }
             ArrayList<Elevation> elevations = new ArrayList<>(response.getResults());
             for (int i = 0; i < cellsForGoogleElevation.size(); i++) {
                 Cell cell = cellsForGoogleElevation.get(i);
                 Elevation elevation = elevations.get(i);
                 cell.setHeight(elevation.getElevation());
+                cell.updateTotalHeight();
                 allCells.add(cell);
             }
         }
