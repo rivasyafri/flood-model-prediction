@@ -1,0 +1,31 @@
+<div class="modal-dialog">
+    <div class="loginmodal-container">
+        <h1>Create Project</h1><br>
+        <form id="create-form">
+            <input type="text" name="name" placeholder="Project Name">
+            <input type="submit" name="create" id="btn-create-PROJECT" class="login loginmodal-submit"
+                   value="Create" data-target="#create-modal" data-toggle="modal">
+            <input type="button" name="cancel" class="login loginmodal-cancel" value="Cancel"
+                   data-target="#create-modal" data-toggle="modal">
+        </form>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#create-form').submit(function () {
+            var project = JSON.stringify($('#create-form').serializeObject());
+            project["done"] = false;
+            var request = postProject(project);
+            request.done(function (response, textStatus, jqXHR) {
+                notify("fa fa-check-circle-o", response.name + " is created successfully.", textStatus);
+                console.log(response);
+                sideNavValidation();
+            });
+            request.fail(function (response, textStatus, jqXHR) {
+                notify("fa fa-times-circle-o", project.name + " cannot be created. See log.", "danger");
+            });
+            return false;
+        });
+    });
+</script>

@@ -1,0 +1,60 @@
+<div class="modal-dialog">
+    <div class="loginmodal-container">
+        <h1>Load Project</h1><br>
+        <form id="load-form">
+            <div class="form-group">
+                <label for="select-projects">Select Project:</label>
+                <select class="form-control" id="select-projects">
+                </select>
+            </div>
+            <input type="submit" id="btn-load-project" name="load" class="login loginmodal-submit" value="Load"
+                   data-target="#load-modal" data-toggle="modal">
+            <input type="button" id="btn-delete-project" name="delete" class="login loginmodal-reset"
+                   value="Delete">
+            <input type="button" name="cancel" class="login loginmodal-cancel" value="Cancel"
+                   data-target="#load-modal" data-toggle="modal">
+        </form>
+
+        <div class="login-help">
+            <a href="#" data-toggle="modal" data-target="#create-modal">Create a new Project</a>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#select-projects").click(function () {
+            getProjects();
+        });
+        $('#load-form').submit(function () {
+            var url = $('#select-projects').val();
+            var request = getOne(url);
+            request.done(function (response, textStatus, jqXHR) {
+                selectedProject = response;
+                console.log(selectedProject);
+                var variable = getOne(selectedProject._links.variable.href);
+                variable.done(function (response, textStatus, jqXHR) {
+                    selectedProject.variable = response;
+                    notify("fa fa-check-circle-o", selectedProject.name + " is loaded successfully.", textStatus);
+                    loadDataToPlaceHolder();
+                    showPlayer();
+                    sideNavValidation();
+                });
+            });
+            request.fail(function (response, textStatus, jqXHR) {
+                notify("fa fa-times-circle-o", url + " cannot be loaded. See log.", "danger");
+            });
+            return false;
+        });
+        $("#btn-delete-project").click(function (event) {
+            event.preventDefault();
+            var url = $('#select-projects').val();
+            var request = deleteProject(url);
+            request.done(function (response, textStatus, jqXHR) {
+                alert(textStatus);
+                console.log(response);
+                getProjects();
+            });
+        });
+    });
+</script>
