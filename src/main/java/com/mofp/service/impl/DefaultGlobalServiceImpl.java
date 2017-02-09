@@ -9,6 +9,8 @@ import com.mofp.model.Cell;
 import com.mofp.model.Neighborhood;
 import com.mofp.model.Project;
 import com.mofp.model.State;
+import com.mofp.model.data.google.elevation.Elevation;
+import com.mofp.model.data.google.elevation.GoogleElevationResponse;
 import com.mofp.model.moving.CellHeightWater;
 import com.mofp.model.moving.CellState;
 import com.mofp.service.GlobalService;
@@ -21,17 +23,11 @@ import com.mofp.service.method.support.FloodModel;
 import org.apache.log4j.Logger;
 import org.geolatte.geom.G2D;
 import org.geolatte.geom.LineString;
-import org.geolatte.geom.Point;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.PriorityQueue;
-import java.util.Random;
-import java.util.concurrent.Future;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -93,6 +89,8 @@ public class DefaultGlobalServiceImpl implements GlobalService {
     //// ************************** Constant State *************************************** ////
     private State WET_STATE;
     private State DRY_STATE;
+
+    private final int MAX_NUMBER_OF_LOCATION_IN_REQUEST = 512;
 
     public Project run(String selectedModel, Project project) {
         this.init(selectedModel, project);
@@ -166,7 +164,8 @@ public class DefaultGlobalServiceImpl implements GlobalService {
         NUMBER_OF_CELL_Y = gridY.intValue();
         logger.debug("Number of X: " + NUMBER_OF_CELL_X + ", Number Of Y: " + NUMBER_OF_CELL_Y);
         MATRIX = new Cell[NUMBER_OF_CELL_Y][NUMBER_OF_CELL_X];
-        ArrayList<Cell> cells = new ArrayList<>();
+        ArrayList<ArrayList<Cell>> listOfCellForGoogleElevation = new ArrayList<>();
+        ArrayList<Cell> cellsForGoogleElevation = new ArrayList<>();
         for (int y = 0; y < NUMBER_OF_CELL_Y; y++) {
             for (int x = 0; x < NUMBER_OF_CELL_X; x++) {
                 Cell cell = new Cell(x, y, DRY_STATE);
@@ -180,9 +179,17 @@ public class DefaultGlobalServiceImpl implements GlobalService {
                 cell = cellRepository.save(cell);
                 logger.debug(cell.toString());
                 MATRIX[y][x] = cell;
-                cells.add(cell);
+                if (cellsForGoogleElevation.size() < MAX_NUMBER_OF_LOCATION_IN_REQUEST) {
+                    cellsForGoogleElevation.add(cell);
+                } else {
+                    listOfCellForGoogleElevation.add(cellsForGoogleElevation);
+                    cellsForGoogleElevation = new ArrayList<>();
+                    cellsForGoogleElevation.add(cell);
+                }
             }
         }
+        ArrayList<Cell> cells = getElevationForAllCells(listOfCellForGoogleElevation);
+        cellRepository.save(cells);
         cellRepository.flush();
         PROJECT.setCells(cells);
     }
@@ -368,5 +375,43 @@ public class DefaultGlobalServiceImpl implements GlobalService {
     /* Get from http://stackoverflow.com/questions/9705123/how-can-i-get-sin-cos-and-tan-to-use-degrees-instead-of-radians */
     private double toRadians (double angle) {
         return angle * (Math.PI / 180);
+    }
+
+    private GoogleElevationResponse getFromGoogleElevation(String combinedCellForGoogleElevation) {
+        RestTemplate restTemplate = new RestTemplate();
+        String url = "https://maps.googleapis.com/maps/api/elevation/json?"
+                + combinedCellForGoogleElevation + "&key=AIzaSyCA6AY3nH7zkkYlvSWj3t_eXKBCbyQmtGs";
+        return restTemplate.getForObject(url, GoogleElevationResponse.class);
+    }
+
+    private ArrayList<Cell> getElevationForAllCells(ArrayList<ArrayList<Cell>> listOfCellForGoogleElevation) {
+        ArrayList<Cell> allCells = new ArrayList<>();
+        for (ArrayList<Cell> cellsForGoogleElevation: listOfCellForGoogleElevation) {
+            String combinedCellForGoogleElevation = createStringCombinedCellForGoogleElevation(cellsForGoogleElevation);
+            GoogleElevationResponse response = getFromGoogleElevation(combinedCellForGoogleElevation);
+            ArrayList<Elevation> elevations = new ArrayList<>(response.getResults());
+            for (int i = 0; i < cellsForGoogleElevation.size(); i++) {
+                Cell cell = cellsForGoogleElevation.get(i);
+                Elevation elevation = elevations.get(i);
+                cell.setHeight(elevation.getElevation());
+                allCells.add(cell);
+            }
+        }
+        return allCells;
+    }
+
+    private String createStringCombinedCellForGoogleElevation(ArrayList<Cell> cellsForGoogleElevation) {
+        StringBuilder stringBuilder = new StringBuilder("locations=");
+        for (int i = 0; i < cellsForGoogleElevation.size(); i++) {
+            Cell cell = cellsForGoogleElevation.get(i);
+            HashMap<Integer, Double> map = cell.getCenterPointOfArea();
+            stringBuilder.append(map.get(1));
+            stringBuilder.append(",");
+            stringBuilder.append(map.get(2));
+            if (i < cellsForGoogleElevation.size() - 1) {
+                stringBuilder.append("|");
+            }
+        }
+        return stringBuilder.toString();
     }
 }

@@ -14,12 +14,11 @@ import lombok.Getter;
 import lombok.Setter;
 import org.geolatte.geom.G2D;
 import org.geolatte.geom.Geometry;
+import org.geolatte.geom.LineString;
 import org.geolatte.geom.Polygon;
 
 import javax.persistence.*;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author rivasyafri
@@ -135,7 +134,7 @@ public class Cell extends AbstractProjectAttribute implements Comparable<Cell> {
 
     public void randomizeData() {
         Random randomGenerator = new Random();
-        this.height = randomGenerator.nextDouble() * 10 + 10;
+//        this.height = randomGenerator.nextDouble() * 10 + 10;
         this.constantInfiltrationCapacity = randomGenerator.nextDouble();
         this.initialInfiltrationCapacity = randomGenerator.nextDouble() * 15;
         this.kValue = randomGenerator.nextDouble();
@@ -171,5 +170,23 @@ public class Cell extends AbstractProjectAttribute implements Comparable<Cell> {
                 ", xArray=" + xArray +
                 ", yArray=" + yArray +
                 '}';
+    }
+
+    public HashMap<Integer, Double> getCenterPointOfArea() {
+        double lat1, lat2 = 0, lon1, lon2 = 0;
+        LineString<G2D> line = area.getExteriorRing();
+        lat1 = line.getPositionN(0).getLat();
+        lon1 = line.getPositionN(0).getLon();
+        for (int i = 1; i < line.getNumPositions() - 1; i++) {
+            G2D position = line.getPositionN(i);
+            lat2 = lat1 != position.getLat() ? position.getLat() : lat2;
+            lon2 = lon1 != position.getLon() ? position.getLon() : lon2;
+        }
+        double avgLat = (lat1 + lat2) / 2;
+        double avgLng = (lon1 + lon2) / 2;
+        HashMap<Integer, Double> result = new HashMap<>();
+        result.put(1, avgLat);
+        result.put(2, avgLng);
+        return result;
     }
 }
