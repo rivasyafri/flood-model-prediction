@@ -1,5 +1,6 @@
 package com.mofp.spring;
 
+import com.mofp.FloodsimulatorApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.support.SpringBootServletInitializer;
 

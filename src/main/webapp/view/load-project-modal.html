@@ -32,14 +32,10 @@
             request.done(function (response, textStatus, jqXHR) {
                 selectedProject = response;
                 console.log(selectedProject);
-                var variable = getOne(selectedProject._links.variable.href);
-                variable.done(function (response, textStatus, jqXHR) {
-                    selectedProject.variable = response;
-                    notify("fa fa-check-circle-o", selectedProject.name + " is loaded successfully.", textStatus);
-                    loadDataToPlaceHolder();
-                    showPlayer();
-                    sideNavValidation();
-                });
+                notify("fa fa-check-circle-o", selectedProject.name + " is loaded successfully.", textStatus);
+                loadDataToPlaceHolder();
+                showPlayer();
+                sideNavValidation();
             });
             request.fail(function (response, textStatus, jqXHR) {
                 notify("fa fa-times-circle-o", url + " cannot be loaded. See log.", "danger");

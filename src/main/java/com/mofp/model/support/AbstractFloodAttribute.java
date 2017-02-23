@@ -12,7 +12,7 @@ import javax.persistence.MappedSuperclass;
  * @author rivasyafri
  */
 @MappedSuperclass
-public abstract class AbstractFloodAttribute<T> extends MovingObject<T> {
+public abstract class AbstractFloodAttribute<T> extends UnitObject<T> {
 
     @ManyToOne
     @JoinColumn(name = "floodId", nullable = false)

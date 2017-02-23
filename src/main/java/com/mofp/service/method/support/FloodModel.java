@@ -2,7 +2,12 @@ package com.mofp.service.method.support;
 
 import com.mofp.model.Cell;
 import com.mofp.model.Variable;
+import com.mofp.model.data.Weather;
 import com.mofp.service.method.formula.Evapotranspiration;
+import com.mofp.util.UnitTemperature;
+import lombok.NonNull;
+
+import java.util.List;
 
 /**
  * @author rivasyafri
@@ -17,7 +22,10 @@ public abstract class FloodModel {
      */
     public double calculateRunOff(Variable variable, Cell cell, double precipitation, long time) {
         double runOff = cell.getWaterHeight() +
-                precipitation - calculateSaving(variable, cell, time) - calculateEvapotranspiration(variable);
+                precipitation - calculateSaving(variable, cell, time);
+        if (variable.isUsingEvapotranspiration() && variable.isEvapotranspirationByData()) {
+            runOff -= calculateEvapotranspiration(variable);
+        }
         if (runOff > 0) {
             return runOff;
         }
@@ -36,20 +44,12 @@ public abstract class FloodModel {
         }
     }
 
-    protected double calculateEvapotranspiration(Variable variable) {
-        double evapotranspiration = 0;
-        if (variable.isUsingEvapotranspiration()) {
-            if (variable.isEvapotranspirationByData()) {
-                evapotranspiration = Evapotranspiration.calculate(variable.getRadiation(),
-                        variable.getGeothermal(), variable.getCn(), variable.getCd(),
-                        variable.getWindSpeed(), variable.getDelta(), variable.getPsychometric(),
-                        variable.getMeanTemperature(), variable.getSaturatedWaterVapor(),
-                        variable.getWaterVapor());
-            } else {
-                evapotranspiration = variable.getEvapotranspirationValue();
-            }
-        }
-        return evapotranspiration;
+    protected double calculateEvapotranspiration(@NonNull Variable variable) {
+        return Evapotranspiration.calculate(variable.getRadiation(),
+                variable.getGeothermal(), variable.getCn(), variable.getCd(),
+                variable.getWindSpeed(), variable.getDelta(), variable.getPsychometric(),
+                variable.getMeanTemperature(), variable.getSaturatedWaterVapor(),
+                variable.getWaterVapor());
     }
 
     protected abstract double calculateInfiltration(Cell cell, long time);

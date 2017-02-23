@@ -6,18 +6,18 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.mofp.model.moving.CellHeightWater;
 import com.mofp.model.moving.CellState;
-import com.mofp.model.support.json.CellSerializer;
-import com.mofp.model.support.json.CellStateSerializer;
 import com.mofp.model.support.json.PolygonDeserializer;
 import com.mofp.model.support.json.PolygonToGeoJSON;
+import com.mofp.service.method.support.FloodModel;
 import lombok.Getter;
 import lombok.Setter;
 import org.geolatte.geom.G2D;
 import org.geolatte.geom.Polygon;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.util.Pair;
 
 import javax.persistence.*;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * Saving the project configuration
@@ -58,11 +58,11 @@ public class Project {
 
     @Column
     @Getter @Setter
-    private Date startTime;
+    private Long startTime;
 
     @Column
     @Getter @Setter
-    private Integer interval = 3600;
+    private Long endTime;
 
     @Column(nullable = false)
     @Getter @Setter
@@ -79,7 +79,9 @@ public class Project {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "project", cascade = CascadeType.ALL)
     @Getter @Setter
-    private List<Flood> floods;
+    @JsonIgnore
+    @JsonManagedReference
+    private List<Cell> cells;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "project", cascade = CascadeType.ALL)
     @Getter @Setter
@@ -89,6 +91,36 @@ public class Project {
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "project", cascade = CascadeType.ALL)
     @Getter @Setter
     private List<CellState> cellStates;
+
+    ////*********************** Global Variable ******************************** ////
+    @Transient
+    @JsonIgnore
+    public transient Pair<Double, Double> SIZE;
+    @Transient
+    @JsonIgnore
+    public transient Pair<Double, Double> DELTA;
+    @Transient
+    @JsonIgnore
+    public transient Pair<Double, Double> NORTH_WEST;
+    @Transient
+    @JsonIgnore
+    public transient Pair<Integer, Integer> NUMBER_OF_CELL;
+    @Transient
+    @JsonIgnore
+    public transient FloodModel SELECTED_MODEL;
+    @Transient
+    @JsonIgnore
+    public transient Cell[][] MATRIX;
+    @Transient
+    @JsonIgnore
+    public transient ArrayList<Cell> PROCESSED_CELLS = new ArrayList<>();
+    @Transient
+    @JsonIgnore
+    public transient PriorityQueue<Cell> ACTIVE_CELLS = new PriorityQueue<>();
+    @Transient
+    @JsonIgnore
+    public transient PriorityQueue<Cell> NEW_ACTIVE_CELLS = new PriorityQueue<>();
+    ////*********************** End of Global Variable ************************** ////
 
     public Project() {
         this.variable = new Variable();

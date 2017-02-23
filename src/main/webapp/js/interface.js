@@ -158,15 +158,10 @@ function buttonSavePress() {
         load.done(function (response, textStatus, jqXHR) {
             selectedProject = response;
             console.log(selectedProject);
-            notify("fa fa-check-circle-o", selectedProject.name + " are loaded successfully.", textStatus);
-            var variable = getOne(selectedProject._links.variable.href);
-            variable.done(function (response, textStatus, jqXHR) {
-                selectedProject.variable = response;
-                notify("fa fa-check-circle-o", selectedProject.name + " is loaded successfully.", textStatus);
-                loadDataToPlaceHolder();
-                showPlayer();
-                sideNavValidation();
-            });
+            notify("fa fa-check-circle-o", selectedProject.name + " is loaded successfully.", textStatus);
+            loadDataToPlaceHolder();
+            showPlayer();
+            sideNavValidation();
         });
         load.fail(function (response, textStatus, jqXHR) {
             notify("fa fa-times-circle-o", selectedProject.name + " cannot be loaded. See log.", "danger");
@@ -179,7 +174,8 @@ function buttonSavePress() {
 function buttonRemoveBorder() {
     selectedProject.area = null;
     clearCells();
-    var request = putProject();
+    console.log(selectedProject);
+    var request = putProject(selectedProject);
     request.done(function (response, textStatus, jqXHR) {
         alert(textStatus);
         console.log(response);
@@ -193,72 +189,89 @@ function buttonStopPress() {
     // }
 }
 function buttonPlayPress() {
-    var requestCellStates = getCellStatesSortedByStartTime();
-    requestCellStates.done(function (response, textStatus, jqXHR) {
-        selectedProject.cellStates = response._embedded.cell_state;
-        console.log(selectedProject);
-        var requestInvertedCellStates = getCellStatesSortedByEndTime();
-        requestInvertedCellStates.done(function (response, textStatus, jqXHR) {
-            var invertedCellStates = response._embedded.cell_state;
-            notify("fa fa-check-circle-o", selectedProject.name + "is running.", textStatus);
-            if (selectedProject.cellStates.length != 0) {
-                timeElapsed = 0;
-                var j = 0;
-                var i = 0;
-                var k = 0;
-                while ((j < invertedCellStates.length || i < selectedProject.cellStates.length) &&
-                        timeElapsed < selectedProject.interval) {
-                    console.log(i + " " + j + " in " + timeElapsed);
-                    var cellState = selectedProject.cellStates[i];
-                    if (typeof cellState != 'undefined' && cellState != null) {
-                        while (timeElapsed == cellState.startTime && i < selectedProject.cellStates.length) {
-                            (function(cellState, k) {
-                                setTimeout(function () {
-                                    console.log(cellState.xarray + " " + cellState.yarray);
-                                    createFloodedCell(cellState.xarray, cellState.yarray);
-                                }, k * 4000);
-                            })(cellState, k);
-                            i++;
-                            cellState = selectedProject.cellStates[i];
-                            if (typeof cellState == 'undefined' || cellState == null) {
-                                break;
+    if (typeof matrix != 'undefined' && matrix != null) {
+        var requestCellStates = getCellStatesSortedByStartTime();
+        requestCellStates.done(function (response, textStatus, jqXHR) {
+            selectedProject.cellStates = response._embedded.cell_state;
+            console.log(selectedProject);
+            var play = false;
+            if (selectedProject.cellStates != null && typeof cellState != 'undefined'){
+                if (selectedProject.cellStates.length != 0) {
+                    console.log("play result");
+                    var requestInvertedCellStates = getCellStatesSortedByEndTime();
+                    requestInvertedCellStates.done(function (response, textStatus, jqXHR) {
+                        var invertedCellStates = response._embedded.cell_state;
+                        notify("fa fa-check-circle-o", selectedProject.name + " is currently running.", textStatus);
+                        if (selectedProject.cellStates.length != 0) {
+                            timeElapsed = 0;
+                            var j = 0;
+                            var i = 0;
+                            var k = 0;
+                            while ((j < invertedCellStates.length || i < selectedProject.cellStates.length) &&
+                            timeElapsed < selectedProject.interval) {
+                                console.log(i + " " + j + " in " + timeElapsed);
+                                var cellState = selectedProject.cellStates[i];
+                                if (typeof cellState != 'undefined' && cellState != null) {
+                                    while (timeElapsed == cellState.startTime && i < selectedProject.cellStates.length) {
+                                        (function (cellState, k) {
+                                            setTimeout(function () {
+                                                console.log(cellState.xarray + " " + cellState.yarray);
+                                                createFloodedCell(cellState.xarray, cellState.yarray);
+                                            }, k * 4000);
+                                        })(cellState, k);
+                                        i++;
+                                        cellState = selectedProject.cellStates[i];
+                                        if (typeof cellState == 'undefined' || cellState == null) {
+                                            break;
+                                        }
+                                    }
+                                }
+                                var invertedCellState = invertedCellStates[j];
+                                if (typeof invertedCellState != 'undefined' && invertedCellState != null) {
+                                    while (timeElapsed == invertedCellState.endTime && j < invertedCellStates.length) {
+                                        (function (invertedCellState, k) {
+                                            setTimeout(function () {
+                                                console.log(invertedCellState.xarray + " " + invertedCellState.yarray);
+                                                removeFloodedCell(invertedCellState.xarray, invertedCellState.yarray);
+                                            }, k * 4000 + 2000);
+                                        })(invertedCellState, k);
+                                        j++;
+                                        invertedCellState = invertedCellStates[j];
+                                        if (typeof invertedCellState == 'undefined' || invertedCellState == null) {
+                                            break;
+                                        }
+                                    }
+                                }
+                                timeElapsed += selectedProject.timeStep;
+                                k++;
                             }
-                        }
-                    }
-                    var invertedCellState = invertedCellStates[j];
-                    if (typeof invertedCellState != 'undefined' && invertedCellState != null) {
-                        while (timeElapsed == invertedCellState.endTime && j < invertedCellStates.length) {
-                            (function(invertedCellState, k) {
+                            if (timeElapsed < selectedProject.interval) {
                                 setTimeout(function () {
-                                    console.log(invertedCellState.xarray + " " + invertedCellState.yarray);
-                                    removeFloodedCell(invertedCellState.xarray, invertedCellState.yarray);
+                                    buttonPlayPress();
                                 }, k * 4000 + 2000);
-                            })(invertedCellState, k);
-                            j++;
-                            invertedCellState = invertedCellStates[j];
-                            if (typeof invertedCellState == 'undefined' || invertedCellState == null) {
-                                break;
                             }
+                        } else {
+
                         }
-                    }
-                    timeElapsed += selectedProject.timeStep;
-                    k++;
-                }
-                if (timeElapsed < selectedProject.interval) {
-                    setTimeout(function () {
-                        buttonPlayPress();
-                    }, k * 4000 + 2000);
+                    });
+                } else {
+                    play = true;
                 }
             } else {
+                play = true;
+            }
+            if (play) {
+                console.log("prediction start");
                 var request = runProject();
+                notify("fa fa-check-circle-o", "Prediction for '" + selectedProject.name + "' is running.", textStatus);
                 request.done(function (response, textStatus, jqXHR) {
-                    setTimeout(function () {
-                        buttonPlayPress();
-                    }, 3000);
+                    // setTimeout(function () {
+                    //     buttonPlayPress();
+                    // }, 3000);
                 });
             }
         });
-    });
+    }
 }
 function buttonClosePress() {
     selectedProject = null;

@@ -1,10 +1,12 @@
 package com.mofp.model.data;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Getter;
 import lombok.Setter;
 import org.geolatte.geom.Geometry;
 
 import javax.persistence.*;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -20,31 +22,29 @@ public class District {
     @Getter @Setter
     private Long id;
 
-    @Column(nullable = false)
+    @Column
     @Getter @Setter
     private Geometry area;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "district", cascade = CascadeType.ALL)
+    @Column(nullable = false)
     @Getter @Setter
-    private Set<WindSpeed> windSpeedSet;
+    private String name;
+
+    @Column
+    @Getter @Setter
+    private String state;
+
+    @Column(nullable = false)
+    @Getter @Setter
+    private String country;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "district", cascade = CascadeType.ALL)
     @Getter @Setter
-    private Set<RelativeHumidity> relativeHumiditySet;
+    @JsonManagedReference
+    private List<Weather> weathers;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "district", cascade = CascadeType.ALL)
-    @Getter @Setter
-    private Set<Temperature> temperatureSet;
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "district", cascade = CascadeType.ALL)
-    @Getter @Setter
-    private Set<Geothermal> geothermalSet;
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "district", cascade = CascadeType.ALL)
-    @Getter @Setter
-    private Set<Precipitation> precipitationSet;
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "district", cascade = CascadeType.ALL)
-    @Getter @Setter
-    private Set<Radiation> radiationSet;
+    @Override
+    public String toString() {
+        return name + ',' + country;
+    }
 }
