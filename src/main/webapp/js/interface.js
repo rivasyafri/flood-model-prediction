@@ -24,40 +24,47 @@ function notify(icon, message, type) {
 function loadDataToPlaceHolder() {
     $('#txt_cellSize').val(selectedProject.cellSize != null ? selectedProject.cellSize : 100);
     $('#txt_timeStep').val(selectedProject.timeStep != null ? selectedProject.timeStep : 60);
-    $('#datetimepicker').val(selectedProject.startDate != null ? selectedProject.startDate : '2016-01-01T00:00:00.000Z');
-    $('#txt_interval').val(selectedProject.interval != null ? selectedProject.interval : 3600);
+    $('#datetimepicker-start-time').val(new Date(selectedProject.startTime * 1000));
+    $('#datetimepicker-end-time').val(new Date(selectedProject.endTime * 1000));
     if (selectedProject.variable.usingDrainage) {
-        $('#txt_usingDrainageHidden').prop("disabled", true);
         $('#txt_usingDrainage').attr('checked', 'checked');
         $('#div-using-drainage').css('display', 'block').addClass('show');
+        $('#div-drainage-value').css('display', 'block').addClass('show');
     } else {
-        $('#txt_usingDrainageHidden').prop("disabled", false);
         $('#div-using-drainage').css('display', 'none').removeClass('show');
+        $('#div-drainage-value').css('display', 'none').removeClass('show');
     }
     if (selectedProject.variable.evapotranspirationByData) {
-        $('#txt_evapotranspirationByDataHidden').prop("disabled", true);
         $('#txt_evapotranspirationByData').attr('checked', 'checked');
         $('#div-evapotranspiration-data').css('display', 'block').addClass('show');
         $('#div-evapotranspiration-value').css('display', 'none').removeClass('show');
     } else {
-        $('#txt_evapotranspirationByDataHidden').prop("disabled", false);
         $('#div-evapotranspiration-data').css('display', 'none').removeClass('show');
         $('#div-evapotranspiration-value').css('display', 'block').addClass('show');
     }
+    if (selectedProject.variable.drainageByData) {
+        $('#txt_drainageByData').attr('checked', 'checked');
+        $('#div-drainage-data').css('display', 'block').addClass('show');
+        $('#div-drainage-value').css('display', 'none').removeClass('show');
+    } else {
+        $('#div-drainage-data').css('display', 'none').removeClass('show');
+        $('#div-drainage-value').css('display', 'block').addClass('show');
+    }
     if (selectedProject.variable.usingEvapotranspiration) {
-        $('#txt_usingEvapotranspirationHidden').prop("disabled", true);
         $('#txt_usingEvapotranspiration').attr('checked', 'checked');
         $('#div-using-evapotranspiration').css('display', 'block').addClass('show');
         $('#div-evapotranspiration-value').css('display', 'block').addClass('show');
     } else {
-        $('#txt_usingEvapotranspirationHidden').prop("disabled", false);
         $('#div-using-evapotranspiration').css('display', 'none').removeClass('show');
         $('#div-evapotranspiration-value').css('display', 'none').removeClass('show');
     }
     $('#txt_usingDrainage').val(selectedProject.variable.usingDrainage);
+    $('#txt_drainageByData').val(selectedProject.variable.drainageByData);
     $('#txt_usingEvapotranspiration').val(selectedProject.variable.usingEvapotranspiration);
     $('#txt_evapotranspirationByData').val(selectedProject.variable.evapotranspirationByData);
     $('#txt_drainageValue').val(selectedProject.variable.drainageValue);
+    $('#txt_discharge').val(selectedProject.variable.discharge);
+    $('#txt_side').val(selectedProject.variable.side);
     $('#txt_evapotranspirationValue').val(selectedProject.variable.evapotranspirationValue);
     $('#txt_radiation').val(selectedProject.variable.radiation);
     $('#txt_geothermal').val(selectedProject.variable.geothermal);
