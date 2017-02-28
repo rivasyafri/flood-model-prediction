@@ -46,16 +46,12 @@ public class DefaultGoogleElevationServiceImpl implements GoogleElevationService
 
     @Override
     public Cell getHeightFromGoogleElevation(Cell cell) {
-        StringBuilder stringBuilder = new StringBuilder("locations=");
         HashMap<Integer, Double> map = cell.getCenterPointOfArea();
+        StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(map.get(1));
         stringBuilder.append(",");
         stringBuilder.append(map.get(2));
-        RestTemplate restTemplate = new RestTemplate();
-        String url = "https://maps.googleapis.com/maps/api/elevation/json?"
-                + stringBuilder.toString() + "&key=AIzaSyCA6AY3nH7zkkYlvSWj3t_eXKBCbyQmtGs";
-        logger.debug("Getting data from " + url);
-        GoogleElevationResponse response = restTemplate.getForObject(url, GoogleElevationResponse.class);
+        GoogleElevationResponse response = getFromGoogleElevation(stringBuilder.toString());
         ArrayList<GoogleElevation> elevations = new ArrayList<>(response.getResults());
         GoogleElevation elevation = elevations.get(0);
         cell.setHeight(elevation.getElevation());
@@ -63,9 +59,15 @@ public class DefaultGoogleElevationServiceImpl implements GoogleElevationService
         return cell;
     }
 
+    @Override
+    public GoogleElevationResponse getHeightFromGoogleElevation(double latitude, double longitude) {
+        String combinedCellForGoogleElevation = latitude + "," + longitude;
+        return getFromGoogleElevation(combinedCellForGoogleElevation);
+    }
+
     private GoogleElevationResponse getFromGoogleElevation(String combinedCellForGoogleElevation) {
         RestTemplate restTemplate = new RestTemplate();
-        String url = "https://maps.googleapis.com/maps/api/elevation/json?"
+        String url = "https://maps.googleapis.com/maps/api/elevation/json?locations="
                 + combinedCellForGoogleElevation + "&key=" + key;
         logger.debug("Getting data from " + url);
         GoogleElevationResponse response = restTemplate.getForObject(url, GoogleElevationResponse.class);
@@ -73,7 +75,7 @@ public class DefaultGoogleElevationServiceImpl implements GoogleElevationService
     }
 
     private String createStringCombinedCellForGoogleElevation(ArrayList<Cell> cellsForGoogleElevation) {
-        StringBuilder stringBuilder = new StringBuilder("locations=");
+        StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < cellsForGoogleElevation.size(); i++) {
             Cell cell = cellsForGoogleElevation.get(i);
             HashMap<Integer, Double> map = cell.getCenterPointOfArea();

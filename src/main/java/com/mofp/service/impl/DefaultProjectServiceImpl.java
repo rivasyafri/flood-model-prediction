@@ -33,10 +33,7 @@ import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
 import java.security.InvalidParameterException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.PriorityQueue;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -262,16 +259,15 @@ public class DefaultProjectServiceImpl extends DefaultBaseServiceImpl<ProjectRep
                         latNorth + deltaY * (y + 1),
                         longWest + deltaX * (x + 1)
                 ));
+                HashMap<Integer, Double> center = cell.getCenterPointOfArea();
                 cell.setProject(project);
                 cell.randomizeData(); // for experiment
-                GoogleGeocodingResponse geocodingResponse = googleGeocodingService.getGoogleGeocodingResponse(cell);
-                District district = districtService.findOneOrCreateNewDistrict(geocodingResponse);
+                District district = districtService.findOneOrCreateNewDistrict(center.get(1), center.get(2));
                 if (district != null) {
                     List<Weather> weathers = district.getWeathers();
                     if (weathers == null) {
                         if (weathers.isEmpty()) {
-                            OpenMapWeatherFiveDayResponse openMapResponse = openWeatherMapService.getOpenWeatherMapResponse(district);
-                            district = districtService.findOneAndAddNewMovingObjectDataDistrict(openMapResponse, district);
+                            district = districtService.findOneAndAddNewMovingObjectDataDistrict(district);
                         }
                     }
                     cell.setDistrict(district);

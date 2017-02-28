@@ -29,6 +29,18 @@ public class Variable {
 
     @Column
     @Getter @Setter
+    private boolean drainageByData = false;
+
+    @Column
+    @Getter @Setter
+    private double discharge = 0;
+
+    @Column
+    @Getter @Setter
+    private double side = 0;
+
+    @Column
+    @Getter @Setter
     private boolean usingEvapotranspiration = false;
 
     @Column

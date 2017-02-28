@@ -3,6 +3,7 @@ package com.mofp.service.method.support;
 import com.mofp.model.Cell;
 import com.mofp.model.Variable;
 import com.mofp.model.data.Weather;
+import com.mofp.service.method.formula.Drainage;
 import com.mofp.service.method.formula.Evapotranspiration;
 import com.mofp.util.UnitTemperature;
 import lombok.NonNull;
@@ -33,12 +34,16 @@ public abstract class FloodModel {
     }
 
     protected double calculateSaving(Variable variable, Cell cell, long time) {
-        return calculateInfiltration(cell, time) + calculateDrainage(variable);
+        return calculateInfiltration(cell, time) + calculateDrainage(variable, time);
     }
 
-    protected double calculateDrainage(Variable variable) {
+    protected double calculateDrainage(Variable variable, long time) {
         if (variable.isUsingDrainage()) {
-            return variable.getDrainageValue();
+            if (!variable.isDrainageByData()) {
+                return variable.getDrainageValue();
+            } else {
+                return Drainage.calculate(variable.getDischarge(), time, variable.getSide());
+            }
         } else {
             return 0;
         }

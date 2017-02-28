@@ -34,6 +34,12 @@ public class DefaultDistrictServiceImpl extends DefaultBaseServiceImpl<DistrictR
     private OpenWeatherMapService openWeatherMapService;
 
     @Override
+    public District findOneOrCreateNewDistrict(double latitude, double longitude) {
+        GoogleGeocodingResponse response = googleGeocodingService.getGoogleGeocodingResponse(latitude, longitude);
+        return findOneOrCreateNewDistrict(response);
+    }
+
+    @Override
     public District findOneOrCreateNewDistrict(@NonNull GoogleGeocodingResponse response)
             throws NullPointerException {
         ArrayList<GoogleGeocodingResult> results = new ArrayList<>(response.getResults());
@@ -59,6 +65,14 @@ public class DefaultDistrictServiceImpl extends DefaultBaseServiceImpl<DistrictR
             }
         }
         return null;
+    }
+
+    @Override
+    public District findOneAndAddNewMovingObjectDataDistrict(@NonNull District district)
+            throws NullPointerException {
+        OpenMapWeatherFiveDayResponse openMapWeatherFiveDayResponse =
+                openWeatherMapService.getOpenWeatherMapResponse(district);
+        return findOneAndAddNewMovingObjectDataDistrict(openMapWeatherFiveDayResponse, district);
     }
 
     @Override

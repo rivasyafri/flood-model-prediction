@@ -21,13 +21,8 @@ public class DefaultGoogleGeocodingServiceImpl implements GoogleGeocodingService
 
     @Override
     public GoogleGeocodingResponse getGoogleGeocodingResponse(Cell cell) {
-        StringBuilder stringBuilder = new StringBuilder();
         HashMap<Integer, Double> map = cell.getCenterPointOfArea();
-        stringBuilder.append(map.get(1));
-        stringBuilder.append(",");
-        stringBuilder.append(map.get(2));
-        GoogleGeocodingResponse response = getGoogleGeocodingResponse(stringBuilder.toString());
-        return response;
+        return getGoogleGeocodingResponse(map.get(1), map.get(2));
     }
 
     @Override
