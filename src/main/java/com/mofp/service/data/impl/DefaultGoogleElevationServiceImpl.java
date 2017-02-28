@@ -10,6 +10,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * @author rivasyafri
@@ -21,11 +22,14 @@ public class DefaultGoogleElevationServiceImpl implements GoogleElevationService
 
     private String key = "AIzaSyCA6AY3nH7zkkYlvSWj3t_eXKBCbyQmtGs";
 
+    private final int MAX_NUMBER_OF_LOCATION_IN_REQUEST = 50;
+
     @Override
-    public ArrayList<Cell> getElevationForAllCells(ArrayList<ArrayList<Cell>> listOfCellForGoogleElevation) {
+    public ArrayList<Cell> getElevationForAllCells(ArrayList<Cell> listOfCellForGoogleElevation) {
         logger.debug("Start getting elevation from google elevation");
+        List<List<Cell>> cells = chopped(listOfCellForGoogleElevation, MAX_NUMBER_OF_LOCATION_IN_REQUEST);
         ArrayList<Cell> allCells = new ArrayList<>();
-        for (ArrayList<Cell> cellsForGoogleElevation : listOfCellForGoogleElevation) {
+        for (List<Cell> cellsForGoogleElevation : cells) {
             String combinedCellForGoogleElevation = createStringCombinedCellForGoogleElevation(cellsForGoogleElevation);
             GoogleElevationResponse response = getFromGoogleElevation(combinedCellForGoogleElevation);
             if (response.getStatus().compareTo("OK") != 0) {
@@ -74,7 +78,7 @@ public class DefaultGoogleElevationServiceImpl implements GoogleElevationService
         return response;
     }
 
-    private String createStringCombinedCellForGoogleElevation(ArrayList<Cell> cellsForGoogleElevation) {
+    private String createStringCombinedCellForGoogleElevation(List<Cell> cellsForGoogleElevation) {
         StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < cellsForGoogleElevation.size(); i++) {
             Cell cell = cellsForGoogleElevation.get(i);
@@ -87,5 +91,16 @@ public class DefaultGoogleElevationServiceImpl implements GoogleElevationService
             }
         }
         return stringBuilder.toString();
+    }
+
+    private List<List<Cell>> chopped(ArrayList<Cell> list, final int L) {
+        List<List<Cell>> parts = new ArrayList<>();
+        final int N = list.size();
+        for (int i = 0; i < N; i += L) {
+            parts.add(new ArrayList<>(
+                    list.subList(i, Math.min(N, i + L)))
+            );
+        }
+        return parts;
     }
 }

@@ -9,6 +9,7 @@ import com.mofp.model.moving.CellState;
 import com.mofp.model.support.json.PolygonDeserializer;
 import com.mofp.model.support.json.PolygonToGeoJSON;
 import com.mofp.service.method.support.FloodModel;
+import com.mofp.service.method.support.InundationModel;
 import lombok.Getter;
 import lombok.Setter;
 import org.geolatte.geom.G2D;
@@ -18,6 +19,7 @@ import org.springframework.data.util.Pair;
 
 import javax.persistence.*;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Saving the project configuration
@@ -108,6 +110,9 @@ public class Project {
     @Transient
     @JsonIgnore
     public transient FloodModel SELECTED_MODEL;
+    @Transient
+    @JsonIgnore
+    public transient InundationModel INUNDATION_MODEL;
     @Transient
     @JsonIgnore
     public transient Cell[][] MATRIX;

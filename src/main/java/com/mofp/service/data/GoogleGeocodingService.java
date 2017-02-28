@@ -8,6 +8,5 @@ import com.mofp.model.data.google.geocoding.GoogleGeocodingResponse;
  */
 public interface GoogleGeocodingService {
 
-    GoogleGeocodingResponse getGoogleGeocodingResponse(Cell cell);
     GoogleGeocodingResponse getGoogleGeocodingResponse(double latitude, double longitude);
 }

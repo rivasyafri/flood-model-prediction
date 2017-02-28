@@ -25,26 +25,6 @@ public interface ProjectService extends AbstractBaseService<ProjectRepository> {
     Project checkOrRunPredictionProcess(long id) throws IllegalAccessException, NullPointerException;
 
     /**
-     * Create rectangle bound
-     * @param north north lat bound
-     * @param west west lng bound
-     * @param south south lat bound
-     * @param east east lng bound
-     * @return Polygon created from wkt
-     */
-    Polygon createRectangleBound(double north, double west, double south, double east)
-            throws NullPointerException;
-
-    /**
-     * Create polygon using WKT
-     * @param points pair of latitude and longitude minimum of 3 not null
-     * @return Polygon created from wkt
-     * @throws IllegalArgumentException
-     * @throws NullPointerException
-     */
-    Polygon createPolygonWkt(@NonNull List<Pair<Double, Double>> points) throws IllegalArgumentException, NullPointerException;
-
-    /**
      * Reset by removing all result related to project
      * @param id id of project
      * @return

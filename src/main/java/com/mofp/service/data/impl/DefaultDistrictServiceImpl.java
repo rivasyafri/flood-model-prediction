@@ -40,7 +40,44 @@ public class DefaultDistrictServiceImpl extends DefaultBaseServiceImpl<DistrictR
     }
 
     @Override
-    public District findOneOrCreateNewDistrict(@NonNull GoogleGeocodingResponse response)
+    public District findOneAndAddNewMovingObjectDataDistrict(@NonNull District district)
+            throws NullPointerException {
+        OpenMapWeatherFiveDayResponse openMapWeatherFiveDayResponse =
+                openWeatherMapService.getOpenWeatherMapResponse(district);
+        return findOneAndAddNewMovingObjectDataDistrict(openMapWeatherFiveDayResponse, district);
+    }
+
+    @Override
+    public District pullDataOfDistrict(double latitude, double longitude) {
+        GoogleGeocodingResponse geocodingResponse = googleGeocodingService.getGoogleGeocodingResponse(latitude, longitude);
+        District district = this.findOneOrCreateNewDistrict(geocodingResponse);
+        if (district != null) {
+            OpenMapWeatherFiveDayResponse openMapResponse = openWeatherMapService.getOpenWeatherMapResponse(district);
+            district = this.findOneAndAddNewMovingObjectDataDistrict(openMapResponse, district);
+            return district;
+        }
+        return null;
+    }
+
+    @Override
+    public List<Weather> getDataOfWeatherByDistrictAndTime(District district, Long startTime, Long endTime) {
+        if (district == null) {
+            return null;
+        } else {
+            Specification<Weather> specification =
+                    (root, query, cb) ->
+                            cb.and(
+                                    cb.equal(root.get("district"), district),
+                                    cb.and(
+                                            cb.lessThanOrEqualTo(root.get("endTime"), endTime),
+                                            cb.greaterThanOrEqualTo(root.get("startTime"), startTime)
+                                    )
+                            );
+            return weatherRepository.findAll(specification);
+        }
+    }
+
+    private District findOneOrCreateNewDistrict(@NonNull GoogleGeocodingResponse response)
             throws NullPointerException {
         ArrayList<GoogleGeocodingResult> results = new ArrayList<>(response.getResults());
         if (results != null) {
@@ -67,17 +104,8 @@ public class DefaultDistrictServiceImpl extends DefaultBaseServiceImpl<DistrictR
         return null;
     }
 
-    @Override
-    public District findOneAndAddNewMovingObjectDataDistrict(@NonNull District district)
-            throws NullPointerException {
-        OpenMapWeatherFiveDayResponse openMapWeatherFiveDayResponse =
-                openWeatherMapService.getOpenWeatherMapResponse(district);
-        return findOneAndAddNewMovingObjectDataDistrict(openMapWeatherFiveDayResponse, district);
-    }
-
-    @Override
-    public District findOneAndAddNewMovingObjectDataDistrict(@NonNull OpenMapWeatherFiveDayResponse response,
-                                                             @NonNull District district)
+    private District findOneAndAddNewMovingObjectDataDistrict(@NonNull OpenMapWeatherFiveDayResponse response,
+                                                              @NonNull District district)
             throws NullPointerException {
         ArrayList<OpenMapResultData> resultData = new ArrayList<>(response.getData());
         for (int i = 0; i < resultData.size(); i++) {
@@ -88,36 +116,6 @@ public class DefaultDistrictServiceImpl extends DefaultBaseServiceImpl<DistrictR
         }
         district = repository.findOne(district.getId());
         return district;
-    }
-
-    @Override
-    public District pullDataOfDistrict(double latitude, double longitude) {
-        GoogleGeocodingResponse geocodingResponse = googleGeocodingService.getGoogleGeocodingResponse(latitude, longitude);
-        District district = this.findOneOrCreateNewDistrict(geocodingResponse);
-        if (district != null) {
-            OpenMapWeatherFiveDayResponse openMapResponse = openWeatherMapService.getOpenWeatherMapResponse(district);
-            district = this.findOneAndAddNewMovingObjectDataDistrict(openMapResponse, district);
-            return district;
-        }
-        return null;
-    }
-
-    @Override
-    public List<Weather> getDataOfWeatherByDistrictAndTime(District district, Long startTime, Long endTime) {
-        Specification<Weather> specification =
-                (root, query, cb) ->
-                        cb.and(
-                                cb.equal(root.get("district"), district),
-                                cb.and(
-                                        cb.lessThanOrEqualTo(root.get("endTime"), endTime),
-                                        cb.greaterThanOrEqualTo(root.get("startTime"), startTime)
-                                )
-                        );
-//                        cb.and(
-//                                cb.lessThanOrEqualTo(root.get("endTime"), endTime),
-//                                cb.greaterThanOrEqualTo(root.get("startTime"), startTime)
-//                        );
-        return weatherRepository.findAll(specification);
     }
 
     private void processingWeatherData(District district, Long startTime, Long endTime, OpenMapResultData result) {

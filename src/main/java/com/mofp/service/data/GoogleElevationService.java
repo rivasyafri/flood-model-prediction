@@ -10,7 +10,7 @@ import java.util.ArrayList;
  */
 public interface GoogleElevationService {
 
-    ArrayList<Cell> getElevationForAllCells(ArrayList<ArrayList<Cell>> listOfCellForGoogleElevation);
+    ArrayList<Cell> getElevationForAllCells(ArrayList<Cell> listOfCellForGoogleElevation);
     Cell getHeightFromGoogleElevation(Cell cell);
     GoogleElevationResponse getHeightFromGoogleElevation(double latitude, double longitude);
 }

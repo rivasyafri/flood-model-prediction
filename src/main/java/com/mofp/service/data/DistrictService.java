@@ -24,26 +24,11 @@ public interface DistrictService extends AbstractBaseService<DistrictRepository>
     District findOneOrCreateNewDistrict(double latitude, double longitude);
 
     /**
-     * Find or create new district from google geocoding response
-     * @param response response from google geocoding
-     * @return district in db
-     */
-    District findOneOrCreateNewDistrict(@NonNull GoogleGeocodingResponse response);
-
-    /**
      * Find and create moving object data in district
      * @param district district for open map weather
      * @return district in db
      */
     District findOneAndAddNewMovingObjectDataDistrict(@NonNull District district);
-
-    /**
-     * Find and create moving object data in district
-     * @param response response from open map weather
-     * @return district in db
-     */
-    District findOneAndAddNewMovingObjectDataDistrict(@NonNull OpenMapWeatherFiveDayResponse response,
-                                                      @NonNull District district);
 
     /**
      * Find, create, and update data in district, also with the moving object weather data

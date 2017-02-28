@@ -2,6 +2,9 @@ package com.mofp.controller;
 
 import com.mofp.model.Project;
 import com.mofp.service.ProjectService;
+import com.mofp.util.WktGenerator;
+import org.geolatte.geom.G2D;
+import org.geolatte.geom.Polygon;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,9 +40,14 @@ public class ProjectController {
                                            @RequestParam(value = "east") double east) {
         Project project = projectService.getRepository().findOne(id);
         if (project != null) {
-            project.setArea(projectService.createRectangleBound(north, west, south, east));
-            projectService.getRepository().saveAndFlush(project);
-            return project;
+            try {
+                Polygon<G2D> area = WktGenerator.createSquareBasedBorder(north, west, south, east);
+                project.setArea(area);
+                projectService.getRepository().saveAndFlush(project);
+                return project;
+            } catch (Exception e) {
+
+            }
         }
         return null;
     }

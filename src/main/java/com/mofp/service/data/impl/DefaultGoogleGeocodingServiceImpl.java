@@ -20,12 +20,6 @@ public class DefaultGoogleGeocodingServiceImpl implements GoogleGeocodingService
     private String key = "AIzaSyCA6AY3nH7zkkYlvSWj3t_eXKBCbyQmtGs";
 
     @Override
-    public GoogleGeocodingResponse getGoogleGeocodingResponse(Cell cell) {
-        HashMap<Integer, Double> map = cell.getCenterPointOfArea();
-        return getGoogleGeocodingResponse(map.get(1), map.get(2));
-    }
-
-    @Override
     public GoogleGeocodingResponse getGoogleGeocodingResponse(double latitude, double longitude) {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(latitude);
