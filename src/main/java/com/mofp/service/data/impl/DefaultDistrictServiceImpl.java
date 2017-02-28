@@ -83,7 +83,12 @@ public class DefaultDistrictServiceImpl extends DefaultBaseServiceImpl<DistrictR
         if (results != null) {
             GoogleGeocodingResult geocodingResult = results.get(0);
             List<GoogleAddressComponent> addressComponents = geocodingResult.getAddressComponents();
-            String name = addressComponents.get(0).getLongName();
+            String name = new String();
+            int i = 0;
+            while (name.isEmpty() && i < addressComponents.size()) {
+                 name = addressComponents.get(i).getLongName();
+                 i++;
+            }
             if (addressComponents.size() > 1) {
                 String country = addressComponents.get(addressComponents.size() - 1).getShortName();
                 String state = null;
