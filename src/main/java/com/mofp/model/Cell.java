@@ -133,7 +133,7 @@ public class Cell extends AbstractProjectAttribute implements Comparable<Cell> {
     public void randomizeData() {
         Random randomGenerator = new Random();
         this.constantInfiltrationCapacity = randomGenerator.nextDouble();
-        this.initialInfiltrationCapacity = randomGenerator.nextDouble() + 1;
+        this.initialInfiltrationCapacity = randomGenerator.nextDouble() * 10 + 1;
         this.kValue = randomGenerator.nextDouble();
         this.psiOrBi = randomGenerator.nextDouble();
         this.waterProofPercentage = randomGenerator.nextDouble();
