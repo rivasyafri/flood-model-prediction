@@ -202,63 +202,63 @@ function buttonPlayPress() {
             selectedProject.cellStates = response._embedded.cell_state;
             console.log(selectedProject);
             var play = false;
-            if (selectedProject.cellStates != null && typeof cellState != 'undefined'){
+            if (selectedProject.cellStates != null) {
+                console.log("tes");
                 if (selectedProject.cellStates.length != 0) {
+                    console.log("lanjut");
                     console.log("play result");
                     var requestInvertedCellStates = getCellStatesSortedByEndTime();
                     requestInvertedCellStates.done(function (response, textStatus, jqXHR) {
                         var invertedCellStates = response._embedded.cell_state;
                         notify("fa fa-check-circle-o", selectedProject.name + " is currently running.", textStatus);
-                        if (selectedProject.cellStates.length != 0) {
-                            timeElapsed = 0;
-                            var j = 0;
-                            var i = 0;
-                            var k = 0;
-                            while ((j < invertedCellStates.length || i < selectedProject.cellStates.length) &&
-                            timeElapsed < selectedProject.interval) {
-                                console.log(i + " " + j + " in " + timeElapsed);
-                                var cellState = selectedProject.cellStates[i];
-                                if (typeof cellState != 'undefined' && cellState != null) {
-                                    while (timeElapsed == cellState.startTime && i < selectedProject.cellStates.length) {
-                                        (function (cellState, k) {
-                                            setTimeout(function () {
-                                                console.log(cellState.xarray + " " + cellState.yarray);
-                                                createFloodedCell(cellState.xarray, cellState.yarray);
-                                            }, k * 4000);
-                                        })(cellState, k);
-                                        i++;
-                                        cellState = selectedProject.cellStates[i];
-                                        if (typeof cellState == 'undefined' || cellState == null) {
-                                            break;
-                                        }
+                        timeElapsed = selectedProject.startTime;
+                        var j = 0;
+                        var i = 0;
+                        var k = 0;
+                        while ((j < invertedCellStates.length || i < selectedProject.cellStates.length) &&
+                        timeElapsed < selectedProject.endTime) {
+                            console.log(selectedProject.startTime + " " + selectedProject.endTime);
+                            console.log(i + " " + j + " in " + timeElapsed);
+                            var cellState = selectedProject.cellStates[i];
+                            if (typeof cellState != 'undefined' && cellState != null) {
+                                while (timeElapsed == cellState.startTime && i < selectedProject.cellStates.length) {
+                                    (function (cellState, k) {
+                                        setTimeout(function () {
+                                            console.log("normal : " + cellState.xarray + " " + cellState.yarray + " " + cellState.startTime + " " + cellState.endTime);
+                                            createFloodedCell(cellState.xarray, cellState.yarray);
+                                        }, k * 4000);
+                                    })(cellState, k);
+                                    i++;
+                                    cellState = selectedProject.cellStates[i];
+                                    if (typeof cellState == 'undefined' || cellState == null) {
+                                        break;
                                     }
                                 }
-                                var invertedCellState = invertedCellStates[j];
-                                if (typeof invertedCellState != 'undefined' && invertedCellState != null) {
-                                    while (timeElapsed == invertedCellState.endTime && j < invertedCellStates.length) {
-                                        (function (invertedCellState, k) {
-                                            setTimeout(function () {
-                                                console.log(invertedCellState.xarray + " " + invertedCellState.yarray);
-                                                removeFloodedCell(invertedCellState.xarray, invertedCellState.yarray);
-                                            }, k * 4000 + 2000);
-                                        })(invertedCellState, k);
-                                        j++;
-                                        invertedCellState = invertedCellStates[j];
-                                        if (typeof invertedCellState == 'undefined' || invertedCellState == null) {
-                                            break;
-                                        }
+                            }
+                            var invertedCellState = invertedCellStates[j];
+                            if (typeof invertedCellState != 'undefined' && invertedCellState != null) {
+                                while (timeElapsed == invertedCellState.endTime && j < invertedCellStates.length) {
+                                    (function (invertedCellState, k) {
+                                        setTimeout(function () {
+                                            console.log("inverted : " + invertedCellState.xarray + " " + invertedCellState.yarray + " " +
+                                                invertedCellState.startTime + " " + invertedCellState.endTime);
+                                            removeFloodedCell(invertedCellState.xarray, invertedCellState.yarray);
+                                        }, k * 4000 + 2000);
+                                    })(invertedCellState, k);
+                                    j++;
+                                    invertedCellState = invertedCellStates[j];
+                                    if (typeof invertedCellState == 'undefined' || invertedCellState == null) {
+                                        break;
                                     }
                                 }
-                                timeElapsed += selectedProject.timeStep;
-                                k++;
                             }
-                            if (timeElapsed < selectedProject.interval) {
-                                setTimeout(function () {
-                                    buttonPlayPress();
-                                }, k * 4000 + 2000);
-                            }
-                        } else {
-
+                            timeElapsed += selectedProject.timeStep;
+                            k++;
+                        }
+                        if (timeElapsed < selectedProject.endTime) {
+                            setTimeout(function () {
+                                buttonPlayPress();
+                            }, k * 4000 + 2000);
                         }
                     });
                 } else {

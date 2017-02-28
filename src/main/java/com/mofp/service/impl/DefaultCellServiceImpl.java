@@ -69,9 +69,7 @@ public class DefaultCellServiceImpl extends DefaultBaseServiceImpl<CellRepositor
         if (district != null) {
             List<Weather> weathers = district.getWeathers();
             if (weathers == null) {
-                if (weathers.isEmpty()) {
-                    district = districtService.findOneAndAddNewMovingObjectDataDistrict(district);
-                }
+                district = districtService.findOneAndAddNewMovingObjectDataDistrict(district);
             }
             cell.setDistrict(district);
         }

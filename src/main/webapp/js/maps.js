@@ -414,7 +414,7 @@ function createFloodedCell(x, y) {
         var cell = new google.maps.Rectangle({
             strokeColor: '#000000',
             strokeOpacity: 0.8,
-            strokeWeight: 2,
+            strokeWeight: 1,
             fillColor: '#1974D2',
             fillOpacity: 0.3,
             bounds: bounds,

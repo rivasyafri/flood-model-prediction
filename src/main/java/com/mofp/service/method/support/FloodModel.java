@@ -79,7 +79,7 @@ public abstract class FloodModel {
             time = timeElapsed - cell.getTimeStartFlooded();
         }
         time += timeStep;
-        return time;
+        return time/60;
     }
 
     private double getPrecipitationMinusEvapotranspiration(List<Weather> weathers, double height, Variable variable, long startTime) {
