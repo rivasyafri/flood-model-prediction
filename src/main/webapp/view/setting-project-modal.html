@@ -251,9 +251,11 @@
                 console.log("checked");
                 $('#div-using-drainage').css('display', 'block').addClass('show');
                 $('#txt_usingDrainage').attr('value', 'true');
+                $('#div-drainage-value').css('display', 'block').addClass('show');
             } else {
                 $('#div-using-drainage').css('display', 'none').removeClass('show');
                 $('#txt_usingDrainage').attr('value', 'false');
+                $('#div-drainage-value').css('display', 'none').removeClass('show');
             }
         });
         $('#txt_usingEvapotranspiration').change(function () {
