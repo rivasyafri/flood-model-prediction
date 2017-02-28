@@ -10,4 +10,5 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 @RepositoryRestResource(collectionResourceRel = "district", path = "district")
 public interface DistrictRepository extends JpaSpecificationRepository<District, Long> {
 
+    District findOneByNameLikeAndCountryLike(String name, String country);
 }

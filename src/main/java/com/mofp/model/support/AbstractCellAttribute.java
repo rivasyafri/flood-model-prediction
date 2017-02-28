@@ -5,18 +5,15 @@ import com.mofp.model.Project;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.MappedSuperclass;
+import javax.persistence.*;
 
 /**
  * @author rivasyafri
  */
 @MappedSuperclass
-public abstract class AbstractCellAttribute<T> extends MovingObject<T> {
+public abstract class AbstractCellAttribute<T> extends UnitObject<T> {
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "cellId", nullable = false)
     @Getter @Setter
     protected Cell cell;

@@ -6,6 +6,7 @@ $(document).ready(function () {
 });
 
 /* Function for interface */
+var timeElapsed = 0;
 function notify(icon, message, type) {
     $.notify({
         icon: icon,
@@ -23,40 +24,47 @@ function notify(icon, message, type) {
 function loadDataToPlaceHolder() {
     $('#txt_cellSize').val(selectedProject.cellSize != null ? selectedProject.cellSize : 100);
     $('#txt_timeStep').val(selectedProject.timeStep != null ? selectedProject.timeStep : 60);
-    $('#datetimepicker').val(selectedProject.startDate != null ? selectedProject.startDate : '2016-01-01T00:00:00.000Z');
-    $('#txt_interval').val(selectedProject.interval != null ? selectedProject.interval : 3600);
+    $('#datetimepicker-start-time').val(new Date(selectedProject.startTime * 1000));
+    $('#datetimepicker-end-time').val(new Date(selectedProject.endTime * 1000));
     if (selectedProject.variable.usingDrainage) {
-        $('#txt_usingDrainageHidden').prop("disabled", true);
         $('#txt_usingDrainage').attr('checked', 'checked');
         $('#div-using-drainage').css('display', 'block').addClass('show');
+        $('#div-drainage-value').css('display', 'block').addClass('show');
     } else {
-        $('#txt_usingDrainageHidden').prop("disabled", false);
         $('#div-using-drainage').css('display', 'none').removeClass('show');
+        $('#div-drainage-value').css('display', 'none').removeClass('show');
     }
     if (selectedProject.variable.evapotranspirationByData) {
-        $('#txt_evapotranspirationByDataHidden').prop("disabled", true);
         $('#txt_evapotranspirationByData').attr('checked', 'checked');
         $('#div-evapotranspiration-data').css('display', 'block').addClass('show');
         $('#div-evapotranspiration-value').css('display', 'none').removeClass('show');
     } else {
-        $('#txt_evapotranspirationByDataHidden').prop("disabled", false);
         $('#div-evapotranspiration-data').css('display', 'none').removeClass('show');
         $('#div-evapotranspiration-value').css('display', 'block').addClass('show');
     }
+    if (selectedProject.variable.drainageByData) {
+        $('#txt_drainageByData').attr('checked', 'checked');
+        $('#div-drainage-data').css('display', 'block').addClass('show');
+        $('#div-drainage-value').css('display', 'none').removeClass('show');
+    } else {
+        $('#div-drainage-data').css('display', 'none').removeClass('show');
+        $('#div-drainage-value').css('display', 'block').addClass('show');
+    }
     if (selectedProject.variable.usingEvapotranspiration) {
-        $('#txt_usingEvapotranspirationHidden').prop("disabled", true);
         $('#txt_usingEvapotranspiration').attr('checked', 'checked');
         $('#div-using-evapotranspiration').css('display', 'block').addClass('show');
         $('#div-evapotranspiration-value').css('display', 'block').addClass('show');
     } else {
-        $('#txt_usingEvapotranspirationHidden').prop("disabled", false);
         $('#div-using-evapotranspiration').css('display', 'none').removeClass('show');
         $('#div-evapotranspiration-value').css('display', 'none').removeClass('show');
     }
     $('#txt_usingDrainage').val(selectedProject.variable.usingDrainage);
+    $('#txt_drainageByData').val(selectedProject.variable.drainageByData);
     $('#txt_usingEvapotranspiration').val(selectedProject.variable.usingEvapotranspiration);
     $('#txt_evapotranspirationByData').val(selectedProject.variable.evapotranspirationByData);
     $('#txt_drainageValue').val(selectedProject.variable.drainageValue);
+    $('#txt_discharge').val(selectedProject.variable.discharge);
+    $('#txt_side').val(selectedProject.variable.side);
     $('#txt_evapotranspirationValue').val(selectedProject.variable.evapotranspirationValue);
     $('#txt_radiation').val(selectedProject.variable.radiation);
     $('#txt_geothermal').val(selectedProject.variable.geothermal);
@@ -157,15 +165,10 @@ function buttonSavePress() {
         load.done(function (response, textStatus, jqXHR) {
             selectedProject = response;
             console.log(selectedProject);
-            notify("fa fa-check-circle-o", selectedProject.name + " are loaded successfully.", textStatus);
-            var variable = getOne(selectedProject._links.variable.href);
-            variable.done(function (response, textStatus, jqXHR) {
-                selectedProject.variable = response;
-                notify("fa fa-check-circle-o", selectedProject.name + " is loaded successfully.", textStatus);
-                loadDataToPlaceHolder();
-                showPlayer();
-                sideNavValidation();
-            });
+            notify("fa fa-check-circle-o", selectedProject.name + " is loaded successfully.", textStatus);
+            loadDataToPlaceHolder();
+            showPlayer();
+            sideNavValidation();
         });
         load.fail(function (response, textStatus, jqXHR) {
             notify("fa fa-times-circle-o", selectedProject.name + " cannot be loaded. See log.", "danger");
@@ -178,7 +181,8 @@ function buttonSavePress() {
 function buttonRemoveBorder() {
     selectedProject.area = null;
     clearCells();
-    var request = putProject();
+    console.log(selectedProject);
+    var request = putProject(selectedProject);
     request.done(function (response, textStatus, jqXHR) {
         alert(textStatus);
         console.log(response);
@@ -192,72 +196,89 @@ function buttonStopPress() {
     // }
 }
 function buttonPlayPress() {
-    var requestCellStates = getCellStatesSortedByStartTime();
-    requestCellStates.done(function (response, textStatus, jqXHR) {
-        selectedProject.cellStates = response._embedded.cell_state;
-        console.log(selectedProject);
-        var requestInvertedCellStates = getCellStatesSortedByEndTime();
-        requestInvertedCellStates.done(function (response, textStatus, jqXHR) {
-            var invertedCellStates = response._embedded.cell_state;
-            notify("fa fa-check-circle-o", selectedProject.name + "is running.", textStatus);
-            if (selectedProject.cellStates.length != 0) {
-                var timeElapsed = 0;
-                var j = 0;
-                var i = 0;
-                var k = 0;
-                while ((j < invertedCellStates.length || i < selectedProject.cellStates.length) &&
-                        timeElapsed < selectedProject.interval) {
-                    console.log(i + " " + j + " in " + timeElapsed);
-                    var cellState = selectedProject.cellStates[i];
-                    if (typeof cellState != 'undefined' && cellState != null) {
-                        while (timeElapsed == cellState.startTime && i < selectedProject.cellStates.length) {
-                            (function(cellState, k) {
-                                setTimeout(function () {
-                                    console.log(cellState.xarray + " " + cellState.yarray);
-                                    createFloodedCell(cellState.xarray, cellState.yarray);
-                                }, k * 4000);
-                            })(cellState, k);
-                            i++;
-                            cellState = selectedProject.cellStates[i];
-                            if (typeof cellState == 'undefined' || cellState == null) {
-                                break;
+    if (typeof matrix != 'undefined' && matrix != null) {
+        var requestCellStates = getCellStatesSortedByStartTime();
+        requestCellStates.done(function (response, textStatus, jqXHR) {
+            selectedProject.cellStates = response._embedded.cell_state;
+            console.log(selectedProject);
+            var play = false;
+            if (selectedProject.cellStates != null && typeof cellState != 'undefined'){
+                if (selectedProject.cellStates.length != 0) {
+                    console.log("play result");
+                    var requestInvertedCellStates = getCellStatesSortedByEndTime();
+                    requestInvertedCellStates.done(function (response, textStatus, jqXHR) {
+                        var invertedCellStates = response._embedded.cell_state;
+                        notify("fa fa-check-circle-o", selectedProject.name + " is currently running.", textStatus);
+                        if (selectedProject.cellStates.length != 0) {
+                            timeElapsed = 0;
+                            var j = 0;
+                            var i = 0;
+                            var k = 0;
+                            while ((j < invertedCellStates.length || i < selectedProject.cellStates.length) &&
+                            timeElapsed < selectedProject.interval) {
+                                console.log(i + " " + j + " in " + timeElapsed);
+                                var cellState = selectedProject.cellStates[i];
+                                if (typeof cellState != 'undefined' && cellState != null) {
+                                    while (timeElapsed == cellState.startTime && i < selectedProject.cellStates.length) {
+                                        (function (cellState, k) {
+                                            setTimeout(function () {
+                                                console.log(cellState.xarray + " " + cellState.yarray);
+                                                createFloodedCell(cellState.xarray, cellState.yarray);
+                                            }, k * 4000);
+                                        })(cellState, k);
+                                        i++;
+                                        cellState = selectedProject.cellStates[i];
+                                        if (typeof cellState == 'undefined' || cellState == null) {
+                                            break;
+                                        }
+                                    }
+                                }
+                                var invertedCellState = invertedCellStates[j];
+                                if (typeof invertedCellState != 'undefined' && invertedCellState != null) {
+                                    while (timeElapsed == invertedCellState.endTime && j < invertedCellStates.length) {
+                                        (function (invertedCellState, k) {
+                                            setTimeout(function () {
+                                                console.log(invertedCellState.xarray + " " + invertedCellState.yarray);
+                                                removeFloodedCell(invertedCellState.xarray, invertedCellState.yarray);
+                                            }, k * 4000 + 2000);
+                                        })(invertedCellState, k);
+                                        j++;
+                                        invertedCellState = invertedCellStates[j];
+                                        if (typeof invertedCellState == 'undefined' || invertedCellState == null) {
+                                            break;
+                                        }
+                                    }
+                                }
+                                timeElapsed += selectedProject.timeStep;
+                                k++;
                             }
-                        }
-                    }
-                    var invertedCellState = invertedCellStates[j];
-                    if (typeof invertedCellState != 'undefined' && invertedCellState != null) {
-                        while (timeElapsed == invertedCellState.endTime && j < invertedCellStates.length) {
-                            (function(invertedCellState, k) {
+                            if (timeElapsed < selectedProject.interval) {
                                 setTimeout(function () {
-                                    console.log(invertedCellState.xarray + " " + invertedCellState.yarray);
-                                    removeFloodedCell(invertedCellState.xarray, invertedCellState.yarray);
+                                    buttonPlayPress();
                                 }, k * 4000 + 2000);
-                            })(invertedCellState, k);
-                            j++;
-                            invertedCellState = invertedCellStates[j];
-                            if (typeof invertedCellState == 'undefined' || invertedCellState == null) {
-                                break;
                             }
+                        } else {
+
                         }
-                    }
-                    timeElapsed += selectedProject.timeStep;
-                    k++;
+                    });
+                } else {
+                    play = true;
                 }
             } else {
-                // console.log("salah");
+                play = true;
+            }
+            if (play) {
+                console.log("prediction start");
                 var request = runProject();
+                notify("fa fa-check-circle-o", "Prediction for '" + selectedProject.name + "' is running.", textStatus);
                 request.done(function (response, textStatus, jqXHR) {
-                    var load = getOne(selectedProject._links.self.href);
-                    load.done(function (response, textStatus, jqXHR) {
-                        selectedProject = response;
-                        console.log(selectedProject);
-                        notify("fa fa-check-circle-o", selectedProject.name + " are loaded successfully.", textStatus);
-                        loadDataToPlaceHolder();
-                    });
+                    // setTimeout(function () {
+                    //     buttonPlayPress();
+                    // }, 3000);
                 });
             }
         });
-    });
+    }
 }
 function buttonClosePress() {
     selectedProject = null;

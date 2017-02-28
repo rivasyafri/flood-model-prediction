@@ -1,8 +1,8 @@
 <div class="container modal-dialog">
-    <h1>Settings</h1>
-    <form id="setting-form" class="form-horizontal">
-        <div class="row">
-            <div class="col-md-6">
+    <div class="row">
+        <div class="col-md-6">
+            <form id="setting-form" class="form-horizontal">
+                <h2>Settings</h2>
                 <div class="form-group">
                     <label>Selected model to process:</label>
                     <div class="col-md-11">
@@ -28,193 +28,227 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>Start date:</label>
+                    <label>Start time:</label>
                     <div class="col-md-11">
-                        <input type="text" class="form-control" name="startDate"
-                               placeholder="ex. '2016-01-01T00:00:00.000'" id="datetimepicker"
-                               data-date-format="yyyy-mm-ddThh:ii:ss">
+                        <input type="text" class="form-control" name="startTime"
+                               placeholder="ex. '2016-01-01 00:00'" id="datetimepicker-start-time"
+                               data-date-format="yyyy-mm-dd hh:ii">
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>Interval (in minutes):</label>
+                    <label>End time:</label>
                     <div class="col-md-11">
-                        <input type="number" class="form-control" name="interval" id="txt_interval"
-                               placeholder="ex. '60'">
+                        <input type="text" class="form-control" name="endTime"
+                               placeholder="ex. '2016-01-01 00:00'" id="datetimepicker-end-time"
+                               data-date-format="yyyy-mm-dd hh:ii">
                     </div>
                 </div>
-            </div>
-            <div class="col-md-6">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="span8 offset2 centered">
+                            <button type="submit" class="btn btn-primary" data-target="#setting-modal"
+                                    data-toggle="modal">
+                                Save
+                            </button>
+                            <button type="button" class="btn btn-danger" data-target="#setting-modal"
+                                    data-toggle="modal">
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="col-md-6">
+            <form id="variable-form" class="form-horizontal">
+                <h2>Global Variable</h2>
                 <div class="scrollable-div">
-                    <h2>Global Variable</h2>
+                    <input id='txt_variableId' type='hidden' name='id'>
                     <div class="form-group">
-                        <label><input type="checkbox" value="true" name="usingDrainage" id="txt_usingDrainage"> Using
+                        <label><input type="checkbox" value="false" name="usingDrainage"
+                                      id="txt_usingDrainage"> Using
                             drainage</label>
-                        <input id='txt_usingDrainageHidden' type='hidden' value='false' name='usingDrainage'>
                     </div>
                     <div class="dynamic-input fade" id="div-using-drainage" style="display: none;">
-                        <div class="form-group">
-                            <label>Drainage value in a cell:</label>
+                        <div class="col-md-11">
+                            <div class="form-group">
+                                <label><input type="checkbox" value="false" name="drainageByData"
+                                              id="txt_drainageByData"> Drainage by Data</label>
+                            </div>
                             <div class="col-md-11">
-                                <input type="number" class="form-control" id="txt_drainageValue"
-                                       name="drainageValue"
-                                       placeholder="ex. '5'">
+                                <div class="dynamic-input fade" id="div-drainage-data" style="display: none;">
+                                    <div class="form-group">
+                                        <label>Discharge value (in m) :</label>
+                                        <div class="col-md-11">
+                                            <input type="number" class="form-control" name="discharge"
+                                                   id="txt_discharge"
+                                                   placeholder="ex. '5'">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Side of drainage value (in m) :</label>
+                                        <label>(For calculating area of drainage)</label>
+                                        <div class="col-md-11">
+                                            <input type="number" class="form-control" name="side"
+                                                   id="txt_side"
+                                                   placeholder="ex. '5'">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="dynamic-input fade" id="div-drainage-value" style="display: none;">
+                                <label>OR</label>
+                                <div class="form-group">
+                                    <label>Drainage value in a cell:</label>
+                                    <div class="col-md-11">
+                                        <input type="number" class="form-control" id="txt_drainageValue"
+                                               name="drainageValue"
+                                               placeholder="ex. '5'">
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label><input type="checkbox" value="true" name="usingEvapotranspiration"
+                        <label><input type="checkbox" value="false" name="usingEvapotranspiration"
                                       id="txt_usingEvapotranspiration"> Using evapotranspiration</label>
-                        <input id='txt_usingEvapotranspirationHidden' type='hidden' value='false'
-                               name='usingEvapotranspiration'>
                     </div>
                     <div class="dynamic-input fade" id="div-using-evapotranspiration">
-                        <div class="form-group">
-                            <label><input type="checkbox" value="true" name="evapotranspirationByData"
-                                          id="txt_evapotranspirationByData"> Evapotranspiration by Data</label>
-                            <input id='txt_evapotranspirationByDataHidden' type='hidden' value='false'
-                                   name='evapotranspirationByData'>
-                        </div>
-                        <div class="dynamic-input fade" id="div-evapotranspiration-value" style="display: none;">
+                        <div class="col-md-11">
                             <div class="form-group">
-                                <label>Evapotranspiration value:</label>
-                                <div class="col-md-11">
-                                    <input type="number" class="form-control" name="evapotranspirationValue"
-                                           id="txt_evapotranspirationValue"
-                                           placeholder="ex. '60'">
+                                <label><input type="checkbox" value="false" name="evapotranspirationByData"
+                                              id="txt_evapotranspirationByData"> Evapotranspiration by Data</label>
+                            </div>
+                            <div class="col-md-11">
+                                <div class="dynamic-input fade" id="div-evapotranspiration-data" style="display: none;">
+                                    <div class="form-group">
+                                        <label>Radiation value:</label>
+                                        <div class="col-md-11">
+                                            <input type="number" class="form-control" name="radiation"
+                                                   id="txt_radiation"
+                                                   placeholder="ex. '5'">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Geothermal value:</label>
+                                        <div class="col-md-11">
+                                            <input type="number" class="form-control" name="geothermal"
+                                                   id="txt_geothermal"
+                                                   placeholder="ex. '5'">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Delta value:</label>
+                                        <div class="col-md-11">
+                                            <input type="number" class="form-control" name="delta" id="txt_delta"
+                                                   placeholder="ex. '5'">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Cn Value:</label>
+                                        <div class="col-md-11">
+                                            <input type="number" class="form-control" name="cn" id="txt_cn"
+                                                   placeholder="ex. '5'">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Cd Value:</label>
+                                        <div class="col-md-11">
+                                            <input type="number" class="form-control" name="cd" id="txt_cd"
+                                                   placeholder="ex. '5'">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Saturated water vapor value:</label>
+                                        <div class="col-md-11">
+                                            <input type="number" class="form-control" name="saturatedWaterVapor"
+                                                   id="txt_saturatedWaterVapor"
+                                                   placeholder="ex. '5'">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Water vapor value:</label>
+                                        <div class="col-md-11">
+                                            <input type="number" class="form-control" name="waterVapor"
+                                                   id="txt_waterVapor"
+                                                   placeholder="ex. '5'">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Wind speed at 2 m value:</label>
+                                        <div class="col-md-11">
+                                            <input type="number" class="form-control" name="windSpeed"
+                                                   id="txt_windSpeed"
+                                                   placeholder="ex. '5'">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Mean temperature value:</label>
+                                        <div class="col-md-11">
+                                            <input type="number" class="form-control" name="meanTemperature"
+                                                   id="txt_meanTemperature"
+                                                   placeholder="ex. '5'">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Psychometric value:</label>
+                                        <div class="col-md-11">
+                                            <input type="number" class="form-control" name="psychometric"
+                                                   id="txt_psychometric"
+                                                   placeholder="ex. '5'">
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="dynamic-input fade" id="div-evapotranspiration-data" style="display: none;">
-                            <div class="form-group">
-                                <label>Radiation value:</label>
-                                <div class="col-md-11">
-                                    <input type="number" class="form-control" name="radiation"
-                                           id="txt_radiation"
-                                           placeholder="ex. '5'">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label>Geothermal value:</label>
-                                <div class="col-md-11">
-                                    <input type="number" class="form-control" name="geothermal"
-                                           id="txt_geothermal"
-                                           placeholder="ex. '5'">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label>Delta value:</label>
-                                <div class="col-md-11">
-                                    <input type="number" class="form-control" name="delta" id="txt_delta"
-                                           placeholder="ex. '5'">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label>Cn Value:</label>
-                                <div class="col-md-11">
-                                    <input type="number" class="form-control" name="cn" id="txt_cn"
-                                           placeholder="ex. '5'">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label>Cd Value:</label>
-                                <div class="col-md-11">
-                                    <input type="number" class="form-control" name="cd" id="txt_cd"
-                                           placeholder="ex. '5'">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label>Saturated water vapor value:</label>
-                                <div class="col-md-11">
-                                    <input type="number" class="form-control" name="saturatedWaterVapor"
-                                           id="txt_saturatedWaterVapor"
-                                           placeholder="ex. '5'">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label>Water vapor value:</label>
-                                <div class="col-md-11">
-                                    <input type="number" class="form-control" name="waterVapor"
-                                           id="txt_waterVapor"
-                                           placeholder="ex. '5'">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label>Wind speed at 2 m value:</label>
-                                <div class="col-md-11">
-                                    <input type="number" class="form-control" name="windSpeed"
-                                           id="txt_windSpeed"
-                                           placeholder="ex. '5'">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label>Mean temperature value:</label>
-                                <div class="col-md-11">
-                                    <input type="number" class="form-control" name="meanTemperature"
-                                           id="txt_meanTemperature"
-                                           placeholder="ex. '5'">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label>Psychometric value:</label>
-                                <div class="col-md-11">
-                                    <input type="number" class="form-control" name="psychometric"
-                                           id="txt_psychometric"
-                                           placeholder="ex. '5'">
+                            <div class="dynamic-input fade" id="div-evapotranspiration-value" style="display: none;">
+                                <label>OR</label>
+                                <div class="form-group">
+                                    <label>Evapotranspiration value in a cell :</label>
+                                    <div class="col-md-11">
+                                        <input type="number" class="form-control" name="evapotranspirationValue"
+                                               id="txt_evapotranspirationValue"
+                                               placeholder="ex. '60'">
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </form>
         </div>
-        <div class="row">
-            <div class="col-md-12">
-                <div class="span8 offset2 centered">
-                    <button type="submit" class="btn btn-primary" data-target="#setting-modal" data-toggle="modal">
-                        Save
-                    </button>
-                    <button type="button" class="btn btn-danger" data-target="#setting-modal" data-toggle="modal">
-                        Cancel
-                    </button>
-                </div>
-            </div>
-        </div>
-    </form>
+    </div>
 </div>
-
 <script type="text/javascript">
     $(document).ready(function () {
-        $('#datetimepicker').datetimepicker();
+        $('#datetimepicker-start-time').datetimepicker({
+            startDate: '-10d',
+            endDate: '+0d'
+        });
+        $('#datetimepicker-end-time').datetimepicker();
         $('#setting-form').submit(function () {
+            $('#txt_variableId').val(selectedProject.variable.id);
+            $('#datetimepicker-start-time').val(Date.parse($('#datetimepicker-start-time').val()).getTime() / 1000);
+            $('#datetimepicker-end-time').val(Date.parse($('#datetimepicker-end-time').val()).getTime() / 1000);
+            var project = $('#setting-form').serializeObject();
+            project.variable = $('#variable-form').serializeObject();
+            var projectJson = JSON.stringify(project);
+            console.log(projectJson);
             if (selectedProject != null) {
-                var project = JSON.stringify($('#setting-form').serializeObject());
-                var request = patchProject(project);
+                var request = patchProject(projectJson);
                 request.done(function (response, textStatus, jqXHR) {
                     notify("fa fa-check-circle-o", selectedProject.name + " settings are saved to database.", textStatus);
                     console.log(response);
-                    var variable = patchVariable(project, selectedProject.variable.id);
-                    variable.done(function (response, textStatus, jqXHR) {
-                        notify("fa fa-check-circle-o", selectedProject.name + " variables are saved to database.", textStatus);
-                        console.log(response);
-                        var load = getOne(url);
-                        load.done(function (response, textStatus, jqXHR) {
-                            selectedProject = response;
-                            console.log(selectedProject);
-                            var loadVar = getOne(selectedProject._links.variable.href);
-                            loadVar.done(function (response, textStatus, jqXHR) {
-                                selectedProject.variable = response;
-                                notify("fa fa-check-circle-o", selectedProject.name + " is loaded successfully.", textStatus);
-                                loadDataToPlaceHolder();
-                                showPlayer();
-                                sideNavValidation();
-                            });
-                        });
-                        request.fail(function (response, textStatus, jqXHR) {
-                            notify("fa fa-times-circle-o", url + " cannot be loaded. See log.", "danger");
-                        });
+                    var load = getOne(selectedProject._links.self.href);
+                    load.done(function (response, textStatus, jqXHR) {
+                        selectedProject = response;
+                        console.log(selectedProject);
+                        notify("fa fa-check-circle-o", selectedProject.name + " is loaded successfully.", textStatus);
+                        loadDataToPlaceHolder();
+                        showPlayer();
+                        sideNavValidation();
                     });
-                    variable.fail(function (response, textStatus, jqXHR) {
-                        notify("fa fa-times-circle-o", "Variables for " + selectedProject.name + " cannot be saved. See log.", "danger");
+                    request.fail(function (response, textStatus, jqXHR) {
+                        notify("fa fa-times-circle-o", url + " cannot be loaded. See log.", "danger");
                     });
                 });
                 request.fail(function (response, textStatus, jqXHR) {
@@ -227,33 +261,50 @@
         });
         $('#txt_usingDrainage').change(function () {
             if ($(this).is(':checked')) {
-                $('#txt_usingDrainageHidden').prop("disabled", true);
+                console.log("checked");
                 $('#div-using-drainage').css('display', 'block').addClass('show');
+                $('#txt_usingDrainage').attr('value', 'true');
+                $('#div-drainage-value').css('display', 'block').addClass('show');
             } else {
-                $('#txt_usingDrainageHidden').prop("disabled", false);
                 $('#div-using-drainage').css('display', 'none').removeClass('show');
+                $('#txt_usingDrainage').attr('value', 'false');
+                $('#div-drainage-value').css('display', 'none').removeClass('show');
             }
         });
         $('#txt_usingEvapotranspiration').change(function () {
             if ($(this).is(':checked')) {
-                $('#txt_usingEvapotranspirationHidden').prop("disabled", true);
+                console.log("checked");
+                $('#txt_usingEvapotranspiration').attr('value', 'true');
                 $('#div-using-evapotranspiration').css('display', 'block').addClass('show');
                 $('#div-evapotranspiration-value').css('display', 'block').addClass('show');
             } else {
-                $('#txt_usingEvapotranspirationHidden').prop("disabled", false);
+                $('#txt_usingEvapotranspiration').attr('value', 'false');
                 $('#div-using-evapotranspiration').css('display', 'none').removeClass('show');
                 $('#div-evapotranspiration-value').css('display', 'none').removeClass('show');
             }
         });
         $('#txt_evapotranspirationByData').change(function () {
             if ($(this).is(':checked')) {
-                $('#txt_evapotranspirationByDataHidden').prop("disabled", true);
+                console.log("checked");
+                $('#txt_evapotranspirationByData').attr('value', 'true');
                 $('#div-evapotranspiration-data').css('display', 'block').addClass('show');
                 $('#div-evapotranspiration-value').css('display', 'none').removeClass('show');
             } else {
-                $('#txt_evapotranspirationByDataHidden').prop("disabled", false);
+                $('#txt_evapotranspirationByData').attr('value', 'false');
                 $('#div-evapotranspiration-data').css('display', 'none').removeClass('show');
                 $('#div-evapotranspiration-value').css('display', 'block').addClass('show');
+            }
+        });
+        $('#txt_drainageByData').change(function () {
+            if ($(this).is(':checked')) {
+                console.log("checked");
+                $('#txt_drainageByData').attr('value', 'true');
+                $('#div-drainage-data').css('display', 'block').addClass('show');
+                $('#div-drainage-value').css('display', 'none').removeClass('show');
+            } else {
+                $('#txt_drainageByData').attr('value', 'false');
+                $('#div-drainage-data').css('display', 'none').removeClass('show');
+                $('#div-drainage-value').css('display', 'block').addClass('show');
             }
         });
     });

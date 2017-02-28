@@ -14,5 +14,5 @@ import java.util.List;
 @RepositoryRestResource(collectionResourceRel = "state", path = "state")
 public interface StateRepository extends JpaSpecificationRepository<State, Long> {
 
-    List<State> findByName(@Param("name") String name);
+    State findOneByName(@Param("name") String name);
 }
