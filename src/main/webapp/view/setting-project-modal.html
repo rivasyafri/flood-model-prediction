@@ -224,10 +224,7 @@
             startDate: '-10d',
             endDate: '+0d'
         });
-        $('#datetimepicker-end-time').datetimepicker({
-            startDate: '-0d',
-            endDate: '+5d'
-        });
+        $('#datetimepicker-end-time').datetimepicker();
         $('#setting-form').submit(function () {
             $('#txt_variableId').val(selectedProject.variable.id);
             $('#datetimepicker-start-time').val(Date.parse($('#datetimepicker-start-time').val()).getTime() / 1000);

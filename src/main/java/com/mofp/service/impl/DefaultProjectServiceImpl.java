@@ -198,7 +198,7 @@ public class DefaultProjectServiceImpl extends DefaultBaseServiceImpl<ProjectRep
         project.MATRIX = new Cell[numberOfCellY][numberOfCellX];
         List<Cell> cells = project.getCells();
         for (Cell cell: cells) {
-            project.MATRIX[cell.getYArray()][cell.getYArray()] = cell;
+            project.MATRIX[cell.getYArray()][cell.getXArray()] = cell;
         }
         projectReference.set(project);
     }
