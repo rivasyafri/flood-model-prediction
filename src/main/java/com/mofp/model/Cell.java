@@ -43,7 +43,7 @@ public class Cell extends AbstractProjectAttribute implements Comparable<Cell> {
     @Setter
     private double height = 0;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "districtId")
     @Getter @Setter
     protected District district;

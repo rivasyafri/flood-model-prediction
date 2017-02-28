@@ -2,6 +2,7 @@ package com.mofp.service.impl;
 
 import com.mofp.dao.ProjectRepository;
 import com.mofp.model.*;
+import com.mofp.model.data.District;
 import com.mofp.model.data.Weather;
 import com.mofp.service.CellService;
 import com.mofp.service.ProjectService;
@@ -47,7 +48,7 @@ public class DefaultProjectServiceImpl extends DefaultBaseServiceImpl<ProjectRep
             throws IllegalAccessException, NullPointerException {
         try {
             Project project = repository.findOne(id);
-            if (project.isDone()) {
+            if (project.isDone() && project.getCellStates().size() != 0) {
                 return project;
             }
             if (project.getArea() != null) {
@@ -241,8 +242,8 @@ public class DefaultProjectServiceImpl extends DefaultBaseServiceImpl<ProjectRep
             for (int x = 0; x < project.MATRIX[0].length; x++) {
                 AtomicReference<Cell> cellReference = new AtomicReference<>(project.MATRIX[y][x]);
                 Cell cell = cellReference.get();
-                List<Weather> weathers = districtService.getDataOfWeatherByDistrictAndTime(cell.getDistrict(),
-                        timeElapsed, timeElapsed + timeStep);
+                District district = cell.getDistrict();
+                List<Weather> weathers = districtService.getDataOfWeatherByDistrictAndTime(district,timeElapsed, timeElapsed + timeStep);
                 double runOff = project.SELECTED_MODEL.calculate(project.getVariable(), cellReference, weathers, timeElapsed, timeStep);
                 project.MATRIX[y][x] = cellService.updateCellByRunOff(projectReference, project.MATRIX[y][x], runOff, timeElapsed);
             }

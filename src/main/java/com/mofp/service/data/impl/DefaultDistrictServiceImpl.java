@@ -69,8 +69,8 @@ public class DefaultDistrictServiceImpl extends DefaultBaseServiceImpl<DistrictR
                             cb.and(
                                     cb.equal(root.get("district"), district),
                                     cb.and(
-                                            cb.lessThanOrEqualTo(root.get("endTime"), endTime),
-                                            cb.greaterThanOrEqualTo(root.get("startTime"), startTime)
+                                            cb.lessThanOrEqualTo(root.get("startTime"), startTime),
+                                            cb.greaterThanOrEqualTo(root.get("endTime"), endTime)
                                     )
                             );
             return weatherRepository.findAll(specification);
