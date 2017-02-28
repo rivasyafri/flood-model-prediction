@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public abstract class InundationModel {
 
-    public abstract Cell inundation(@NonNull AtomicReference<Project> projectReference, Cell cell)
+    public abstract Cell process(@NonNull AtomicReference<Project> projectReference, Cell cell)
             throws NullPointerException;
 
     protected ArrayList<Cell> getNeighborByCertainCell(@NonNull Project project, @NonNull Cell cell)

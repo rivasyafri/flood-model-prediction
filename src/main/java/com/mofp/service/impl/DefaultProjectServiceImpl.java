@@ -2,7 +2,6 @@ package com.mofp.service.impl;
 
 import com.mofp.dao.ProjectRepository;
 import com.mofp.model.*;
-import com.mofp.model.data.District;
 import com.mofp.model.data.Weather;
 import com.mofp.service.CellService;
 import com.mofp.service.ProjectService;
@@ -12,10 +11,7 @@ import com.mofp.service.method.ChenModel;
 import com.mofp.service.method.Inundation;
 import com.mofp.service.method.PrasetyaModel;
 import com.mofp.service.method.VICModel;
-import com.mofp.service.method.formula.Evapotranspiration;
-import com.mofp.service.method.formula.WaterBalance;
 import com.mofp.service.support.impl.DefaultBaseServiceImpl;
-import com.mofp.util.UnitTemperature;
 import lombok.NonNull;
 import org.apache.log4j.Logger;
 import org.geolatte.geom.G2D;
@@ -216,14 +212,14 @@ public class DefaultProjectServiceImpl extends DefaultBaseServiceImpl<ProjectRep
         logger.debug(project.getName() + " is running");
         for (long timeElapsed = project.getStartTime(); timeElapsed < endTime; timeElapsed = timeElapsed + timeStep) {
             logger.debug("Time elapsed: " + timeElapsed + " from " + endTime);
-            logger.debug("Start inundation from all active cells : " + project.ACTIVE_CELLS.size() + "cells");
+            logger.debug("Start process from all active cells : " + project.ACTIVE_CELLS.size() + "cells");
             while (project.ACTIVE_CELLS.size() != 0) {
                 Cell activeCell = project.ACTIVE_CELLS.poll();
                 project.PROCESSED_CELLS.add(activeCell);
                 project.MATRIX[activeCell.getYArray()][activeCell.getXArray()] =
-                        project.INUNDATION_MODEL.inundation(projectReference, project.MATRIX[activeCell.getYArray()][activeCell.getXArray()]);
+                        project.INUNDATION_MODEL.process(projectReference, project.MATRIX[activeCell.getYArray()][activeCell.getXArray()]);
             }
-            logger.debug("Ending inundation from all active cells : " + project.ACTIVE_CELLS.size() + "cells");
+            logger.debug("Ending process from all active cells : " + project.ACTIVE_CELLS.size() + "cells");
             logger.debug("Start iterate all cell");
             projectReference.set(project);
             iterateAllCell(projectReference, timeElapsed, timeStep);

@@ -9,13 +9,13 @@ import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * Rule of inundation
+ * Rule of process
  * @author rivasyafri
  */
 public class Inundation extends InundationModel {
 
     @Override
-    public Cell inundation(@NonNull AtomicReference<Project> projectReference, Cell cell)
+    public Cell process(@NonNull AtomicReference<Project> projectReference, Cell cell)
             throws NullPointerException {
         Project project = projectReference.get();
         ArrayList<Cell> neighborCells = getNeighborByCertainCell(project, cell);
