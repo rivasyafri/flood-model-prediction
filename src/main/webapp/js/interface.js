@@ -215,50 +215,50 @@ function buttonPlayPress() {
                         var j = 0;
                         var i = 0;
                         var k = 0;
+                        console.log(selectedProject.startTime + " " + selectedProject.endTime);
                         while ((j < invertedCellStates.length || i < selectedProject.cellStates.length) &&
                         timeElapsed < selectedProject.endTime) {
-                            console.log(selectedProject.startTime + " " + selectedProject.endTime);
-                            console.log(i + " " + j + " in " + timeElapsed);
-                            var cellState = selectedProject.cellStates[i];
-                            if (typeof cellState != 'undefined' && cellState != null) {
-                                while (timeElapsed == cellState.startTime && i < selectedProject.cellStates.length) {
-                                    (function (cellState, k) {
-                                        setTimeout(function () {
-                                            console.log("normal : " + cellState.xarray + " " + cellState.yarray + " " + cellState.startTime + " " + cellState.endTime);
-                                            createFloodedCell(cellState.xarray, cellState.yarray);
-                                        }, k * 4000);
-                                    })(cellState, k);
-                                    i++;
-                                    cellState = selectedProject.cellStates[i];
-                                    if (typeof cellState == 'undefined' || cellState == null) {
-                                        break;
-                                    }
-                                }
-                            }
+                            // (function (k) {
+                            //     setTimeout(function () {
+                            //         notify("fa fa-check-circle-o", "Time Elapsed : " + timeElapsed, textStatus);
+                            //     }, k * 500);
+                            // })(k);
                             var invertedCellState = invertedCellStates[j];
-                            if (typeof invertedCellState != 'undefined' && invertedCellState != null) {
+                            if (invertedCellState != null) {
                                 while (timeElapsed == invertedCellState.endTime && j < invertedCellStates.length) {
                                     (function (invertedCellState, k) {
                                         setTimeout(function () {
-                                            console.log("inverted : " + invertedCellState.xarray + " " + invertedCellState.yarray + " " +
-                                                invertedCellState.startTime + " " + invertedCellState.endTime);
+                                            // console.log("inverted : " + invertedCellState.xarray + " " +
+                                            //     invertedCellState.yarray + " " + invertedCellState.endTime);
                                             removeFloodedCell(invertedCellState.xarray, invertedCellState.yarray);
-                                        }, k * 4000 + 2000);
+                                        }, k * 500 + 300);
                                     })(invertedCellState, k);
                                     j++;
+                                    k++;
                                     invertedCellState = invertedCellStates[j];
                                     if (typeof invertedCellState == 'undefined' || invertedCellState == null) {
                                         break;
                                     }
                                 }
                             }
+                            var cellState = selectedProject.cellStates[i];
+                            if (cellState != null) {
+                                while (timeElapsed == cellState.startTime && i < selectedProject.cellStates.length) {
+                                    (function (cellState, k) {
+                                        setTimeout(function () {
+                                            // console.log("normal : " + cellState.xarray + " " + cellState.yarray + " " + cellState.startTime);
+                                            createFloodedCell(cellState.xarray, cellState.yarray);
+                                        }, k * 500);
+                                    })(cellState, k);
+                                    i++;
+                                    k++;
+                                    cellState = selectedProject.cellStates[i];
+                                    if (typeof cellState == 'undefined' || cellState == null) {
+                                        break;
+                                    }
+                                }
+                            }
                             timeElapsed += selectedProject.timeStep;
-                            k++;
-                        }
-                        if (timeElapsed < selectedProject.endTime) {
-                            setTimeout(function () {
-                                buttonPlayPress();
-                            }, k * 4000 + 2000);
                         }
                     });
                 } else {
