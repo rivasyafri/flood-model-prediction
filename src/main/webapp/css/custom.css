@@ -300,3 +300,14 @@
   padding: 5px;
   border-radius: 5px;
 }
+
+.div-time-elapsed {
+  float: left;
+  position: absolute;
+  z-index: 5;
+  top: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: whitesmoke;
+  padding: 10px;
+}

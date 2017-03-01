@@ -217,12 +217,7 @@ function buttonPlayPress() {
                         var k = 0;
                         console.log(selectedProject.startTime + " " + selectedProject.endTime);
                         while ((j < invertedCellStates.length || i < selectedProject.cellStates.length) &&
-                        timeElapsed < selectedProject.endTime) {
-                            // (function (k) {
-                            //     setTimeout(function () {
-                            //         notify("fa fa-check-circle-o", "Time Elapsed : " + timeElapsed, textStatus);
-                            //     }, k * 500);
-                            // })(k);
+                            timeElapsed < selectedProject.endTime) {
                             var invertedCellState = invertedCellStates[j];
                             if (invertedCellState != null) {
                                 while (timeElapsed == invertedCellState.endTime && j < invertedCellStates.length) {
@@ -231,6 +226,7 @@ function buttonPlayPress() {
                                             // console.log("inverted : " + invertedCellState.xarray + " " +
                                             //     invertedCellState.yarray + " " + invertedCellState.endTime);
                                             removeFloodedCell(invertedCellState.xarray, invertedCellState.yarray);
+                                            $('#label-time-elapsed').html(new Date(invertedCellState.endTime * 1000));
                                         }, k * 500 + 300);
                                     })(invertedCellState, k);
                                     j++;
@@ -248,6 +244,7 @@ function buttonPlayPress() {
                                         setTimeout(function () {
                                             // console.log("normal : " + cellState.xarray + " " + cellState.yarray + " " + cellState.startTime);
                                             createFloodedCell(cellState.xarray, cellState.yarray);
+                                            $('#label-time-elapsed').html(new Date(cellState.startTime*1000));
                                         }, k * 500);
                                     })(cellState, k);
                                     i++;
