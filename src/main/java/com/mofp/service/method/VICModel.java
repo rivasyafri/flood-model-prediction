@@ -2,7 +2,10 @@ package com.mofp.service.method;
 
 import com.mofp.model.Cell;
 import com.mofp.model.Variable;
+import com.mofp.model.data.Weather;
 import com.mofp.service.method.support.FloodModel;
+
+import java.util.List;
 
 /**
  * @author rivasyafri
@@ -13,7 +16,10 @@ public class VICModel extends FloodModel {
     public double calculateRunOff(Variable variable, Cell cell, double precipitation, long time) {
         double prep = precipitation * time;
         double saving = calculateSaving(variable, cell, time);
-        double runOff = precipitation * time - saving - calculateEvapotranspiration(variable);
+        double runOff = precipitation * time - saving;
+        if (variable.isUsingEvapotranspiration() && variable.isEvapotranspirationByData()) {
+            runOff -= calculateEvapotranspiration(variable);
+        }
         if (cell.getConstantInfiltrationCapacity() + prep < cell.getInitialInfiltrationCapacity()) {
             double w1c = getMaxWaterBalance(cell.getPsiOrBi(), cell.getInitialInfiltrationCapacity());
             runOff += w1c * Math.pow((1 - (cell.getConstantInfiltrationCapacity() + prep) /

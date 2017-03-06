@@ -1,5 +1,6 @@
 package com.mofp.model.support;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.mofp.model.Project;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,5 +19,6 @@ public abstract class AbstractProjectAttribute {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "projectId", nullable = false)
     @Getter @Setter
+    @JsonBackReference
     protected Project project;
 }

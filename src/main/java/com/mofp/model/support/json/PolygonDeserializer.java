@@ -53,7 +53,7 @@ public class PolygonDeserializer extends AbstractJsonDeserializer<Polygon>{
         } catch (ClassCastException e) {
             // this classcast can be thrown since coordinates is passed on as a List but the different methods
             // expect a specific list, so an implicit cast is performed there.
-            throw new IOException("Coordinate array is not of expected type with respect to given type parameter.");
+            throw new IOException("OpenMapCoordinate array is not of expected type with respect to given type parameter.");
         }
     }
 

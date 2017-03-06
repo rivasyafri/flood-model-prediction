@@ -1,11 +1,10 @@
 package com.mofp.model.moving;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.mofp.model.Cell;
 import com.mofp.model.Project;
-import com.mofp.model.support.MovingState;
+import com.mofp.model.support.UnitState;
 import com.mofp.model.support.json.CellSerializer;
 import com.mofp.model.support.json.ProjectSerializer;
 import lombok.Getter;
@@ -18,7 +17,7 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "cell_state")
-public class CellState extends MovingState {
+public class CellState extends UnitState {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator="cell_state_id_seq")
@@ -27,7 +26,7 @@ public class CellState extends MovingState {
     private Long id;
 
     @JsonSerialize(using = CellSerializer.class)
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "cellId", nullable = false)
     @Getter @Setter
     private Cell cell;

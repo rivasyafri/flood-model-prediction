@@ -5,8 +5,8 @@ var object=[];
 // map intialitation and function
 function initMap(){
     map = new google.maps.Map(document.getElementById('map-visual'), {
-        center: {lat: -7.4143195, lng: 111.0043654},
-        zoom: 12
+        center: {lat: -6.1768827, lng: 106.9379924},
+        zoom: 11
     }); // edited the center and zoom by Riva
 }
 function focusMap(object){
@@ -372,8 +372,8 @@ function loopCreateLines(xNumberOfCells, yNumberOfCells, deltaX, deltaY) {
         var line = new google.maps.Polyline({
             path: grid,
             strokeColor: '#000000',
-            strokeOpacity: 0.8,
-            strokeWeight: 2,
+            strokeOpacity: 0.5,
+            strokeWeight: 1,
             map:map
         });
         lines.push(line);
@@ -386,8 +386,8 @@ function loopCreateLines(xNumberOfCells, yNumberOfCells, deltaX, deltaY) {
         var line = new google.maps.Polyline({
             path: grid,
             strokeColor: '#000000',
-            strokeOpacity: 0.8,
-            strokeWeight: 2,
+            strokeOpacity: 0.5,
+            strokeWeight: 1,
             map:map
         });
         lines.push(line);
@@ -414,7 +414,7 @@ function createFloodedCell(x, y) {
         var cell = new google.maps.Rectangle({
             strokeColor: '#000000',
             strokeOpacity: 0.8,
-            strokeWeight: 2,
+            strokeWeight: 1,
             fillColor: '#1974D2',
             fillOpacity: 0.3,
             bounds: bounds,
@@ -430,10 +430,17 @@ function removeFloodedCell(x, y) {
     }
 }
 function clearCells() {
+    matrix.forEach(function (column) {
+        column.forEach(function (cell) {
+            if (typeof cell == 'object') {
+                cell.setMap(null);
+            }
+        });
+    });
     lines.forEach(function (line) {
         line.setMap(null);
     });
-    cells.splice(0, cells.length);
+    matrix.splice(0, matrix.length);
     lines.splice(0, lines.length);
 }
 

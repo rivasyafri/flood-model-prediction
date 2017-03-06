@@ -1,25 +1,17 @@
 package com.mofp.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.mofp.model.moving.CellBalance;
-import com.mofp.model.moving.CellHeightWater;
-import com.mofp.model.moving.CellState;
+import com.mofp.model.data.District;
 import com.mofp.model.support.AbstractProjectAttribute;
-import com.mofp.model.support.json.PolygonDeserializer;
-import com.mofp.model.support.json.PolygonToGeoJSON;
 import lombok.Getter;
 import lombok.Setter;
 import org.geolatte.geom.G2D;
-import org.geolatte.geom.Geometry;
+import org.geolatte.geom.LineString;
 import org.geolatte.geom.Polygon;
 
 import javax.persistence.*;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Random;
-import java.util.Set;
 
 /**
  * @author rivasyafri
@@ -49,7 +41,12 @@ public class Cell extends AbstractProjectAttribute implements Comparable<Cell> {
 
     @Getter
     @Setter
-    private Double height;
+    private double height = 0;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "districtId")
+    @Getter @Setter
+    protected District district;
 
     @Getter @Setter
     @Transient
@@ -104,7 +101,7 @@ public class Cell extends AbstractProjectAttribute implements Comparable<Cell> {
     @Getter @Setter
     @Transient
     @JsonIgnore
-    private transient int timeStartFlooded = 0;
+    private transient long timeStartFlooded = 0;
 
     public Cell() {}
 
@@ -135,13 +132,11 @@ public class Cell extends AbstractProjectAttribute implements Comparable<Cell> {
 
     public void randomizeData() {
         Random randomGenerator = new Random();
-        this.height = randomGenerator.nextDouble() * 10 + 10;
         this.constantInfiltrationCapacity = randomGenerator.nextDouble();
-        this.initialInfiltrationCapacity = randomGenerator.nextDouble() * 15;
+        this.initialInfiltrationCapacity = randomGenerator.nextDouble() * 5 + 10;
         this.kValue = randomGenerator.nextDouble();
         this.psiOrBi = randomGenerator.nextDouble();
         this.waterProofPercentage = randomGenerator.nextDouble();
-        this.updateTotalHeight();
     }
 
     @Override
@@ -171,5 +166,23 @@ public class Cell extends AbstractProjectAttribute implements Comparable<Cell> {
                 ", xArray=" + xArray +
                 ", yArray=" + yArray +
                 '}';
+    }
+
+    public HashMap<Integer, Double> getCenterPointOfArea() {
+        double lat1, lat2 = 0, lon1, lon2 = 0;
+        LineString<G2D> line = area.getExteriorRing();
+        lat1 = line.getPositionN(0).getLat();
+        lon1 = line.getPositionN(0).getLon();
+        for (int i = 1; i < line.getNumPositions() - 1; i++) {
+            G2D position = line.getPositionN(i);
+            lat2 = lat1 != position.getLat() ? position.getLat() : lat2;
+            lon2 = lon1 != position.getLon() ? position.getLon() : lon2;
+        }
+        double avgLat = (lat1 + lat2) / 2;
+        double avgLng = (lon1 + lon2) / 2;
+        HashMap<Integer, Double> result = new HashMap<>();
+        result.put(1, avgLat);
+        result.put(2, avgLng);
+        return result;
     }
 }

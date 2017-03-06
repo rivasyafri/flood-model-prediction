@@ -54,20 +54,7 @@ var getCellStatesSortedByEndTime = function() {
 };
 var getOne = function(url) {
     var request = $.ajax({
-        // url: url + '?projection=inlineVariable',
         url: url,
-        dataType: "json",
-        contentType: contentType,
-        xhrFields: {
-            withCredentials: false
-        }
-    });
-    return request;
-};
-var getOneWithProjection = function(url) {
-    var request = $.ajax({
-        url: url + '?projection=inlineVariable',
-        // url: url,
         dataType: "json",
         contentType: contentType,
         xhrFields: {
@@ -122,18 +109,6 @@ var putProject = function() {
     });
     return request;
 };
-var patchVariable = function(variable, id) {
-    var request = $.ajax({
-        url: serviceUrl + 'variable/' + id,
-        type: 'PATCH',
-        contentType: "application/json",
-        data: variable,
-        xhrFields: {
-            withCredentials: false
-        }
-    });
-    return request;
-};
 var setBorderAPI = function (ne, sw) {
     var request = $.ajax({
         url: serviceUrl+'project/setBorder?id='+selectedProject.id+
@@ -151,14 +126,25 @@ var setBorderAPI = function (ne, sw) {
 };
 var runProject = function () {
     var request = $.ajax({
-        url: serviceUrl+'project/run?id='+selectedProject.id+'&model="'+selectedProject.model+'"',
-        type: 'GET',
+        url: serviceUrl+'project/run?id='+selectedProject.id,
+        type: 'POST',
         contentType: "application/json",
         xhrFields: {
             withCredentials: false
         },
         success: function (data) {
             selectedProject = typeof data !== 'undefined' ? data : selectedProject;
+        }
+    });
+    return request;
+};
+var resetProject = function () {
+    var request = $.ajax({
+        url: serviceUrl+'project/reset?id='+selectedProject.id,
+        type: 'POST',
+        contentType: "application/json",
+        xhrFields: {
+            withCredentials: false
         }
     });
     return request;
@@ -183,21 +169,6 @@ function drawGridFromSelectedProject() {
     ne = poly.getBounds().getNorthEast();
     sw = poly.getBounds().getSouthWest();
     drawGrid(selectedProject.cellSize);
-}
-function loadProject(url) {
-    var req = getOne(url);
-    req.done(function (response, textStatus, jqXHR) {
-        selectedProject = response;
-        console.log(selectedProject);
-        var variable = getOne(selectedProject._links.variable.href);
-        variable.done(function (response, textStatus, jqXHR) {
-            selectedProject.variable = response;
-            notify("fa fa-check-circle-o", selectedProject.name + " is loaded successfully.", textStatus);
-        });
-    });
-    req.fail(function (response, textStatus, jqXHR) {
-        notify("fa fa-times-circle-o", url + " cannot be loaded. See log.", "danger");
-    });
 }
 
 /* Get from http://stackoverflow.com/questions/1184624/convert-form-data-to-javascript-object-with-jquery */
