@@ -121,10 +121,10 @@ public class Project {
     public transient ArrayList<Cell> PROCESSED_CELLS = new ArrayList<>();
     @Transient
     @JsonIgnore
-    public transient PriorityQueue<Cell> ACTIVE_CELLS = new PriorityQueue<>();
+    public transient ArrayList<Cell> FLOODED_CELLS = new ArrayList<>();
     @Transient
     @JsonIgnore
-    public transient PriorityQueue<Cell> NEW_ACTIVE_CELLS = new PriorityQueue<>();
+    public transient PriorityQueue<Cell> ACTIVE_CELLS = new PriorityQueue<>();
     ////*********************** End of Global Variable ************************** ////
 
     public Project() {

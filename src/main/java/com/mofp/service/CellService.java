@@ -50,4 +50,8 @@ public interface CellService extends AbstractBaseService<CellRepository> {
      */
     Cell updateCellByRunOff(@NonNull AtomicReference<Project> projectReference, @NonNull Cell beforeCell,
                                    double runOff, long timeElapsed) throws NullPointerException;
+
+    Cell createOrUpdateHeightWaterRecord(@NonNull Project project, @NonNull Cell beforeCell, long time);
+    Cell createOrUpdateCellStateRecord(@NonNull Project project, @NonNull Cell beforeCell,
+                                              @NonNull State updatedState, long time);
 }

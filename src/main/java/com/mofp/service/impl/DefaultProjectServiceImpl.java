@@ -86,8 +86,6 @@ public class DefaultProjectServiceImpl extends DefaultBaseServiceImpl<ProjectRep
     private void initProject(@NonNull AtomicReference<Project> projectReference)
             throws NullPointerException {
         logger.debug("Initiation start");
-        stateService.findAndCreateWetState();
-        stateService.findAndCreateDryState();
         logger.debug("Initiation for global variable from area start");
         initGlobalPairVariablesFromArea(projectReference);
         logger.debug("Initiation for global variable from area end");
@@ -118,6 +116,8 @@ public class DefaultProjectServiceImpl extends DefaultBaseServiceImpl<ProjectRep
             throw new IllegalArgumentException("There is no model selected by that name");
         }
         project.INUNDATION_MODEL = new Inundation();
+        project.INUNDATION_MODEL.WET_STATE = stateService.findAndCreateWetState();
+        project.INUNDATION_MODEL.DRY_STATE = stateService.findAndCreateDryState();
         projectReference.set(project);
     }
 
@@ -213,22 +213,25 @@ public class DefaultProjectServiceImpl extends DefaultBaseServiceImpl<ProjectRep
         logger.debug(project.getName() + " is running");
         for (long timeElapsed = project.getStartTime(); timeElapsed < endTime; timeElapsed = timeElapsed + timeStep) {
             logger.debug("Time elapsed: " + timeElapsed + " from " + endTime);
-            logger.debug("Start process from all active cells : " + project.ACTIVE_CELLS.size() + "cells");
-            while (project.ACTIVE_CELLS.size() != 0) {
-                Cell activeCell = project.ACTIVE_CELLS.poll();
-                project.PROCESSED_CELLS.add(activeCell);
-                project.MATRIX[activeCell.getYArray()][activeCell.getXArray()] =
-                        project.INUNDATION_MODEL.process(projectReference, project.MATRIX[activeCell.getYArray()][activeCell.getXArray()]);
-            }
-            logger.debug("Ending process from all active cells : " + project.ACTIVE_CELLS.size() + "cells");
             logger.debug("Start iterate all cell");
             projectReference.set(project);
             iterateAllCell(projectReference, timeElapsed, timeStep);
             project = projectReference.get();
             logger.debug("End iterate all cell");
-            project.ACTIVE_CELLS = project.NEW_ACTIVE_CELLS;
+            logger.debug("Start process from all active cells : " + project.ACTIVE_CELLS.size() + "cells");
+            while (project.ACTIVE_CELLS.size() != 0) {
+                Cell activeCell = project.ACTIVE_CELLS.poll();
+                project.PROCESSED_CELLS.add(activeCell);
+                ArrayList<Cell> processedCells = project.INUNDATION_MODEL.process(projectReference,
+                        project.MATRIX[activeCell.getYArray()][activeCell.getXArray()]);
+                for (Cell cell: processedCells) {
+                    project.MATRIX[cell.getYArray()][cell.getXArray()] = cellService.updateCellByRunOff(projectReference,
+                            cell, cell.getWaterHeight(), timeElapsed);
+                }
+            }
+            logger.debug("Ending process from all active cells");
+            saveAllCell(projectReference, timeElapsed);
             project.PROCESSED_CELLS = new ArrayList<>();
-            project.NEW_ACTIVE_CELLS = new PriorityQueue<>();
         }
         project.setDone(true);
         logger.debug(project.getName() + " is finished");
@@ -246,6 +249,23 @@ public class DefaultProjectServiceImpl extends DefaultBaseServiceImpl<ProjectRep
                 List<Weather> weathers = districtService.getDataOfWeatherByDistrictAndTime(district,timeElapsed, timeElapsed + timeStep);
                 double runOff = project.SELECTED_MODEL.calculate(project.getVariable(), cellReference, weathers, timeElapsed, timeStep);
                 project.MATRIX[y][x] = cellService.updateCellByRunOff(projectReference, project.MATRIX[y][x], runOff, timeElapsed);
+            }
+        }
+        projectReference.set(project);
+    }
+
+    private void saveAllCell(@NonNull AtomicReference<Project> projectReference, long timeElapsed)
+            throws NullPointerException {
+        Project project = projectReference.get();
+        for (int y = 0; y < project.MATRIX.length; y++) {
+            for (int x = 0; x < project.MATRIX[0].length; x++) {
+                Cell cell = project.MATRIX[y][x];
+                State state = stateService.findAndCreateDryState();
+                if (cell.getWaterHeight() > 0) {
+                    state = stateService.findAndCreateWetState();
+                }
+                project.MATRIX[y][x] = cellService.createOrUpdateCellStateRecord(project, cell, state, timeElapsed);
+                project.MATRIX[y][x] = cellService.createOrUpdateHeightWaterRecord(project, cell, timeElapsed);
             }
         }
         projectReference.set(project);

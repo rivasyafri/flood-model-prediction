@@ -33,20 +33,43 @@ public class Cell extends AbstractProjectAttribute implements Comparable<Cell> {
 
     @Getter
     @Setter
+    @Column
     private Integer xArray;
 
     @Getter
     @Setter
+    @Column
     private Integer yArray;
 
     @Getter
     @Setter
+    @Column
     private double height = 0;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "districtId")
     @Getter @Setter
     protected District district;
+
+    @Getter @Setter
+    @Column
+    private double constantInfiltrationCapacity = 0;
+
+    @Getter @Setter
+    @Column
+    private double initialInfiltrationCapacity = 0;
+
+    @Getter @Setter
+    @Column
+    private double kValue = 0;
+
+    @Getter @Setter
+    @Column
+    private double waterProofPercentage = 0;
+
+    @Getter @Setter
+    @Column
+    private double psiOrBi = 0;
 
     @Getter @Setter
     @Transient
@@ -72,31 +95,6 @@ public class Cell extends AbstractProjectAttribute implements Comparable<Cell> {
     @Transient
     @JsonIgnore
     private transient double waterBalanceAfter = 0;
-
-    @Getter @Setter
-    @Transient
-    @JsonIgnore
-    private transient double constantInfiltrationCapacity = 0;
-
-    @Getter @Setter
-    @Transient
-    @JsonIgnore
-    private transient double initialInfiltrationCapacity = 0;
-
-    @Getter @Setter
-    @Transient
-    @JsonIgnore
-    private transient double kValue = 0;
-
-    @Getter @Setter
-    @Transient
-    @JsonIgnore
-    private transient double waterProofPercentage = 0;
-
-    @Getter @Setter
-    @Transient
-    @JsonIgnore
-    private transient double psiOrBi = 0;
 
     @Getter @Setter
     @Transient

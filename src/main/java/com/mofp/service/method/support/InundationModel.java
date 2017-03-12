@@ -3,9 +3,11 @@ package com.mofp.service.method.support;
 import com.mofp.model.Cell;
 import com.mofp.model.Neighborhood;
 import com.mofp.model.Project;
+import com.mofp.model.State;
 import lombok.NonNull;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -13,7 +15,11 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public abstract class InundationModel {
 
-    public abstract Cell process(@NonNull AtomicReference<Project> projectReference, Cell cell)
+    public State WET_STATE;
+
+    public State DRY_STATE;
+
+    public abstract ArrayList<Cell> process(@NonNull AtomicReference<Project> projectReference, Cell cell)
             throws NullPointerException;
 
     protected ArrayList<Cell> getNeighborByCertainCell(@NonNull Project project, @NonNull Cell cell)
