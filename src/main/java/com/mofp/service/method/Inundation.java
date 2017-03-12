@@ -15,8 +15,9 @@ import java.util.concurrent.atomic.AtomicReference;
 public class Inundation extends InundationModel {
 
     @Override
-    public Cell process(@NonNull AtomicReference<Project> projectReference, Cell cell)
+    public ArrayList<Cell> process(@NonNull AtomicReference<Project> projectReference, Cell cell)
             throws NullPointerException {
+        ArrayList<Cell> cells = new ArrayList<>();
         Project project = projectReference.get();
         ArrayList<Cell> neighborCells = getNeighborByCertainCell(project, cell);
         double averageOfTotalHeight = getAverageOfHeight(cell, neighborCells);
@@ -26,8 +27,13 @@ public class Inundation extends InundationModel {
         double deltaCenter = processInundationForProcessedNeighborCell(projectReference, cell, processedNeighborCells, inundation);
         cell.setWaterHeight(inundation + deltaCenter);
         cell.updateTotalHeight();
+        cells.add(cell);
+        for (AtomicReference<Cell> processedNeighborCell: processedNeighborCells) {
+            Cell cell1 = processedNeighborCell.get();
+            cells.add(cell1);
+        }
         projectReference.set(project);
-        return cell;
+        return cells;
     }
 
     private double getAverageOfHeight(@NonNull Cell centerCell, @NonNull ArrayList<Cell> neighborCells) {
@@ -72,6 +78,7 @@ public class Inundation extends InundationModel {
             } else {
                 processedNeighborCell.setWaterHeight(processedNeighborCell.getWaterHeight() + inundation);
             }
+            processedNeighborCell.setCurrentState(WET_STATE);
             processedNeighborCell.updateTotalHeight();
             processedNeighborCellReference.set(processedNeighborCell);
             if (!project.PROCESSED_CELLS.contains(processedNeighborCell)) {

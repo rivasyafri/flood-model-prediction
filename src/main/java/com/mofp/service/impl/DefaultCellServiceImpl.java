@@ -103,7 +103,7 @@ public class DefaultCellServiceImpl extends DefaultBaseServiceImpl<CellRepositor
 
     @Override
     public Cell updateCellByRunOff(@NonNull AtomicReference<Project> projectReference, @NonNull Cell beforeCell,
-                                    double runOff, long timeElapsed) throws NullPointerException {
+                                   double runOff, long timeElapsed) throws NullPointerException {
         Project project = projectReference.get();
         Cell cell = beforeCell;
         State wetState = stateService.findAndCreateWetState();
@@ -114,21 +114,18 @@ public class DefaultCellServiceImpl extends DefaultBaseServiceImpl<CellRepositor
             if (cell.getTimeStartFlooded() == 0) {
                 cell.setCurrentState(wetState);
                 cell.setTimeStartFlooded(timeElapsed);
-                cell = createOrUpdateCellStateRecord(project, cell, wetState, timeElapsed);
             }
-            cell = createOrUpdateHeightWaterRecord(project, cell, timeElapsed);
-            project.NEW_ACTIVE_CELLS.add(cell);
+            project.ACTIVE_CELLS.add(cell);
         } else if (cell.getWaterHeight() > 0) {
             cell.setWaterHeight(runOff);
             cell.updateTotalHeight();
             cell.setCurrentState(dryState);
             cell.setTimeStartFlooded(0);
-            cell = createOrUpdateCellStateRecord(project, cell, dryState, timeElapsed);
         }
         return cell;
     }
 
-    private Cell createOrUpdateHeightWaterRecord(@NonNull Project project, @NonNull Cell beforeCell, long time) {
+    public Cell createOrUpdateHeightWaterRecord(@NonNull Project project, @NonNull Cell beforeCell, long time) {
         Cell cell = beforeCell;
         List<CellHeightWater> heightWaters = cellHeightWaterRepository.findByCellId(cell.getId());
         CellHeightWater cellHeightWater;
@@ -139,32 +136,23 @@ public class DefaultCellServiceImpl extends DefaultBaseServiceImpl<CellRepositor
             cellHeightWater = heightWaters.get(heightWaters.size() - 1);
             cellHeightWater.setEndTime(time);
             cellHeightWaterRepository.save(cellHeightWater);
-            heightWaters.set(heightWaters.size() - 1, cellHeightWater);
         }
         cellHeightWater = new CellHeightWater();
         cellHeightWater.setCell(cell);
         cellHeightWater.setValue(cell.getWaterHeight());
         cellHeightWater.setStartTime(time);
         cellHeightWater.setProject(project);
-        cellHeightWaterRepository.save(cellHeightWater);
-        heightWaters.add(cellHeightWater);
-        cellHeightWaterRepository.flush();
+        cellHeightWaterRepository.saveAndFlush(cellHeightWater);
         return cell;
     }
 
-    private Cell createOrUpdateCellStateRecord(@NonNull Project project, @NonNull Cell beforeCell,
+    public Cell createOrUpdateCellStateRecord(@NonNull Project project, @NonNull Cell beforeCell,
                                                @NonNull State updatedState, long time) {
         Cell cell = beforeCell;
         List<CellState> cellStates = cellStateRepository.findByCellId(cell.getId());
         CellState cellState;
         if (cellStates == null) {
             cellStates = new ArrayList<>();
-        }
-        if (cellStates.size() != 0) {
-            cellState = cellStates.get(cellStates.size() - 1);
-            cellState.setEndTime(time);
-            cellStateRepository.save(cellState);
-            cellStates.set(cellStates.size() - 1, cellState);
         }
         if (updatedState.isActive()) {
             cellState = new CellState();
@@ -174,6 +162,11 @@ public class DefaultCellServiceImpl extends DefaultBaseServiceImpl<CellRepositor
             cellState.setProject(project);
             cellStateRepository.save(cellState);
             cellStates.add(cellState);
+        } else if (cellStates.size() != 0) {
+            cellState = cellStates.get(cellStates.size() - 1);
+            cellState.setEndTime(time);
+            cellStateRepository.save(cellState);
+            cellStates.set(cellStates.size() - 1, cellState);
         }
         cellStateRepository.flush();
         return cell;
